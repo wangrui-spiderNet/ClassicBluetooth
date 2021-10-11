@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Spp Bluetooth</string>
+    <string name="app_name">JU+</string>
     <string name="noise_control">噪声控制</string>
     <string name="ventilate">通透</string>
     <string name="low_noise">降噪</string>
@@ -17,4 +17,5 @@
     <string name="left">左</string>
     <string name="right">右</string>
     <string name="charge_box">充电盒</string>
+    <string name="firm_version">固件版本</string>
 </resources>

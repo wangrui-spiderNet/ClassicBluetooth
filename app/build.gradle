@@ -1,6 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
+
+    signingConfigs {
+        //release版本使用的签名
+        release {
+            storeFile file("juplus.jks")
+            storePassword "jupluspwd1688"
+            keyAlias "juplus"
+            keyPassword "jupluspwd1688"
+
+            //自定义输出配置
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    outputFileName = "JuPlus_" + buildType.name + "_${variant.versionName}_${buildTime()}.apk"
+                }
+            }
+        }
+        //debug版本使用的签名
+        debug {
+            //自定义输出配置
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    outputFileName = "JuPlus_" + buildType.name + "_${variant.versionName}_${buildTime()}.apk"
+                }
+            }
+        }
+    }
+
     compileSdkVersion 31
     defaultConfig {
         applicationId "com.qt.bluetooth"
@@ -8,25 +35,54 @@ android {
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
+        signingConfig signingConfigs.release
+        multiDexEnabled true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
+
+    dexOptions {
+        //最大堆内存
+        javaMaxHeapSize '2048m'
+        //预编译
+        preDexLibraries = true
+        //线程数
+        threadCount = 16
+        dexInProcess = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+//当前时间
+def static buildTime() {
+    def date = new Date()
+    return date.format("yyyMMdd")
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-    androidTestImplementation('androidx.annotation:annotation:1.1.0') {
-        force = true
-    }
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
@@ -35,6 +91,11 @@ dependencies {
     // fragment快速实现（可选）
     implementation 'com.gyf.immersionbar:immersionbar-components:3.0.0'
     implementation 'com.github.JavaNoober.BackgroundLibrary:library:1.7.2'
-    implementation "com.android.support:appcompat-v7:30.0.0"
+    implementation "com.android.support:appcompat-v7:31.0.0"
+
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+    //MMKV 数据存储
+    api 'com.tencent:mmkv-static:1.2.10'
 
 }

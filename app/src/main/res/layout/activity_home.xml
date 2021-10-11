@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/color_f6f7f9"
     tools:ignore="MissingPrefix"
+    android:scrollbars="none"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,7 +16,7 @@
         >
 
         <TextView
-            android:id="@+id/tvDeviceName"
+            android:id="@+id/tv_title_name"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/dp_66"
             android:layout_gravity="center_horizontal"
@@ -33,6 +34,7 @@
             android:gravity="center_vertical">
 
             <TextView
+                android:id="@+id/tv_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableRight="@mipmap/icon_low_battery"
@@ -43,6 +45,7 @@
                 android:textSize="@dimen/sp_12" />
 
             <TextView
+                android:id="@+id/tv_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/dp_25"
@@ -54,6 +57,7 @@
                 android:textSize="@dimen/sp_12" />
 
             <TextView
+                android:id="@+id/tv_charge_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableRight="@mipmap/icon_full_battery"
@@ -233,7 +237,6 @@
                 android:track="@drawable/track" />
 
         </RelativeLayout>
-
 
         <LinearLayout
             android:id="@+id/layout_audio_setting"
