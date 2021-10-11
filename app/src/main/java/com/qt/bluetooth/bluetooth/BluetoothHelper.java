@@ -11,6 +11,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
+import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -56,6 +58,8 @@ public class BluetoothHelper implements IBluetoothHelper {
         isA2dpComplete=false;
         isHeadsetComplete=false;
         mBluetoothadapter.getProfileProxy(mContext,mProfileServiceListener, BluetoothProfile.A2DP);
+        //增加GATT
+        mBluetoothadapter.getProfileProxy(mContext,mProfileServiceListener, BluetoothProfile.GATT);
         mBluetoothadapter.getProfileProxy(mContext,mProfileServiceListener, BluetoothProfile.HEADSET);
 //        mBluetoothadapter.getProfileProxy(mContext,mProfileServiceListener, BluetoothProfile.HEALTH);
         if(mFilter==null){
@@ -224,6 +228,7 @@ public class BluetoothHelper implements IBluetoothHelper {
         return mBluetoothadapter.getBondedDevices();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public boolean createBond(BluetoothDevice device) {//配对
         if(device==null){
