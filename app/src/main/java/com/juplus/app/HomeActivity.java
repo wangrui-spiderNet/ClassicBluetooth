@@ -4,14 +4,17 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.utils.SystemUtil;
+import com.juplus.app.utils.ToastUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +58,21 @@ public class HomeActivity extends AppCompatActivity {
 
         immersionBar = ImmersionBar.with(this);
 //        immersionBar.init();
+
+        checkSmart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                ToastUtil.showToast(MyApplication.getInstance(),"自动检测耳机："+b);
+            }
+        });
+
+        checkEar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                ToastUtil.showToast(MyApplication.getInstance(),"语音唤醒："+b);
+            }
+        });
     }
 
     @SuppressLint("StringFormatMatches")

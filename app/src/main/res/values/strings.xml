@@ -18,4 +18,5 @@
     <string name="right">右</string>
     <string name="charge_box">充电盒</string>
     <string name="firm_version">固件版本</string>
+    <string name="model">型号</string>
 </resources>

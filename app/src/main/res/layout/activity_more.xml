@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_40"
         android:paddingHorizontal="@dimen/dp_20"
+        android:layout_marginVertical="@dimen/dp_13"
         android:layout_gravity="center_vertical"
         >
 
@@ -35,8 +36,8 @@
     <LinearLayout
         android:id="@+id/layout_device_model"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="@dimen/dp_20"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_10"
         android:background="@android:color/white"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -45,7 +46,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="型号"
+            android:text="@string/model"
             android:textColor="@color/color_222222"
             android:textSize="@dimen/text_size_16" />
 
@@ -81,7 +82,7 @@
             android:textSize="@dimen/text_size_16" />
 
         <TextView
-            android:id="@+id/tv_left_setting"
+            android:id="@+id/tv_mac_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -124,7 +125,7 @@
             android:textSize="@dimen/text_size_14" />
 
         <TextView
-            android:id="@+id/tv_right_setting"
+            android:id="@+id/tv_version_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
