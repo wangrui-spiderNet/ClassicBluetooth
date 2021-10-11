@@ -1,4 +1,4 @@
-package com.qt.bluetooth;
+package com.juplus.app;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gyf.immersionbar.ImmersionBar;
-import com.qt.bluetooth.utils.SystemUtil;
+import com.juplus.app.utils.SystemUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

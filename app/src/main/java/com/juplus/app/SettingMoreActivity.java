@@ -1,4 +1,4 @@
-package com.qt.bluetooth;
+package com.juplus.app;
 
 import android.os.Bundle;
 

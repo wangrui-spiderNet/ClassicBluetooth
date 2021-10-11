@@ -1,4 +1,4 @@
-package com.qt.bluetooth.utils;
+package com.juplus.app.utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.qt.bluetooth.MyApplication;
+import com.juplus.app.MyApplication;
 
 import java.io.BufferedReader;
 import java.io.IOException;

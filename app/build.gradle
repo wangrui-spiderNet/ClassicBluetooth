@@ -30,7 +30,7 @@ android {
 
     compileSdkVersion 31
     defaultConfig {
-        applicationId "com.qt.bluetooth"
+        applicationId "com.juplus.app"
         minSdkVersion 19
         targetSdkVersion 31
         versionCode 1

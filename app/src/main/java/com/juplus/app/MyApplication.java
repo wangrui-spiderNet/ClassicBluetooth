@@ -1,4 +1,4 @@
-package com.qt.bluetooth;
+package com.juplus.app;
 
 import android.app.Application;
 
@@ -13,9 +13,6 @@ import com.tencent.mmkv.MMKV;
 public class MyApplication extends Application {
 
     private static volatile MyApplication instance = null;
-    public int FrameStateMarginRight;
-    public int modulus;
-    public float mDensity;
 
     @Override
     public void onCreate() {
