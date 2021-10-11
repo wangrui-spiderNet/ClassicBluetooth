@@ -5,4 +5,37 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <!-- 定义对话框样式 -->
+    <style name="CustomDialogWhite" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+
+    <style name="CustomDialogTrans" parent="@style/CustomDialogWhite">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="dialog_container" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/shape_dialog_bg_normal</item>
+    </style>
+
+    <style name="dialog_tip" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:lineHeight">@dimen/dp_20</item>
+        <item name="android:layout_marginRight">@dimen/dp_20</item>
+        <item name="android:layout_marginLeft">@dimen/dp_20</item>
+        <item name="android:textColor">@color/color_222222</item>
+        <item name="android:textSize">@dimen/sp_18</item>
+    </style>
+
 </resources>

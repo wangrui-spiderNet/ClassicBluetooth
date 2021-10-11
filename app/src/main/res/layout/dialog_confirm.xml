@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/dialog_container"
+    >
+
+    <TextView
+        android:id="@+id/tv_tip"
+        android:layout_marginTop="@dimen/dp_20"
+        android:textColor="@color/color_222222"
+        style="@style/dialog_tip"
+        android:text="考虑后即可"
+        />
+
+
+</LinearLayout>

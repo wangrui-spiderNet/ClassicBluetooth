@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.juplus.app.entity.BtItemBean;
+
 import java.util.ArrayList;
 import java.util.List;
 

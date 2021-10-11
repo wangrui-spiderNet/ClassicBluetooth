@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
+import com.juplus.app.widget.ConfirmDialog;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -85,6 +86,8 @@ public class HomeActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.tv_title_name:
+                ConfirmDialog confirmDialog=new ConfirmDialog(this,"自定义弹窗");
+                confirmDialog.show();
                 break;
 
             case R.id.tv_name:

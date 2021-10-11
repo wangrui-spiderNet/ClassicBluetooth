@@ -1,4 +1,4 @@
-package com.juplus.app;
+package com.juplus.app.entity;
 
 import android.bluetooth.BluetoothDevice;
 

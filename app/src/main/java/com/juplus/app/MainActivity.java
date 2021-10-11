@@ -21,6 +21,7 @@ import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
+import com.juplus.app.entity.BtItemBean;
 
 import java.util.List;
 import java.util.Set;
