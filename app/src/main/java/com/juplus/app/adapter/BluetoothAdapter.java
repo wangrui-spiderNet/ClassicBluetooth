@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothDevice;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +13,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.juplus.app.MyApplication;
 import com.juplus.app.R;
 import com.juplus.app.entity.DeviceBean;
+import com.juplus.app.utils.UIUtil;
+import com.noober.background.drawable.DrawableCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,32 +69,32 @@ public class BluetoothAdapter extends RecyclerView.Adapter<BluetoothAdapter.MyVi
     public void onBindViewHolder(MyViewHolder holder, int position) {
         final DeviceBean deviceBean = datas.get(position);
         BluetoothDevice bluetoothDevice = deviceBean.getBluetoothDevice();
-        holder.txt_wifi_name.setText(TextUtils.isEmpty(bluetoothDevice.getName()) ? bluetoothDevice.getAddress() : bluetoothDevice.getName());
+        holder.tv_device_name.setText(TextUtils.isEmpty(bluetoothDevice.getName()) ? bluetoothDevice.getAddress() : bluetoothDevice.getName());
         //连接状态
-        switch (deviceBean.getState()) {
-            case DeviceBean.STATE_UNCONNECT://未连接
-            case DeviceBean.STATE_BOND_NONE://未配对
-                holder.txt_link_tips.setText("");
-                break;
-            case DeviceBean.STATE_BONDING://配对中
-                holder.txt_link_tips.setText("配对中");
-                break;
-            case DeviceBean.STATE_BONDED://已配对
-                holder.txt_link_tips.setText("已配对");
-                break;
-            case DeviceBean.STATE_CONNECTING://连接中
-                holder.txt_link_tips.setText("连接中");
-                break;
-            case DeviceBean.STATE_CONNECTED://已连接
-                holder.txt_link_tips.setText("已连接");
-                break;
-            case DeviceBean.STATE_DISCONNECTING://断开中
-                holder.txt_link_tips.setText("断开中");
-                break;
-            case DeviceBean.STATE_DISCONNECTED://已断开
-                holder.txt_link_tips.setText("已保存");
-                break;
-        }
+//        switch (deviceBean.getState()) {
+//            case DeviceBean.STATE_UNCONNECT://未连接
+//            case DeviceBean.STATE_BOND_NONE://未配对
+//                holder.iv_headset_status.setText("");
+//                break;
+//            case DeviceBean.STATE_BONDING://配对中
+//                holder.iv_headset_status.setText("配对中");
+//                break;
+//            case DeviceBean.STATE_BONDED://已配对
+//                holder.iv_headset_status.setText("已配对");
+//                break;
+//            case DeviceBean.STATE_CONNECTING://连接中
+//                holder.iv_headset_status.setText("连接中");
+//                break;
+//            case DeviceBean.STATE_CONNECTED://已连接
+//                holder.iv_headset_status.setText("已连接");
+//                break;
+//            case DeviceBean.STATE_DISCONNECTING://断开中
+//                holder.iv_headset_status.setText("断开中");
+//                break;
+//            case DeviceBean.STATE_DISCONNECTED://已断开
+//                holder.iv_headset_status.setText("已保存");
+//                break;
+//        }
 
 //        @SuppressLint("MissingPermission") int styleMajor = bluetoothDevice.getBluetoothClass().getMajorDeviceClass();//获取蓝牙主要分类
 //        switch (styleMajor) {
@@ -128,11 +133,36 @@ public class BluetoothAdapter extends RecyclerView.Adapter<BluetoothAdapter.MyVi
 //                break;
 //        }
 
+        Drawable drawableBg;
+        if (deviceBean.getSelected()) {
+            drawableBg = new DrawableCreator.Builder().setCornersRadius(UIUtil.dip2px(MyApplication.getInstance(), 10))
+                    .setSolidColor(Color.parseColor("#1BAEAE"))
+                    .build();
+            holder.iv_headset_status.setImageResource(R.mipmap.icon_head_status_on);
+            holder.tv_device_name.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.white));
+            holder.tv_device_status.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.white));
+        } else {
+            drawableBg = new DrawableCreator.Builder().setCornersRadius(UIUtil.dip2px(MyApplication.getInstance(), 10))
+                    .setSolidColor(Color.parseColor("#F6F7F9"))
+                    .build();
+            holder.iv_headset_status.setImageResource(R.mipmap.icon_head_status_off);
+            holder.tv_device_name.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.color_222222));
+            holder.tv_device_status.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.color_222222));
+        }
+
+        holder.layout.setBackground(drawableBg);
+
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mItemClickListener != null) {
+                    for (DeviceBean dBean:datas){
+                        dBean.setSelected(false);
+                    }
+
+                    deviceBean.setSelected(true);
                     mItemClickListener.onItemClickListener(deviceBean);
+                    notifyDataSetChanged();
                 }
             }
         });
@@ -144,16 +174,15 @@ public class BluetoothAdapter extends RecyclerView.Adapter<BluetoothAdapter.MyVi
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        private ImageView img_signal;
-        private TextView txt_wifi_name;
-        private TextView txt_link_tips;
+        private TextView tv_device_name,tv_device_status;
+        private ImageView iv_headset_status;
         private View layout;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            img_signal = itemView.findViewById(R.id.img_signal);
-            txt_wifi_name = itemView.findViewById(R.id.txt_wifi_name);
-            txt_link_tips = itemView.findViewById(R.id.txt_link_tips);
+            tv_device_name = itemView.findViewById(R.id.tv_device_name);
+            tv_device_status = itemView.findViewById(R.id.tv_device_status);
+            iv_headset_status = itemView.findViewById(R.id.iv_headset_status);
             layout = itemView.findViewById(R.id.layout);
         }
     }

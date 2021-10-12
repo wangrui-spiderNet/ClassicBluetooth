@@ -19,6 +19,15 @@ public class DeviceBean {
     public static final int STATE_DISCONNECTING=5;//断开中
     public static final int STATE_DISCONNECTED=6;//已断开(但还保存)
     private int state;
+    private boolean isSelected;
+
+    public void setSelected(boolean selected){
+        isSelected = selected;
+    }
+
+    public boolean getSelected(){
+        return isSelected;
+    }
 
     private BluetoothDevice bluetoothDevice;
     public DeviceBean(){
