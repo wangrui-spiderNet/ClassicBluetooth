@@ -1,5 +1,6 @@
 package com.juplus.app;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.juplus.app.entity.BtItemBean;
+import com.juplus.app.entity.DeviceBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,24 +21,24 @@ import java.util.List;
  */
 
 public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHolder>{
-    private List<BtItemBean> datas;
+    private List<DeviceBean> datas;
     private ItemClickListener mItemClickListener;
     public SimpleAdapter(){
         datas=new ArrayList<>();
     }
 
-    public void addData(BtItemBean btItemBean){
-        datas.add(btItemBean);
+    public void addData(DeviceBean deviceBean){
+        datas.add(deviceBean);
         notifyDataSetChanged();
     }
 
-    public void add(int index,BtItemBean btItemBean){
-        datas.add(index,btItemBean);
+    public void add(int index, DeviceBean deviceBean){
+        datas.add(index, deviceBean);
         notifyDataSetChanged();
     }
 
-    public void addDataALL(List<BtItemBean> btItemBeans){
-        datas.addAll(btItemBeans);
+    public void addDataALL(List<DeviceBean> deviceBeans){
+        datas.addAll(deviceBeans);
         notifyDataSetChanged();
     }
 
@@ -45,7 +46,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
         datas.clear();
     }
 
-    public List<BtItemBean> getData(){
+    public List<DeviceBean> getData(){
         return datas;
     }
 
@@ -62,36 +63,36 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        final BtItemBean btItemBean=datas.get(position);
-        BluetoothDevice bluetoothDevice=btItemBean.getBluetoothDevice();
+        final DeviceBean deviceBean =datas.get(position);
+        BluetoothDevice bluetoothDevice= deviceBean.getBluetoothDevice();
         holder.txt_wifi_name.setText(TextUtils.isEmpty(bluetoothDevice.getName())?bluetoothDevice.getAddress():bluetoothDevice.getName());
         //连接状态
-        switch (btItemBean.getState()){
-            case BtItemBean.STATE_UNCONNECT://未连接
-            case BtItemBean.STATE_BOND_NONE://未配对
+        switch (deviceBean.getState()){
+            case DeviceBean.STATE_UNCONNECT://未连接
+            case DeviceBean.STATE_BOND_NONE://未配对
                 holder.txt_link_tips.setText("");
                 break;
-            case BtItemBean.STATE_BONDING://配对中
+            case DeviceBean.STATE_BONDING://配对中
                 holder.txt_link_tips.setText("配对中");
                 break;
-            case BtItemBean.STATE_BONDED://已配对
+            case DeviceBean.STATE_BONDED://已配对
                 holder.txt_link_tips.setText("已配对");
                 break;
-            case BtItemBean.STATE_CONNECTING://连接中
+            case DeviceBean.STATE_CONNECTING://连接中
                 holder.txt_link_tips.setText("连接中");
                 break;
-            case BtItemBean.STATE_CONNECTED://已连接
+            case DeviceBean.STATE_CONNECTED://已连接
                 holder.txt_link_tips.setText("已连接");
                 break;
-            case BtItemBean.STATE_DISCONNECTING://断开中
+            case DeviceBean.STATE_DISCONNECTING://断开中
                 holder.txt_link_tips.setText("断开中");
                 break;
-            case BtItemBean.STATE_DISCONNECTED://已断开
+            case DeviceBean.STATE_DISCONNECTED://已断开
                 holder.txt_link_tips.setText("已保存");
                 break;
         }
 
-        int styleMajor = bluetoothDevice.getBluetoothClass().getMajorDeviceClass();//获取蓝牙主要分类
+        @SuppressLint("MissingPermission") int styleMajor = bluetoothDevice.getBluetoothClass().getMajorDeviceClass();//获取蓝牙主要分类
         switch (styleMajor) {
             case BluetoothClass.Device.Major.AUDIO_VIDEO://音频设备
                 holder.img_signal.setImageResource(R.mipmap.icon_headset);
@@ -132,7 +133,7 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
             @Override
             public void onClick(View v) {
                 if(mItemClickListener!=null){
-                    mItemClickListener.onItemClickListener(btItemBean);
+                    mItemClickListener.onItemClickListener(deviceBean);
                 }
             }
         });
@@ -163,6 +164,6 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
     }
 
     public interface ItemClickListener{
-        void onItemClickListener(BtItemBean btItemBean);
+        void onItemClickListener(DeviceBean deviceBean);
     }
 }

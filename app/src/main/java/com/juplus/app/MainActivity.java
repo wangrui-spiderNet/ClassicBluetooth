@@ -1,5 +1,6 @@
 package com.juplus.app;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -21,11 +22,11 @@ import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
-import com.juplus.app.entity.BtItemBean;
+import com.juplus.app.entity.DeviceBean;
 
 import java.util.List;
 import java.util.Set;
-
+@SuppressLint("MissingPermission")
 public class MainActivity extends AppCompatActivity implements SimpleAdapter.ItemClickListener {
     private TextView mTvName,mTvNameTip,mTvPairedDeviceTip,mTvUseDeviceTip;
     private RecyclerView mRecyclerPaired,mRecyclerUse;
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
         Set<BluetoothDevice> bluetoothDeviceSet=mBluetoothHelper.getBondedDevices();
         if(bluetoothDeviceSet!=null&&bluetoothDeviceSet.size()>0){
             for(BluetoothDevice device:bluetoothDeviceSet){
-                addDevPaire(BtItemBean.STATE_BONDED,device);
+                addDevPaire(DeviceBean.STATE_BONDED,device);
             }
         }
     }
@@ -117,11 +118,11 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
      * @param dev
      */
     private void addDevPaire(int state,BluetoothDevice dev){
-        BtItemBean btUseItem=findItemByList(mPairedAdapter.getData(),dev);
+        DeviceBean btUseItem=findItemByList(mPairedAdapter.getData(),dev);
         if(btUseItem!=null){
             btUseItem.setBluetoothDevice(dev);
         }else{
-            BtItemBean bluetoothItem=createBluetoothItem(dev);
+            DeviceBean bluetoothItem=createBluetoothItem(dev);
             bluetoothItem.setState(state);
             mPairedAdapter.add(0,bluetoothItem);
         }
@@ -133,38 +134,39 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
      * @param datas
      * @param dev
      */
-    private BtItemBean findItemByList(List<BtItemBean> datas,BluetoothDevice dev){
+    private DeviceBean findItemByList(List<DeviceBean> datas, BluetoothDevice dev){
         if(datas==null||datas.size()<1){
             return null;
         }
-        for(BtItemBean btItemBean:datas){
-                if(!TextUtils.isEmpty(dev.getAddress())&&dev.getAddress().equals(btItemBean.getBluetoothDevice().getAddress())){
-                    return btItemBean;
+        for(DeviceBean deviceBean :datas){
+                if(!TextUtils.isEmpty(dev.getAddress())&&dev.getAddress().equals(deviceBean.getBluetoothDevice().getAddress())){
+                    return deviceBean;
                 }
         }
         return null;
     }
 
-    private BtItemBean createBluetoothItem(BluetoothDevice device){
-        BtItemBean btItemBean=new BtItemBean();
-        btItemBean.setBluetoothDevice(device);
-        return btItemBean;
+    private DeviceBean createBluetoothItem(BluetoothDevice device){
+        DeviceBean deviceBean =new DeviceBean();
+        deviceBean.setBluetoothDevice(device);
+        return deviceBean;
     }
 
     /**
      * 向可用列表中添加设备
      * @param dev
      */
+
     private void addDevUse(BluetoothDevice dev){
-        BtItemBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
+        DeviceBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
         if(btUseItem!=null){
             btUseItem.setBluetoothDevice(dev);
         }else{
-            BtItemBean bluetoothItem=createBluetoothItem(dev);
+            DeviceBean bluetoothItem=createBluetoothItem(dev);
             if(dev.getBondState()==BluetoothDevice.BOND_BONDED){
-                bluetoothItem.setState(BtItemBean.STATE_BONDED);
+                bluetoothItem.setState(DeviceBean.STATE_BONDED);
             }else if(dev.getBondState()==BluetoothDevice.BOND_BONDING){
-                bluetoothItem.setState(BtItemBean.STATE_BONDING);
+                bluetoothItem.setState(DeviceBean.STATE_BONDING);
             }
             mUseAdapter.add(0,bluetoothItem);
         }
@@ -172,13 +174,13 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
     }
 
     /**
-     * 可用设备列表发生改变
+     * 配对设备列表发生改变
      * @param state
      * @param dev
      */
     private void paireDevStateChange(int state,BluetoothDevice dev){
-        BtItemBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
-        BtItemBean btPaireItem=findItemByList(mPairedAdapter.getData(),dev);
+        DeviceBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
+        DeviceBean btPaireItem=findItemByList(mPairedAdapter.getData(),dev);
         if(btUseItem!=null){
             btUseItem.setState(state);
             btUseItem.setBluetoothDevice(dev);
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
             btPaireItem.setState(state);
             btPaireItem.setBluetoothDevice(dev);
         }else{
-            BtItemBean bluetoothItem=createBluetoothItem(dev);
+            DeviceBean bluetoothItem=createBluetoothItem(dev);
             bluetoothItem.setState(state);
             mPairedAdapter.add(0,bluetoothItem);
         }
@@ -205,8 +207,8 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
      * @param dev
      */
     private void useDevStateChange(int state,BluetoothDevice dev){
-        BtItemBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
-        BtItemBean btPaireItem=findItemByList(mPairedAdapter.getData(),dev);
+        DeviceBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
+        DeviceBean btPaireItem=findItemByList(mPairedAdapter.getData(),dev);
         if(btPaireItem!=null){
             btPaireItem.setState(state);
             btPaireItem.setBluetoothDevice(dev);
@@ -220,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
             btUseItem.setState(state);
             btUseItem.setBluetoothDevice(dev);
         }else{
-            BtItemBean bluetoothItem=createBluetoothItem(dev);
+            DeviceBean bluetoothItem=createBluetoothItem(dev);
             bluetoothItem.setState(state);
             mUseAdapter.add(0,bluetoothItem);
         }
@@ -307,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
         @Override
         public void onFindDevice(BluetoothDevice device) {//发现新设备
             if(device.getBondState()==BluetoothDevice.BOND_BONDED) {//已配对
-                addDevPaire(BtItemBean.STATE_BONDED,device);
+                addDevPaire(DeviceBean.STATE_BONDED,device);
             }else{
                 addDevUse(device);
             }
@@ -326,16 +328,16 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
         @Override
         public void onBondStateChange(BluetoothDevice dev) {
             if(dev.getBondState()==BluetoothDevice.BOND_BONDED) {//已配对
-                paireDevStateChange(BtItemBean.STATE_BONDED,dev);
+                paireDevStateChange(DeviceBean.STATE_BONDED,dev);
                 mBluetoothHelper.connect(dev);
             }else if(dev.getBondState()==BluetoothDevice.BOND_BONDING){//配对中
-                useDevStateChange(BtItemBean.STATE_BONDING,dev);
+                useDevStateChange(DeviceBean.STATE_BONDING,dev);
             }else{//未配对
-                BtItemBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
-                if(btUseItem!=null&&btUseItem.getState()==BtItemBean.STATE_BONDING){
+                DeviceBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
+                if(btUseItem!=null&&btUseItem.getState()== DeviceBean.STATE_BONDING){
                     Toast.makeText(MainActivity.this,"请确认配对设备已打开且在通信范围内",Toast.LENGTH_SHORT).show();
                 }
-                useDevStateChange(BtItemBean.STATE_BOND_NONE,dev);
+                useDevStateChange(DeviceBean.STATE_BOND_NONE,dev);
             }
         }
     };
@@ -344,22 +346,22 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
     private IBTConnectListener mBTConnectListener=new IBTConnectListener() {
         @Override
         public void onConnecting(BluetoothDevice bluetoothDevice) {//连接中
-            paireDevStateChange(BtItemBean.STATE_CONNECTING,bluetoothDevice);
+            paireDevStateChange(DeviceBean.STATE_CONNECTING,bluetoothDevice);
         }
 
         @Override
         public void onConnected(BluetoothDevice bluetoothDevice) {//连接成功
-            paireDevStateChange(BtItemBean.STATE_CONNECTED,bluetoothDevice);
+            paireDevStateChange(DeviceBean.STATE_CONNECTED,bluetoothDevice);
         }
 
         @Override
         public void onDisConnecting(BluetoothDevice bluetoothDevice) {//断开中
-            paireDevStateChange(BtItemBean.STATE_DISCONNECTING,bluetoothDevice);
+            paireDevStateChange(DeviceBean.STATE_DISCONNECTING,bluetoothDevice);
         }
 
         @Override
         public void onDisConnect(BluetoothDevice bluetoothDevice) {//断开
-            paireDevStateChange(BtItemBean.STATE_DISCONNECTED,bluetoothDevice);
+            paireDevStateChange(DeviceBean.STATE_DISCONNECTED,bluetoothDevice);
         }
 
         @Override
@@ -368,20 +370,20 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
                 return;
             }
             for(BluetoothDevice dev:devices){
-                BtItemBean btUseItem=findItemByList(mPairedAdapter.getData(),dev);
+                DeviceBean btUseItem=findItemByList(mPairedAdapter.getData(),dev);
                 if(btUseItem!=null){
                     btUseItem.setBluetoothDevice(dev);
                     if(mBluetoothHelper.isConnected(dev)){
-                        btUseItem.setState(BtItemBean.STATE_CONNECTED);
-                    }else if( btUseItem.getState()!=BtItemBean.STATE_CONNECTED){
-                        btUseItem.setState(BtItemBean.STATE_DISCONNECTED);
+                        btUseItem.setState(DeviceBean.STATE_CONNECTED);
+                    }else if( btUseItem.getState()!= DeviceBean.STATE_CONNECTED){
+                        btUseItem.setState(DeviceBean.STATE_DISCONNECTED);
                     }
                 }else{
-                    BtItemBean bluetoothItem=createBluetoothItem(dev);
+                    DeviceBean bluetoothItem=createBluetoothItem(dev);
                     if(mBluetoothHelper.isConnected(dev)){
-                        bluetoothItem.setState(BtItemBean.STATE_CONNECTED);
+                        bluetoothItem.setState(DeviceBean.STATE_CONNECTED);
                     }else{
-                        btUseItem.setState(BtItemBean.STATE_DISCONNECTED);
+                        btUseItem.setState(DeviceBean.STATE_DISCONNECTED);
                     }
                     mPairedAdapter.add(0,bluetoothItem);
                 }
@@ -391,16 +393,16 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
     };
 
     @Override
-    public void onItemClickListener(BtItemBean btItemBean) {
-        final BluetoothDevice bluetoothDevice=btItemBean.getBluetoothDevice();
-        switch (btItemBean.getState()){
-            case BtItemBean.STATE_UNCONNECT://未连接
-            case BtItemBean.STATE_BOND_NONE://未配对
+    public void onItemClickListener(DeviceBean deviceBean) {
+        final BluetoothDevice bluetoothDevice= deviceBean.getBluetoothDevice();
+        switch (deviceBean.getState()){
+            case DeviceBean.STATE_UNCONNECT://未连接
+            case DeviceBean.STATE_BOND_NONE://未配对
                 mBluetoothHelper.createBond(bluetoothDevice);
                 break;
-            case BtItemBean.STATE_BONDING://配对中
+            case DeviceBean.STATE_BONDING://配对中
                 break;
-            case BtItemBean.STATE_BONDED://已配对
+            case DeviceBean.STATE_BONDED://已配对
                 simpleDialog=new AlertDialog.Builder(this)
                         .setTitle("已配对")
                         .setMessage(TextUtils.isEmpty(bluetoothDevice.getName())?bluetoothDevice.getAddress():bluetoothDevice.getName())
@@ -415,9 +417,9 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
                         })
                         .show();
                 break;
-            case BtItemBean.STATE_CONNECTING://连接中
+            case DeviceBean.STATE_CONNECTING://连接中
                 break;
-            case BtItemBean.STATE_CONNECTED://已连接
+            case DeviceBean.STATE_CONNECTED://已连接
                 simpleDialog = new AlertDialog.Builder(this)
                         .setTitle("已连接")
                         .setMessage(TextUtils.isEmpty(bluetoothDevice.getName())?bluetoothDevice.getAddress():bluetoothDevice.getName())
@@ -432,9 +434,9 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
                         })
                         .show();
                 break;
-            case BtItemBean.STATE_DISCONNECTING://断开中
+            case DeviceBean.STATE_DISCONNECTING://断开中
                 break;
-            case BtItemBean.STATE_DISCONNECTED://已断开(但还保存)
+            case DeviceBean.STATE_DISCONNECTED://已断开(但还保存)
                 simpleDialog = new AlertDialog.Builder(this)
                         .setTitle("已保存")
                         .setMessage(TextUtils.isEmpty(bluetoothDevice.getName())?bluetoothDevice.getAddress():bluetoothDevice.getName())

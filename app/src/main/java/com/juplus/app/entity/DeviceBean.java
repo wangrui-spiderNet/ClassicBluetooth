@@ -8,7 +8,7 @@ import android.bluetooth.BluetoothDevice;
  *
  */
 
-public class BtItemBean{
+public class DeviceBean {
 
     public static final int STATE_BOND_NONE=-1;//未配对
     public static final int STATE_UNCONNECT=0;//未连接
@@ -21,14 +21,14 @@ public class BtItemBean{
     private int state;
 
     private BluetoothDevice bluetoothDevice;
-    public BtItemBean(){
+    public DeviceBean(){
 
     }
-    public BtItemBean(BluetoothDevice bluetoothDevice){
+    public DeviceBean(BluetoothDevice bluetoothDevice){
         this.bluetoothDevice=bluetoothDevice;
     }
 
-    public BtItemBean(int state, BluetoothDevice bluetoothDevice){
+    public DeviceBean(int state, BluetoothDevice bluetoothDevice){
         this.state=state;
         this.bluetoothDevice=bluetoothDevice;
     }
