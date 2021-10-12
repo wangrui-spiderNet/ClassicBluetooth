@@ -28,6 +28,8 @@ import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
+import com.juplus.app.widget.CallBack;
+import com.juplus.app.widget.ChangeNameDialog;
 import com.juplus.app.widget.DeviceListDialog;
 
 import java.util.ArrayList;
@@ -77,6 +79,7 @@ public class HomeActivity extends AppCompatActivity {
     RadioButton rbVentilateNoise;
 
     private DeviceListDialog mDeviceListDialog;
+    private ChangeNameDialog mChangeNameDialog;
     private IBluetoothHelper mBluetoothHelper;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
 
@@ -153,8 +156,7 @@ public class HomeActivity extends AppCompatActivity {
                 mDeviceListDialog = new DeviceListDialog(this, deviceBeanList, new BluetoothAdapter.ItemClickListener() {
                     @Override
                     public void onItemClickListener(DeviceBean deviceBean) {
-
-
+                        setDeviceInfo(deviceBean);
                     }
                 });
 
@@ -163,8 +165,19 @@ public class HomeActivity extends AppCompatActivity {
                 break;
 
             case R.id.tv_name:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(this, MainActivity.class);
+//                startActivity(intent);
+
+                mChangeNameDialog = new ChangeNameDialog(this, tvName.getText().toString(), new CallBack<String>() {
+                    @Override
+                    public void callBack(String o) {
+
+                        tvDeviceName.setText(o);
+                        tvName.setText(o);
+                    }
+                });
+                mChangeNameDialog.show();
+
                 break;
 
             case R.id.check_ear:
@@ -192,8 +205,16 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void updateDeviceAdapter(){
-        if(mDeviceListDialog!=null&&mDeviceListDialog.isShowing()&&mDeviceListDialog.getPairedAdapter()!=null){
+    private void setDeviceInfo(DeviceBean deviceBean) {
+
+        tvDeviceName.setText(deviceBean.getBluetoothDevice().getName());
+        tvName.setText(deviceBean.getBluetoothDevice().getName());
+
+        tvMacAddress.setText("蓝牙地址：" + deviceBean.getBluetoothDevice().getAddress());
+    }
+
+    private void updateDeviceAdapter() {
+        if (mDeviceListDialog != null && mDeviceListDialog.isShowing() && mDeviceListDialog.getPairedAdapter() != null) {
             mDeviceListDialog.updateData(deviceBeanList);
         }
     }
@@ -451,9 +472,14 @@ public class HomeActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if(null!=mDeviceListDialog){
+        if (null != mDeviceListDialog) {
             mDeviceListDialog.dismiss();
-            mDeviceListDialog=null;
+            mDeviceListDialog = null;
+        }
+
+        if (null != mChangeNameDialog) {
+            mChangeNameDialog.dismiss();
+            mChangeNameDialog = null;
         }
 
         mBluetoothHelper.stopDiscovery();

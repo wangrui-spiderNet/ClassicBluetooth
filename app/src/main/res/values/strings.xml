@@ -23,4 +23,7 @@
     <string name="connect_blue_tooth">请至手机蓝牙管理连接设备后再试。</string>
     <string name="enter_bluetooth">进入蓝牙管理</string>
     <string name="current_device_output">当前音频输出</string>
+    <string name="change_name">修改名称</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
 </resources>

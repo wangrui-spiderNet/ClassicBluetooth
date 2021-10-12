@@ -41,8 +41,7 @@
     <style name="dot_line_style" >
         <item name="android:layout_width">@dimen/dp_100</item>
         <item name="android:layout_height">@dimen/dp_5</item>
-        <item name="android:layout_marginTop">@dimen/dp_70</item>
-
+        <item name="android:layout_marginTop">@dimen/dp_30</item>
         <item name="android:background">@drawable/shape_dot_line</item>
     </style>
 
