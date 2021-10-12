@@ -3,17 +3,16 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/color_f6f7f9"
-    tools:ignore="MissingPrefix"
-    android:scrollbars="none"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/color_f6f7f9"
+    android:scrollbars="none"
+    tools:ignore="MissingPrefix">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_title_name"
@@ -73,8 +72,8 @@
             android:id="@+id/layout_info"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_50"
-            android:layout_marginTop="@dimen/dp_10"
             android:layout_marginHorizontal="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_10"
             android:background="@android:color/white"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -117,37 +116,80 @@
             android:textSize="@dimen/sp_12" />
 
         <RadioGroup
+            android:id="@+id/rgNoiseManager"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="@dimen/dp_80"
             android:layout_marginHorizontal="@dimen/dp_20"
             android:layout_marginBottom="@dimen/dp_20"
-            android:background="@android:color/white"
             android:orientation="horizontal"
-            app:bl_corners_radius="@dimen/dp_10">
+            app:bl_corners_radius="@dimen/dp_20"
+            app:bl_solid_color="@color/white">
 
-            <RadioButton
+            <kale.ui.view.SelectorTextView
                 android:id="@+id/rbLowNoise"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/low_noise" />
 
-            <RadioButton
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+
+                android:text="@string/low_noise"
+                app:bl_checked_textColor="@color/white"
+
+                app:bl_unChecked_textColor="@color/color_222222"
+                app:checkedColor="@color/color_1BAEAE"
+
+                app:checkedDrawable="@drawable/shape_oval"
+                app:drawableTop="@mipmap/icon_low_noise_normal"
+
+                app:normalColor="@color/white"
+                app:normalDrawable="@drawable/shape_oval" />
+
+
+            <kale.ui.view.SelectorTextView
                 android:id="@+id/rbCloseNoise"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/close" />
 
-            <RadioButton
+                android:gravity="center"
+                android:padding="@dimen/dp_10"
+
+                android:text="@string/close"
+                app:bl_checked_textColor="@color/white"
+                app:bl_unChecked_textColor="@color/color_222222"
+
+                app:checkedColor="@color/color_1BAEAE"
+
+                app:checkedDrawable="@drawable/shape_oval"
+                app:drawableTop="@mipmap/icon_close_noise_normal"
+
+                app:normalColor="@color/white"
+                app:normalDrawable="@drawable/shape_oval" />
+
+
+            <kale.ui.view.SelectorTextView
                 android:id="@+id/rbVentilateNoise"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+
                 android:gravity="center"
-                android:text="@string/ventilate" />
+                android:padding="@dimen/dp_10"
+
+                android:text="@string/ventilate"
+                app:bl_checked_textColor="@color/white"
+
+                app:bl_unChecked_textColor="@color/color_222222"
+                app:checkedColor="@color/color_1BAEAE"
+
+                app:checkedDrawable="@drawable/shape_oval"
+                app:drawableTop="@mipmap/icon_ventilate_normal"
+
+                app:normalColor="@color/white"
+                app:normalDrawable="@drawable/shape_oval" />
+
         </RadioGroup>
 
         <RelativeLayout
@@ -406,10 +448,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="@dimen/dp_20"
             android:gravity="center"
             android:text="蓝牙地址：CC:BB:00:A0:B3:F0"
             android:textColor="@color/color_444444"
-            android:layout_marginVertical="@dimen/dp_20"
             android:textSize="@dimen/sp_12" />
 
     </LinearLayout>

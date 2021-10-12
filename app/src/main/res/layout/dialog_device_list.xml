@@ -31,7 +31,7 @@
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
             app:bl_corners_radius="@dimen/dp_30"
-            app:bl_solid_color="@android:color/darker_gray"
+            app:bl_solid_color="@color/color_10000000"
             android:src="@mipmap/icon_close_device_chooser"
             />
 
