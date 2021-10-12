@@ -2,7 +2,6 @@ package com.juplus.app;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.juplus.app.adapter.BluetoothAdapter;
 import com.juplus.app.bluetooth.BluetoothHelper;
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
 import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
@@ -27,10 +27,10 @@ import com.juplus.app.entity.DeviceBean;
 import java.util.List;
 import java.util.Set;
 @SuppressLint("MissingPermission")
-public class MainActivity extends AppCompatActivity implements SimpleAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements BluetoothAdapter.ItemClickListener {
     private TextView mTvName,mTvNameTip,mTvPairedDeviceTip,mTvUseDeviceTip;
     private RecyclerView mRecyclerPaired,mRecyclerUse;
-    private SimpleAdapter mPairedAdapter,mUseAdapter;
+    private BluetoothAdapter mPairedAdapter,mUseAdapter;
     private IBluetoothHelper mBluetoothHelper;
     private AlertDialog simpleDialog;
     private Switch mSwBluetooth;
@@ -57,14 +57,14 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
 
 
         mRecyclerPaired.setNestedScrollingEnabled(false);
-        mPairedAdapter = new SimpleAdapter();
+        mPairedAdapter = new BluetoothAdapter();
         mRecyclerPaired.setLayoutManager(new LinearLayoutManager(this));
 //        mRecyclerPaired.addItemDecoration(new SpacesItemDecoration(10));
         mRecyclerPaired.setAdapter(mPairedAdapter);
         mPairedAdapter.setItemClickListener(this);
 
         mRecyclerUse.setNestedScrollingEnabled(false);
-        mUseAdapter = new SimpleAdapter();
+        mUseAdapter = new BluetoothAdapter();
         mRecyclerUse.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerUse.setAdapter(mUseAdapter);
         mUseAdapter.setItemClickListener(this);
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
         @Override
         public void onStateChange(int state) {
             switch (state){
-                case BluetoothAdapter.STATE_OFF:
+                case android.bluetooth.BluetoothAdapter.STATE_OFF:
                     Toast.makeText(MainActivity.this,"蓝牙已关闭",Toast.LENGTH_SHORT).show();
                     mSwBluetooth.setChecked(mBluetoothHelper.isEnable());
                     mTvNameTip.setVisibility(View.GONE);
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
                     mUseAdapter.clear();
                     mUseAdapter.notifyDataSetChanged();
                     break;
-                case BluetoothAdapter.STATE_ON:
+                case android.bluetooth.BluetoothAdapter.STATE_ON:
                     Toast.makeText(MainActivity.this,"蓝牙已打开",Toast.LENGTH_SHORT).show();
                     mSwBluetooth.setChecked(mBluetoothHelper.isEnable());
                     mTvNameTip.setVisibility(View.VISIBLE);
@@ -283,8 +283,8 @@ public class MainActivity extends AppCompatActivity implements SimpleAdapter.Ite
 //                startActivity(discoverableIntent);
                     mBluetoothHelper.startDiscovery();
                     break;
-                case BluetoothAdapter.STATE_TURNING_OFF:
-                case BluetoothAdapter.STATE_TURNING_ON:
+                case android.bluetooth.BluetoothAdapter.STATE_TURNING_OFF:
+                case android.bluetooth.BluetoothAdapter.STATE_TURNING_ON:
                     break;
             }
         }

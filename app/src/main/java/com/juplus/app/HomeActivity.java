@@ -1,7 +1,6 @@
 package com.juplus.app;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gyf.immersionbar.ImmersionBar;
+import com.juplus.app.adapter.BluetoothAdapter;
 import com.juplus.app.bluetooth.BluetoothHelper;
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
 import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
@@ -25,6 +25,7 @@ import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
 import com.juplus.app.entity.DeviceBean;
+import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
 import com.juplus.app.widget.DeviceListDialog;
@@ -38,7 +39,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
 
-
+@SuppressLint("MissingPermission")
 public class HomeActivity extends AppCompatActivity {
     private ImmersionBar immersionBar;
 
@@ -75,6 +76,7 @@ public class HomeActivity extends AppCompatActivity {
     @BindView(R.id.rbVentilateNoise)
     RadioButton rbVentilateNoise;
 
+    private DeviceListDialog mDeviceListDialog;
     private IBluetoothHelper mBluetoothHelper;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
 
@@ -132,11 +134,14 @@ public class HomeActivity extends AppCompatActivity {
         mBluetoothHelper.setBTBoudListener(mBTBoudListener);//设置配对监听
         mBluetoothHelper.setBTConnectListener(mBTConnectListener);//设置连接监听
         mBluetoothHelper.init(this);
+
+        getBondedDevices();
+        mBluetoothHelper.getConnectedDevices();
     }
 
     @SuppressLint("StringFormatMatches")
     @Optional
-    @OnClick({R.id.tv_title_name, R.id.tv_new_version})
+    @OnClick({R.id.tv_title_name, R.id.tv_new_version, R.id.tv_name})
     public void onViewClicked(View view) {
         if (SystemUtil.isFastClick()) {
             return;
@@ -145,12 +150,20 @@ public class HomeActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.tv_title_name:
 
-                DeviceListDialog deviceListDialog = new DeviceListDialog(this, deviceBeanList);
-                deviceListDialog.show();
+                mDeviceListDialog = new DeviceListDialog(this, deviceBeanList, new BluetoothAdapter.ItemClickListener() {
+                    @Override
+                    public void onItemClickListener(DeviceBean deviceBean) {
+
+                    }
+                });
+
+                mDeviceListDialog.show();
 
                 break;
 
             case R.id.tv_name:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.check_ear:
@@ -178,6 +191,12 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    private void updateDeviceAdapter(){
+        if(mDeviceListDialog!=null&&mDeviceListDialog.isShowing()&&mDeviceListDialog.getPairedAdapter()!=null){
+            mDeviceListDialog.updateData(deviceBeanList);
+        }
+    }
+
     private void toSettingMore() {
         Intent intent = new Intent(this, SettingMoreActivity.class);
         startActivity(intent);
@@ -196,41 +215,21 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onStateChange(int state) {
             switch (state) {
-                case BluetoothAdapter.STATE_OFF:
+                case android.bluetooth.BluetoothAdapter.STATE_OFF:
+                    deviceBeanList.clear();
+                    updateDeviceAdapter();
                     Toast.makeText(HomeActivity.this, "蓝牙已关闭", Toast.LENGTH_SHORT).show();
-//                    mSwBluetooth.setChecked(mBluetoothHelper.isEnable());
-//                    mTvNameTip.setVisibility(View.GONE);
-//                    mTvName.setVisibility(View.GONE);
-//                    mTvPairedDeviceTip.setVisibility(View.GONE);
-//                    mTvUseDeviceTip.setVisibility(View.GONE);
-//                    mRecyclerPaired.setVisibility(View.GONE);
-//                    mRecyclerUse.setVisibility(View.GONE);
-//                    mPairedAdapter.clear();
-//                    mPairedAdapter.notifyDataSetChanged();
-//                    mUseAdapter.clear();
-//                    mUseAdapter.notifyDataSetChanged();
                     break;
-                case BluetoothAdapter.STATE_ON:
+                case android.bluetooth.BluetoothAdapter.STATE_ON:
                     Toast.makeText(HomeActivity.this, "蓝牙已打开", Toast.LENGTH_SHORT).show();
-//                    mSwBluetooth.setChecked(mBluetoothHelper.isEnable());
-//                    mTvNameTip.setVisibility(View.VISIBLE);
-//                    mTvName.setVisibility(View.VISIBLE);
-//                    mTvPairedDeviceTip.setVisibility(View.VISIBLE);
-//                    mTvUseDeviceTip.setVisibility(View.VISIBLE);
-//                    mRecyclerPaired.setVisibility(View.VISIBLE);
-//                    mRecyclerUse.setVisibility(View.VISIBLE);
                     getBondedDevices();
-                    mBluetoothHelper.setDiscoverableTimeout(300);//设置可见时间
-//                Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-//                //讲一个键值对对方到Intent对象当中，用于指定可见状态的持续时间
-//                discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-//                startActivity(discoverableIntent);
+//                    mBluetoothHelper.setDiscoverableTimeout(300);//设置可见时间
                     mBluetoothHelper.startDiscovery();
                     break;
-                case BluetoothAdapter.STATE_TURNING_OFF:
+                case android.bluetooth.BluetoothAdapter.STATE_TURNING_OFF:
                     Toast.makeText(HomeActivity.this, "蓝牙 STATE_TURNING_OFF", Toast.LENGTH_SHORT).show();
                     break;
-                case BluetoothAdapter.STATE_TURNING_ON:
+                case android.bluetooth.BluetoothAdapter.STATE_TURNING_ON:
                     Toast.makeText(HomeActivity.this, "蓝牙 STATE_TURNING_ON", Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -246,8 +245,8 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         public void onScanStop(List<BluetoothDevice> deviceList) {//搜索结束
-            Toast.makeText(HomeActivity.this, "搜索结束", Toast.LENGTH_SHORT).show();
 
+            Toast.makeText(HomeActivity.this, "搜索全部数量:" + (deviceList != null ? deviceList.size() : 0), Toast.LENGTH_SHORT).show();
         }
 
         /**
@@ -257,6 +256,8 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onFindDevice(BluetoothDevice device) {//发现新设备
             if (device.getBondState() == BluetoothDevice.BOND_BONDED) {//已配对
+
+                LogUtils.logBlueTooth("onFindDevice  已配对:" + (device == null ? 0 : device.getName()));
                 addDevPair(DeviceBean.STATE_BONDED, device);
             }
 //            else{
@@ -277,18 +278,14 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onBondStateChange(BluetoothDevice dev) {
             if (dev.getBondState() == BluetoothDevice.BOND_BONDED) {//已配对
+
+                LogUtils.logBlueTooth("已配对 :" + (dev == null ? 0 : dev.getName()));
+
                 paierDevStateChange(DeviceBean.STATE_BONDED, dev);
+
+                LogUtils.logBlueTooth("连接 :" + (dev == null ? 0 : dev.getName()));
                 mBluetoothHelper.connect(dev);
             }
-//            else if(dev.getBondState()==BluetoothDevice.BOND_BONDING){//配对中
-//                useDevStateChange(DeviceBean.STATE_BONDING,dev);
-//            }else{//未配对
-//                DeviceBean btUseItem=findItemByList(mUseAdapter.getData(),dev);
-//                if(btUseItem!=null&&btUseItem.getState()== DeviceBean.STATE_BONDING){
-//                    Toast.makeText(HomeActivity.this,"请确认配对设备已打开且在通信范围内",Toast.LENGTH_SHORT).show();
-//                }
-//                useDevStateChange(DeviceBean.STATE_BOND_NONE,dev);
-//            }
         }
     };
 
@@ -296,26 +293,35 @@ public class HomeActivity extends AppCompatActivity {
     private IBTConnectListener mBTConnectListener = new IBTConnectListener() {
         @Override
         public void onConnecting(BluetoothDevice bluetoothDevice) {//连接中
+            LogUtils.logBlueTooth("onConnecting :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
+
             paierDevStateChange(DeviceBean.STATE_CONNECTING, bluetoothDevice);
         }
 
         @Override
         public void onConnected(BluetoothDevice bluetoothDevice) {//连接成功
+            LogUtils.logBlueTooth("onConnected :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
+
             paierDevStateChange(DeviceBean.STATE_CONNECTED, bluetoothDevice);
         }
 
         @Override
         public void onDisConnecting(BluetoothDevice bluetoothDevice) {//断开中
+            LogUtils.logBlueTooth("onDisConnecting :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
             paierDevStateChange(DeviceBean.STATE_DISCONNECTING, bluetoothDevice);
         }
 
         @Override
         public void onDisConnect(BluetoothDevice bluetoothDevice) {//断开
+            LogUtils.logBlueTooth("onDisConnect :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
             paierDevStateChange(DeviceBean.STATE_DISCONNECTED, bluetoothDevice);
         }
 
         @Override
         public void onConnectedDevice(List<BluetoothDevice> devices) {//已连接设备
+
+            LogUtils.logBlueTooth("onConnectedDevice :" + (devices == null ? 0 : devices.size()));
+
             if (devices == null || devices.size() < 1) {
                 return;
             }
@@ -338,6 +344,8 @@ public class HomeActivity extends AppCompatActivity {
                     deviceBeanList.add(0, bluetoothItem);
                 }
             }
+
+            updateDeviceAdapter();
         }
     };
 
@@ -365,6 +373,8 @@ public class HomeActivity extends AppCompatActivity {
             bluetoothItem.setState(state);
             deviceBeanList.add(0, bluetoothItem);
         }
+
+        updateDeviceAdapter();
     }
 
     /**
@@ -396,12 +406,13 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mBluetoothHelper.startDiscovery();
+        LogUtils.logBlueTooth("onResume  开始搜索");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mBluetoothHelper.stopDiscovery();
+//        mBluetoothHelper.stopDiscovery();
     }
 
     /**
@@ -431,16 +442,27 @@ public class HomeActivity extends AppCompatActivity {
             bluetoothItem.setState(state);
             deviceBeanList.add(0, bluetoothItem);
         }
+
+        ToastUtil.showToast(this, "已配对数量:" + deviceBeanList.size());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if(null!=mDeviceListDialog){
+            mDeviceListDialog.dismiss();
+            mDeviceListDialog=null;
+        }
+
+        mBluetoothHelper.stopDiscovery();
         mBluetoothHelper.setBTStateListener(null);//设置打开关闭状态监听
         mBluetoothHelper.setBTScanListener(null);//设置扫描监听
         mBluetoothHelper.setBTBoudListener(null);//设置配对监听
         mBluetoothHelper.setBTConnectListener(null);//设置连接监听
         mBluetoothHelper.destroy();
+
+
     }
 
 }

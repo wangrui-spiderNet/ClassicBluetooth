@@ -19,4 +19,7 @@
     <string name="charge_box">充电盒</string>
     <string name="firm_version">固件版本</string>
     <string name="model">型号</string>
+    <string name="no_devices">暂无设备</string>
+    <string name="connect_blue_tooth">请至手机蓝牙管理连接设备后再试。</string>
+    <string name="enter_bluetooth">进入蓝牙管理</string>
 </resources>

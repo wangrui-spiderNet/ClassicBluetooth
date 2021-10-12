@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/dialog_container"
@@ -10,11 +10,22 @@
     android:layout_gravity="center_horizontal"
     android:padding="@dimen/dp_20">
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="layoutTop,recycler_view_paired,view_dot_recycleView"
+        tools:visibility="visible"
+        />
+
     <LinearLayout
+        android:id="@+id/layoutTop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_20"
         android:gravity="center_vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         >
 
         <TextView
@@ -39,8 +50,79 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_paired"
-        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTop"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/dp_20"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:layout_height="wrap_content"
         />
 
-</LinearLayout>
+    <View
+        android:id="@+id/view_dot_recycleView"
+        style="@style/dot_line_style"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_view_paired"
+        />
+
+    <LinearLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_60"
+            android:text="@string/no_devices"
+            android:textColor="@color/color_222222"
+            android:textSize="@dimen/sp_24" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/connect_blue_tooth"
+            android:textColor="@color/color_777777"
+            android:textSize="@dimen/text_size_16" />
+
+        <TextView
+            android:id="@+id/tv_enter_bluetooth"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="42dp"
+            android:paddingHorizontal="27dp"
+            app:bl_corners_radius="@dimen/dp_10"
+            app:bl_solid_color="#1a339999"
+            android:gravity="center"
+            android:textColor="@color/color_339999"
+            android:textSize="@dimen/text_size_16"
+            android:text="@string/enter_bluetooth" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view_dot_empty"
+        style="@style/dot_line_style"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutEmpty"
+        />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="layoutEmpty,view_dot_empty"
+        tools:visibility="invisible"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

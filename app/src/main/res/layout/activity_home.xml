@@ -136,7 +136,6 @@
 
                 android:text="@string/low_noise"
                 app:bl_checked_textColor="@color/white"
-
                 app:bl_unChecked_textColor="@color/color_222222"
                 app:checkedColor="@color/color_1BAEAE"
 
