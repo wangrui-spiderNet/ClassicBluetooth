@@ -13,12 +13,13 @@
         style="@style/dialog_tip"
         android:layout_marginTop="@dimen/dp_20"
         android:text="@string/change_name"
+        android:maxLength="20"
         android:textColor="@color/color_444444" />
 
     <RelativeLayout
-        android:layout_marginVertical="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_50"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_50">
+        android:layout_height="wrap_content">
 
         <EditText
             android:id="@+id/et_Name"
@@ -28,7 +29,7 @@
             android:singleLine="true"
             android:layout_centerVertical="true"
             android:layout_marginHorizontal="@dimen/dp_20"
-            android:layout_marginVertical="@dimen/dp_40"
+            android:background="@color/transparent"
             />
 
         <ImageView
@@ -43,9 +44,29 @@
             android:padding="@dimen/dp_3"
             android:src="@mipmap/icon_close_device_chooser"
             />
-
-
     </RelativeLayout>
+
+    <View
+        android:id="@+id/view_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="@dimen/dp_20"
+        android:background="@color/color_222222"
+        android:layout_below="@+id/et_Name"
+        />
+
+    <TextView
+        android:id="@+id/tv_name_null_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_24"
+        android:text="@string/name_cannot_empty"
+        android:textSize="@dimen/text_size_14"
+        android:textColor="@color/color_fc6d7c"
+        android:layout_marginTop="@dimen/dp_5"
+        android:visibility="invisible"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -67,11 +88,18 @@
             android:textSize="@dimen/text_size_16"
             android:layout_height="@dimen/dp_50"/>
 
-        <TextView
+        <kale.ui.view.SelectorTextView
             android:id="@+id/tv_save"
             android:layout_width="0dp"
-            app:bl_corners_radius="@dimen/dp_10"
-            app:bl_solid_color="@color/color_1BAEAE"
+
+            app:normalColor="@color/color_1BAEAE"
+            app:disableColor="@color/color_16000000"
+
+            app:normalDrawable="@drawable/shape_button_bg_enable"
+            app:disableDrawable="@drawable/shape_button_bg_disable"
+
+            android:enabled="true"
+
             android:text="@string/save"
             android:gravity="center"
             android:textSize="@dimen/text_size_16"

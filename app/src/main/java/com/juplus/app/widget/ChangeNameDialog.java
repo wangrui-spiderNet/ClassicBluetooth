@@ -2,8 +2,10 @@ package com.juplus.app.widget;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +20,7 @@ import com.juplus.app.utils.SystemUtil;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
 /**
  * 用于操作确认弹窗
  */
@@ -31,6 +34,10 @@ public class ChangeNameDialog extends BaseDialog {
     EditText etName;
     @BindView(R.id.iv_clear_name)
     ImageView ivClearName;
+    @BindView(R.id.view_line)
+    View viewLine;
+    @BindView(R.id.tv_name_null_tip)
+    TextView tvNameNullTip;
 
     private Context mContext;
     private CallBack onClickListener;
@@ -41,6 +48,9 @@ public class ChangeNameDialog extends BaseDialog {
         mName = name;
         this.onClickListener = onClickListener;
     }
+
+    private int color222;
+    private int colorRed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +65,29 @@ public class ChangeNameDialog extends BaseDialog {
             etName.setText(mName);
         }
 
+        color222 = mContext.getResources().getColor(R.color.color_222222);
+        colorRed = mContext.getResources().getColor(R.color.color_fc6d7c);
+        etName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                boolean isEmpty = TextUtils.isEmpty(editable.toString());
+                mTvSave.setEnabled(!isEmpty);
+                viewLine.setBackgroundColor(isEmpty ? colorRed : color222);
+                tvNameNullTip.setVisibility(isEmpty ? View.VISIBLE : View.INVISIBLE);
+
+            }
+        });
     }
 
     @OnClick({R.id.tv_save, R.id.tv_cancel, R.id.iv_clear_name})
