@@ -99,7 +99,6 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
         gson = new Gson();
-        leftSettingBeans = new ArrayList<>();
 
         String json_double_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_double_array.json");
         String json_long_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_long_array.json");

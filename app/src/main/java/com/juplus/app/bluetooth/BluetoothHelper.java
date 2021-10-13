@@ -1,5 +1,6 @@
 package com.juplus.app.bluetooth;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
@@ -32,7 +33,7 @@ import java.util.Set;
  *@desc 蓝牙辅助类
  *
  */
-
+@SuppressLint("MissingPermission")
 public class BluetoothHelper implements IBluetoothHelper {
     private final String TAG="BluetoothHelper";
     private Context mContext;
@@ -143,8 +144,6 @@ public class BluetoothHelper implements IBluetoothHelper {
             e.printStackTrace();
         }
     }
-
-
 
 
     @Override
@@ -514,6 +513,23 @@ public class BluetoothHelper implements IBluetoothHelper {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean setPin(Class btClass, BluetoothDevice btDevice,
+                          byte[] str) throws Exception {
+        try {
+            Method removeBondMethod = btClass.getDeclaredMethod("setPin",new Class[] { byte[].class });
+            Boolean returnValue = (Boolean) removeBondMethod.invoke(btDevice,str);
+            return returnValue.booleanValue();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+
     }
 
     @Override
