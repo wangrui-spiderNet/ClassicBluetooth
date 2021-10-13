@@ -42,6 +42,7 @@ public interface IBluetoothHelper {
     void setBTBoudListener(IBTBoudListener btBoudListener);//蓝牙绑定监听
 
     void setBTConnectListener(IBTConnectListener btConnectListener);//设置连接监听
+    void setBTMessageListener(IBTMessageListener btMessageListener);//设置消息监听
 
 
 }

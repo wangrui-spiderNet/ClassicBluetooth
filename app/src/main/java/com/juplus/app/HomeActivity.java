@@ -22,10 +22,10 @@ import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BluetoothAdapter;
 import com.juplus.app.bluetooth.BluetoothHelper;
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
+import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
 import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
-import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.entity.SettingBean;
 import com.juplus.app.utils.AssetUtil;
@@ -85,13 +85,17 @@ public class HomeActivity extends AppCompatActivity {
 
     private DeviceListDialog mDeviceListDialog;
     private ChangeNameDialog mChangeNameDialog;
-    private IBluetoothHelper mBluetoothHelper;
+    private BluetoothHelper mBluetoothHelper;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
+
+    private DeviceBean deviceBean;
 
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
 
     private Gson gson;
+
+//    private BLESPPUtils mBLESPPUtils;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -158,15 +162,17 @@ public class HomeActivity extends AppCompatActivity {
         mBluetoothHelper.setBTScanListener(mBTScanListener);//设置扫描监听
         mBluetoothHelper.setBTBoudListener(mBTBoudListener);//设置配对监听
         mBluetoothHelper.setBTConnectListener(mBTConnectListener);//设置连接监听
+        mBluetoothHelper.setBTMessageListener(mBTMessageListener);//设置消息监听
         mBluetoothHelper.init(this);
 
         getBondedDevices();
         mBluetoothHelper.getConnectedDevices();
+
     }
 
     @SuppressLint("StringFormatMatches")
     @Optional
-    @OnClick({R.id.tv_title_name, R.id.tv_left_setting, R.id.tv_audio_type, R.id.tv_right_setting,R.id.tv_new_version, R.id.tv_name})
+    @OnClick({R.id.tv_title_name, R.id.tv_left_setting, R.id.tv_audio_type, R.id.tv_right_setting, R.id.tv_new_version, R.id.tv_name})
     public void onViewClicked(View view) {
         if (SystemUtil.isFastClick()) {
             return;
@@ -178,7 +184,13 @@ public class HomeActivity extends AppCompatActivity {
                 mDeviceListDialog = new DeviceListDialog(this, deviceBeanList, new BluetoothAdapter.ItemClickListener() {
                     @Override
                     public void onItemClickListener(DeviceBean deviceBean) {
+
+                        HomeActivity.this.deviceBean = deviceBean;
                         setDeviceInfo(deviceBean);
+//                        mBLESPPUtils.connect(deviceBean.getBluetoothDevice());
+//                        LogUtils.logBlueTooth("此设备是否连接："+mBluetoothHelper.isConnected(deviceBean.getBluetoothDevice()));
+//                        mBluetoothHelper.sendMsg(deviceBean.getBluetoothDevice());
+                        LogUtils.logBlueTooth("连接是否成功：" + mBluetoothHelper.connect(deviceBean.getBluetoothDevice()));
                     }
                 });
 
@@ -196,6 +208,8 @@ public class HomeActivity extends AppCompatActivity {
 
                         tvDeviceName.setText(o);
                         tvName.setText(o);
+
+//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.getBytes());
                     }
                 });
                 mChangeNameDialog.show();
@@ -207,6 +221,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void callBack(SettingBean o) {
                         tvAudioType.setText(o.name);
+//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.name.getBytes());
                     }
                 });
                 audioSettingDialog.show();
@@ -215,7 +230,13 @@ public class HomeActivity extends AppCompatActivity {
 
             case R.id.tv_left_setting:
 
-                leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, (CallBack<SettingBean>) o -> tvLeftSetting.setText(o.name));
+                leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, new CallBack<SettingBean>() {
+                    @Override
+                    public void callBack(SettingBean o) {
+//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.name.getBytes());
+                        tvLeftSetting.setText(o.name);
+                    }
+                });
 
                 leftDoubleSettingDialog.show();
                 break;
@@ -224,7 +245,7 @@ public class HomeActivity extends AppCompatActivity {
                 leftLongSettingDialog = new SettingActionListDialog(this, "右耳 长按", leftEarLongSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
-
+//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.name.getBytes());
                         tvRightSetting.setText(o.name);
                     }
                 });
@@ -347,6 +368,23 @@ public class HomeActivity extends AppCompatActivity {
                 LogUtils.logBlueTooth("连接 :" + (dev == null ? 0 : dev.getName()));
                 mBluetoothHelper.connect(dev);
             }
+        }
+    };
+
+    private IBTMessageListener mBTMessageListener = new IBTMessageListener() {
+        @Override
+        public void onReceive(byte[] data) {
+            LogUtils.logBlueTooth("接收到的消息："+new String(data));
+        }
+
+        @Override
+        public void onSendSuccess() {
+            LogUtils.logBlueTooth("发送成功：");
+        }
+
+        @Override
+        public void onSendFail(Exception e) {
+            LogUtils.logBlueTooth("发送失败："+e.getMessage());
         }
     };
 
