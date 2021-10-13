@@ -28,26 +28,4 @@
     <string name="save">保存</string>
     <string name="name_cannot_empty">名称不能为空。</string>
 
-    <string-array name="left_ear_double_setting">
-        <item>语音助手唤醒</item>
-        <item>播放/暂停</item>
-        <item>下一曲</item>
-        <item>上一曲</item>
-        <item>关闭左耳</item>
-    </string-array>
-
-    <string-array name="left_ear_long_setting">
-        <item>语音助手唤醒</item>
-        <item>噪声控制（降噪/通透）</item>
-        <item>噪声控制（降噪/通透/关闭）</item>
-    </string-array>
-
-    <string-array name="audio_setting">
-        <item>音效一</item>
-        <item>音效二</item>
-        <item>音效三</item>
-        <item>音效四</item>
-        <item>音效五</item>
-
-    </string-array>
 </resources>

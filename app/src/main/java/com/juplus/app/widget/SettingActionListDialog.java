@@ -69,6 +69,10 @@ public class SettingActionListDialog extends BaseDialog {
         lvSettings.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (SystemUtil.isFastClick()) {
+                    return;
+                }
+
                 for(SettingBean bean : settingBeanList){
                     bean.isSelected = false;
                 }
@@ -76,6 +80,8 @@ public class SettingActionListDialog extends BaseDialog {
                 settingBeanList.get(i).isSelected = true;
                 onClickListener.callBack(settingBeanList.get(i));
                 ((SettingActionAdapter)lvSettings.getAdapter()).notifyDataSetChanged();
+
+                dismiss();
             }
         });
 

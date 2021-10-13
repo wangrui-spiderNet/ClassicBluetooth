@@ -16,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BluetoothAdapter;
 import com.juplus.app.bluetooth.BluetoothHelper;
@@ -26,6 +28,7 @@ import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.entity.SettingBean;
+import com.juplus.app.utils.AssetUtil;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
@@ -85,11 +88,29 @@ public class HomeActivity extends AppCompatActivity {
     private IBluetoothHelper mBluetoothHelper;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
 
+    private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
+    private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
+
+    private Gson gson;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+        gson = new Gson();
+        leftSettingBeans = new ArrayList<>();
+
+        String json_double_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_double_array.json");
+        String json_long_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_long_array.json");
+        String setting_audio_array = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_audio_array.json");
+
+        leftSettingBeans = gson.fromJson(json_double_ear_setting, new TypeToken<List<SettingBean>>() {
+        }.getType());
+        leftEarLongSettingBeans = gson.fromJson(json_long_ear_setting, new TypeToken<List<SettingBean>>() {
+        }.getType());
+        audioSettingBeans = gson.fromJson(setting_audio_array, new TypeToken<List<SettingBean>>() {
+        }.getType());
 
         immersionBar = ImmersionBar.with(this);
 //        immersionBar.init();
@@ -146,7 +167,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @SuppressLint("StringFormatMatches")
     @Optional
-    @OnClick({R.id.tv_title_name,R.id.tv_left_setting, R.id.tv_new_version, R.id.tv_name})
+    @OnClick({R.id.tv_title_name, R.id.tv_left_setting, R.id.tv_audio_type, R.id.tv_right_setting,R.id.tv_new_version, R.id.tv_name})
     public void onViewClicked(View view) {
         if (SystemUtil.isFastClick()) {
             return;
@@ -182,36 +203,35 @@ public class HomeActivity extends AppCompatActivity {
 
                 break;
 
-            case R.id.check_ear:
-                break;
-
-            case R.id.check_smart_wake:
-                break;
-
             case R.id.tv_audio_type:
+                audioSettingDialog = new SettingActionListDialog(this, "", audioSettingBeans, new CallBack<SettingBean>() {
+                    @Override
+                    public void callBack(SettingBean o) {
+                        tvAudioType.setText(o.name);
+                    }
+                });
+                audioSettingDialog.show();
+
                 break;
 
             case R.id.tv_left_setting:
 
-                String[] leftEarSettings=getResources().getStringArray(R.array.left_ear_double_setting);
-                List<SettingBean> settingBeans=new ArrayList<>();
-                for(String name:leftEarSettings){
-                    SettingBean settingBean = new SettingBean();
-                    settingBean.name = name;
-                    settingBeans.add(settingBean);
-                }
+                leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, (CallBack<SettingBean>) o -> tvLeftSetting.setText(o.name));
 
-                SettingActionListDialog settingDialog =new SettingActionListDialog(this, "左耳 轻按2次", settingBeans, new CallBack<SettingBean>() {
-                    @Override
-                    public void callBack(SettingBean o) {
-                        tvLeftSetting.setText(o.name);
-                    }
-                });
-
-                settingDialog.show();
+                leftDoubleSettingDialog.show();
                 break;
 
             case R.id.tv_right_setting:
+                leftLongSettingDialog = new SettingActionListDialog(this, "右耳 长按", leftEarLongSettingBeans, new CallBack<SettingBean>() {
+                    @Override
+                    public void callBack(SettingBean o) {
+
+                        tvRightSetting.setText(o.name);
+                    }
+                });
+
+                leftLongSettingDialog.show();
+
                 break;
 
             case R.id.tv_new_version:
@@ -231,6 +251,7 @@ public class HomeActivity extends AppCompatActivity {
 
         tvMacAddress.setText("蓝牙地址：" + deviceBean.getBluetoothDevice().getAddress());
     }
+
 
     private void updateDeviceAdapter() {
         if (mDeviceListDialog != null && mDeviceListDialog.isShowing() && mDeviceListDialog.getPairedAdapter() != null) {

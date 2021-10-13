@@ -101,6 +101,8 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
     //MMKV 数据存储
-    api 'com.tencent:mmkv-static:1.2.10'
+    implementation 'com.tencent:mmkv-static:1.2.10'
+    implementation 'com.google.code.gson:gson:2.8.6'
+
 
 }

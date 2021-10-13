@@ -1,0 +1,5 @@
+[
+  {"name":"语音助手唤醒","select": false},
+  {"name":"噪声控制（降噪/通透）","select": false},
+  {"name":"噪声控制（降噪/通透/关闭）","select": false}
+]
