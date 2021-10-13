@@ -22,7 +22,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * 用于操作确认弹窗
+ * 修改名称弹窗
  */
 public class ChangeNameDialog extends BaseDialog {
 

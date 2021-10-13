@@ -25,9 +25,11 @@ import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
 import com.juplus.app.entity.DeviceBean;
+import com.juplus.app.entity.SettingBean;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
+import com.juplus.app.widget.SettingActionListDialog;
 import com.juplus.app.widget.CallBack;
 import com.juplus.app.widget.ChangeNameDialog;
 import com.juplus.app.widget.DeviceListDialog;
@@ -144,7 +146,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @SuppressLint("StringFormatMatches")
     @Optional
-    @OnClick({R.id.tv_title_name, R.id.tv_new_version, R.id.tv_name})
+    @OnClick({R.id.tv_title_name,R.id.tv_left_setting, R.id.tv_new_version, R.id.tv_name})
     public void onViewClicked(View view) {
         if (SystemUtil.isFastClick()) {
             return;
@@ -190,6 +192,23 @@ public class HomeActivity extends AppCompatActivity {
                 break;
 
             case R.id.tv_left_setting:
+
+                String[] leftEarSettings=getResources().getStringArray(R.array.left_ear_double_setting);
+                List<SettingBean> settingBeans=new ArrayList<>();
+                for(String name:leftEarSettings){
+                    SettingBean settingBean = new SettingBean();
+                    settingBean.name = name;
+                    settingBeans.add(settingBean);
+                }
+
+                SettingActionListDialog settingDialog =new SettingActionListDialog(this, "左耳 轻按2次", settingBeans, new CallBack<SettingBean>() {
+                    @Override
+                    public void callBack(SettingBean o) {
+                        tvLeftSetting.setText(o.name);
+                    }
+                });
+
+                settingDialog.show();
                 break;
 
             case R.id.tv_right_setting:
@@ -434,7 +453,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        mBluetoothHelper.stopDiscovery();
+        mBluetoothHelper.stopDiscovery();
     }
 
     /**

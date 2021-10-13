@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/dialog_container"
+    android:background="@drawable/shape_dialog_bg_bottom"
+    android:paddingBottom="@dimen/dp_30"
+    tools:ignore="MissingPrefix">
+
+    <TextView
+        android:id="@+id/tv_title_name"
+        style="@style/dialog_tip"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:text="左耳 轻按2次"
+        android:textColor="@color/color_444444" />
+
+    <ListView
+        android:id="@+id/lvSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginHorizontal="@dimen/dp_20"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/color_444444"
+        android:textSize="@dimen/text_size_16"
+        app:bl_corners_radius="@dimen/dp_10"
+        app:bl_solid_color="@android:color/white"
+        app:bl_stroke_color="#16000000"
+        app:bl_stroke_width="1dp" />
+
+</LinearLayout>
