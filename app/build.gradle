@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
 
@@ -103,6 +104,11 @@ dependencies {
     //MMKV 数据存储
     implementation 'com.tencent:mmkv-static:1.2.10'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
 
+}
+repositories {
+    mavenCentral()
 }

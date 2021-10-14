@@ -7,7 +7,9 @@ package com.juplus.app.bluetooth.interfaces;
  */
 
 public interface IBTMessageListener {
-    void onReceive(byte[] data);
+    void onRead(byte[] data);
+    void onWrite(byte[] data);
+    void onConnectFail();
     void onSendSuccess();
-    void onSendFail(Exception e);
+    void onMessageFail(String e);
 }

@@ -123,5 +123,6 @@ public class DeviceListDialog extends BaseDialog implements BluetoothAdapter.Ite
     @Override
     public void onItemClickListener(DeviceBean deviceBean) {
         itemClickListener.onItemClickListener(deviceBean);
+        dismiss();
     }
 }

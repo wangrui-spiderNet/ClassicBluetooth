@@ -8,15 +8,18 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -26,16 +29,17 @@ import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
-import com.juplus.app.utils.LogUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+
+import static com.juplus.app.bluetooth.BluetoothConnectionServiceKt.MESSAGE_CONNECT_SUCCESS;
+import static com.juplus.app.bluetooth.BluetoothConnectionServiceKt.MESSAGE_ERROR;
+import static com.juplus.app.bluetooth.BluetoothConnectionServiceKt.MESSAGE_FAIL_CONNECT;
+import static com.juplus.app.bluetooth.BluetoothConnectionServiceKt.MESSAGE_READ;
+import static com.juplus.app.bluetooth.BluetoothConnectionServiceKt.MESSAGE_WRITE;
 
 /**
  * @date 2019/7/23
@@ -47,7 +51,6 @@ public class BluetoothHelper implements IBluetoothHelper {
     private Context mContext;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothadapter;
-    private BluetoothDevice bluetoothDevice;
     private BluetoothA2dp mBluetoothA2dp;
     private BluetoothHeadset mBluetoothHeadset;
     //    private BluetoothHealth mBluetoothHealth;
@@ -60,6 +63,9 @@ public class BluetoothHelper implements IBluetoothHelper {
     private IBTMessageListener mBTMessageListener;
     private boolean isBackConDev;//是否返回已连接的设备
     private boolean isA2dpComplete, isHeadsetComplete;
+
+    private MyBluetoothService myBluetoothService;
+    private Handler mHandler;
 
     @Override
     public void init(Context context) {
@@ -77,8 +83,68 @@ public class BluetoothHelper implements IBluetoothHelper {
         if (mFilter == null) {
             mContext.registerReceiver(mBluetoothReceiver, makeFilter());
         }
+
+        mHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+
+                switch (msg.what) {
+                    case MESSAGE_READ:
+                        mBTMessageListener.onRead((byte[]) msg.obj);
+                        break;
+                    case MESSAGE_WRITE:
+                        mBTMessageListener.onWrite((byte[]) msg.obj);
+                        break;
+                    case MESSAGE_CONNECT_SUCCESS:
+                        mBTMessageListener.onSendSuccess();
+                        break;
+                    case MESSAGE_ERROR:
+                        mBTMessageListener.onMessageFail((String) msg.obj);
+                        break;
+                    case MESSAGE_FAIL_CONNECT:
+                        mBTMessageListener.onConnectFail();
+                        break;
+                }
+            }
+        };
+
+        myBluetoothService = MyBluetoothService.Companion.getInstance(mBluetoothadapter, mHandler);
     }
 
+    /**
+     * 发消息
+     *
+     * @param msg
+     */
+    public void sendCommand(String msg) {
+        myBluetoothService.write(msg.getBytes());
+    }
+
+    /**
+     * 连接设备
+     *
+     * @param device
+     */
+    public void connectDevice(BluetoothDevice device) {
+        myBluetoothService.connectToDevice(device);
+    }
+
+    /**
+     * 开始服务
+     *
+     * @return
+     */
+    public void startService() {
+        myBluetoothService.startService();
+    }
+
+    /**
+     * 关闭服务
+     */
+    public void stopService() {
+        myBluetoothService.startService();
+    }
 
     private IntentFilter makeFilter() {
         if (mFilter == null) {
@@ -354,7 +420,6 @@ public class BluetoothHelper implements IBluetoothHelper {
             mBTConnectListener.onConnectedDevice(devices);
             isBackConDev = false;
         }
-
     }
 
     @Override
@@ -648,136 +713,4 @@ public class BluetoothHelper implements IBluetoothHelper {
         }
     };
 
-    private MsgConnectThread msgConnectThread;
-
-    /**
-     * @param device
-     */
-    public void startMsgThread(BluetoothDevice device) {
-
-        try {
-            UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-            //创建Socket
-            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(SPP_UUID);
-            if (msgConnectThread == null) {
-                msgConnectThread = new MsgConnectThread(socket, device, true);
-                msgConnectThread.start();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void send2(BluetoothDevice device, byte[] bytes) {
-        try {
-            UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-            //创建Socket
-            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(SPP_UUID);
-            socket.getOutputStream().write(bytes);
-            mBTMessageListener.onSendSuccess();
-        } catch (Exception e) {
-            e.printStackTrace();
-            mBTMessageListener.onSendFail(e);
-        }
-    }
-
-    public void send(BluetoothDevice device,byte[] bytes) {
-        if (msgConnectThread == null) {
-            startMsgThread(device);
-        }else{
-            msgConnectThread.send(bytes);
-        }
-
-    }
-
-    private static final int BUFFER_SIZE = 256;
-
-    /**
-     * 连接线程
-     */
-    private class MsgConnectThread extends Thread {
-        private BluetoothDevice device;
-        private BluetoothSocket socket;
-        private boolean activeConnect;
-        InputStream inputStream;
-        OutputStream outputStream;
-
-        private MsgConnectThread(BluetoothSocket socket, BluetoothDevice device, boolean connect) {
-            this.socket = socket;
-            this.activeConnect = connect;
-            this.device = device;
-        }
-
-        @Override
-        public void run() {
-            //如果是自动连接 则调用连接方法
-            if (activeConnect) {
-                try {
-                    socket = (BluetoothSocket) device.getClass().getMethod("createRfcommSocket", new Class[]{int.class}).invoke(device, 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-//这里建立蓝牙连接 socket.connect() 这句话必须单开一个子线程
-//至于原因 暂时不知道为什么
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            socket.connect();
-                            //TODO connect success
-                            LogUtils.logBlueTooth(device.getName() + "连接成功");
-
-                            inputStream = socket.getInputStream();
-                            outputStream = socket.getOutputStream();
-
-                            byte[] buffer = new byte[BUFFER_SIZE];
-                            int bytes;
-                            while (true) {
-                                //读取数据
-                                bytes = inputStream.read(buffer);
-
-                                if (bytes > 0) {
-                                    final byte[] data = new byte[bytes];
-                                    System.arraycopy(buffer, 0, data, 0, bytes);
-                                    mBTMessageListener.onReceive(data);
-                                    //TODO 接收到的数据
-                                    LogUtils.logBlueTooth("收到消息：" + new String(data));
-
-                                }
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            LogUtils.logBlueTooth("连接异常:" + e.getMessage());
-                        }
-                    }
-                }.start();
-            }
-
-        }
-
-        void send(byte[] msg) {
-            try {
-                outputStream.write(msg);
-                mBTMessageListener.onSendSuccess();
-            } catch (Exception e) {
-                e.printStackTrace();
-                mBTMessageListener.onSendFail(e);
-            } finally {
-                try {
-                    outputStream.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    mBTMessageListener.onSendFail(e);
-                }
-
-            }
-        }
-    }
 }

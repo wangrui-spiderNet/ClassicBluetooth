@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BluetoothAdapter;
+import com.juplus.app.bluetooth.BluetoothConnectionServiceKt;
 import com.juplus.app.bluetooth.BluetoothHelper;
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
 import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
@@ -104,6 +105,7 @@ public class HomeActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         gson = new Gson();
 
+
         String json_double_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_double_array.json");
         String json_long_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_long_array.json");
         String setting_audio_array = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_audio_array.json");
@@ -187,9 +189,8 @@ public class HomeActivity extends AppCompatActivity {
 
                         HomeActivity.this.deviceBean = deviceBean;
                         setDeviceInfo(deviceBean);
-//                        mBLESPPUtils.connect(deviceBean.getBluetoothDevice());
-//                        LogUtils.logBlueTooth("此设备是否连接："+mBluetoothHelper.isConnected(deviceBean.getBluetoothDevice()));
-//                        mBluetoothHelper.sendMsg(deviceBean.getBluetoothDevice());
+
+//                        mBluetoothHelper.connectDevice(deviceBean.getBluetoothDevice());
                         LogUtils.logBlueTooth("连接是否成功：" + mBluetoothHelper.connect(deviceBean.getBluetoothDevice()));
                     }
                 });
@@ -373,18 +374,28 @@ public class HomeActivity extends AppCompatActivity {
 
     private IBTMessageListener mBTMessageListener = new IBTMessageListener() {
         @Override
-        public void onReceive(byte[] data) {
+        public void onRead(byte[] data) {
             LogUtils.logBlueTooth("接收到的消息："+new String(data));
         }
 
         @Override
-        public void onSendSuccess() {
-            LogUtils.logBlueTooth("发送成功：");
+        public void onWrite(byte[] data) {
+            LogUtils.logBlueTooth("发送的消息："+new String(data));
         }
 
         @Override
-        public void onSendFail(Exception e) {
-            LogUtils.logBlueTooth("发送失败："+e.getMessage());
+        public void onConnectFail() {
+            LogUtils.logBlueTooth("连接失败");
+        }
+
+        @Override
+        public void onSendSuccess() {
+            LogUtils.logBlueTooth("发送成功");
+        }
+
+        @Override
+        public void onMessageFail(String e) {
+            LogUtils.logBlueTooth("发送失败："+e);
         }
     };
 

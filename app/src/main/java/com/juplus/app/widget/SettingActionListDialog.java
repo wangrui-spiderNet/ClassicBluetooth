@@ -35,16 +35,16 @@ public class SettingActionListDialog extends BaseDialog {
     ListView lvSettings;
 
     private Context mContext;
-    private CallBack onClickListener;
+    private CallBack callBack;
     private List<SettingBean> settingBeanList;
 
     public SettingActionListDialog(@NonNull Context context, String titleName,
-                                   List<SettingBean> settingBeans, CallBack onClickListener) {
+                                   List<SettingBean> settingBeans, CallBack callBack) {
         super(context);
         mContext = context;
         mTitleName = titleName;
         settingBeanList = settingBeans;
-        this.onClickListener = onClickListener;
+        this.callBack = callBack;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class SettingActionListDialog extends BaseDialog {
                 }
 
                 settingBeanList.get(i).isSelected = true;
-                onClickListener.callBack(settingBeanList.get(i));
+                callBack.callBack(settingBeanList.get(i));
                 ((SettingActionAdapter)lvSettings.getAdapter()).notifyDataSetChanged();
 
                 dismiss();
