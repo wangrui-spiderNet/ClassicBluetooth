@@ -336,6 +336,8 @@ public class BluetoothHelper implements IBluetoothHelper {
         boolean isConnect = false;
         switch (styleMajor) {
             case BluetoothClass.Device.Major.AUDIO_VIDEO://音频设备
+            case BluetoothClass.Device.Major.PHONE://音频设备
+            case BluetoothClass.Device.Major.IMAGING://音频设备
                 if (connectA2dpAndHeadSet(BluetoothHeadset.class, mBluetoothHeadset, device)) {
                     isConnect = true;
                 }
@@ -343,14 +345,8 @@ public class BluetoothHelper implements IBluetoothHelper {
                     isConnect = true;
                 }
                 return isConnect;
-            case BluetoothClass.Device.Major.MISC://麦克风
-                if (connectA2dpAndHeadSet(BluetoothHeadset.class, mBluetoothHeadset, device)) {
-                    isConnect = true;
-                }
-                if (connectA2dpAndHeadSet(BluetoothA2dp.class, mBluetoothA2dp, device)) {
-                    isConnect = true;
-                }
-                return isConnect;
+
+
         }
         if (connectA2dpAndHeadSet(BluetoothHeadset.class, mBluetoothHeadset, device)) {
             isConnect = true;

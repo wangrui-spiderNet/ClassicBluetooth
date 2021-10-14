@@ -190,7 +190,7 @@ public class HomeActivity extends AppCompatActivity {
                         HomeActivity.this.deviceBean = deviceBean;
                         setDeviceInfo(deviceBean);
 
-//                        mBluetoothHelper.connectDevice(deviceBean.getBluetoothDevice());
+                        mBluetoothHelper.connectDevice(deviceBean.getBluetoothDevice());
                         LogUtils.logBlueTooth("连接是否成功：" + mBluetoothHelper.connect(deviceBean.getBluetoothDevice()));
                     }
                 });
@@ -210,7 +210,7 @@ public class HomeActivity extends AppCompatActivity {
                         tvDeviceName.setText(o);
                         tvName.setText(o);
 
-//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.getBytes());
+                        mBluetoothHelper.sendCommand(o);
                     }
                 });
                 mChangeNameDialog.show();
@@ -222,7 +222,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void callBack(SettingBean o) {
                         tvAudioType.setText(o.name);
-//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.name.getBytes());
+                        mBluetoothHelper.sendCommand(o.name);
                     }
                 });
                 audioSettingDialog.show();
@@ -234,7 +234,7 @@ public class HomeActivity extends AppCompatActivity {
                 leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
-//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.name.getBytes());
+                        mBluetoothHelper.sendCommand(o.name);
                         tvLeftSetting.setText(o.name);
                     }
                 });
@@ -246,7 +246,7 @@ public class HomeActivity extends AppCompatActivity {
                 leftLongSettingDialog = new SettingActionListDialog(this, "右耳 长按", leftEarLongSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
-//                        mBluetoothHelper.send(deviceBean.getBluetoothDevice(),o.name.getBytes());
+                        mBluetoothHelper.sendCommand(o.name);
                         tvRightSetting.setText(o.name);
                     }
                 });
