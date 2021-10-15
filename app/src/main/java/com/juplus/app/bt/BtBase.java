@@ -2,7 +2,6 @@ package com.juplus.app.bt;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Environment;
 
 import com.juplus.app.APP;
 import com.juplus.app.utils.Util;
@@ -12,7 +11,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -48,33 +49,38 @@ public class BtBase {
             notifyUI(Listener.CONNECTED, mSocket.getRemoteDevice());
             mDataOut = new DataOutputStream(mSocket.getOutputStream());
             mStreamOut = mSocket.getOutputStream();
-            DataInputStream in = new DataInputStream(mSocket.getInputStream());
+            InputStream mInputStream = mSocket.getInputStream();
+//            DataInputStream in = new DataInputStream(mSocket.getInputStream());
             isRead = true;
             while (isRead) { //死循环读取
-                switch (in.readInt()) {
-                    case FLAG_MSG: //读取短消息
-                        String msg = in.readUTF();
-                        notifyUI(Listener.MSG, "接收短消息：" + msg);
-                        break;
-                    case FLAG_FILE: //读取文件
-                        Util.mkdirs(FILE_PATH);
-                        String fileName = in.readUTF(); //文件名
-                        long fileLen = in.readLong(); //文件长度
-                        // 读取文件内容
-                        long len = 0;
-                        int r;
-                        byte[] b = new byte[4 * 1024];
-                        FileOutputStream out = new FileOutputStream(FILE_PATH + fileName);
-                        notifyUI(Listener.MSG, "正在接收文件(" + fileName + "),请稍后...");
-                        while ((r = in.read(b)) != -1) {
-                            out.write(b, 0, r);
-                            len += r;
-                            if (len >= fileLen)
-                                break;
-                        }
-                        notifyUI(Listener.MSG, "文件接收完成(存放在:" + FILE_PATH + ")");
-                        break;
-                }
+//                switch (in.readInt()) {
+//                    case FLAG_MSG: //读取短消息
+//                        String msg = in.readUTF();
+//                        notifyUI(Listener.MSG, "接收短消息：" + msg);
+//                        break;
+//                    case FLAG_FILE: //读取文件
+//                        Util.mkdirs(FILE_PATH);
+//                        String fileName = in.readUTF(); //文件名
+//                        long fileLen = in.readLong(); //文件长度
+//                        // 读取文件内容
+//                        long len = 0;
+//                        int r;
+//                        byte[] b = new byte[4 * 1024];
+//                        FileOutputStream out = new FileOutputStream(FILE_PATH + fileName);
+//                        notifyUI(Listener.MSG, "正在接收文件(" + fileName + "),请稍后...");
+//                        while ((r = in.read(b)) != -1) {
+//                            out.write(b, 0, r);
+//                            len += r;
+//                            if (len >= fileLen)
+//                                break;
+//                        }
+//                        notifyUI(Listener.MSG, "文件接收完成(存放在:" + FILE_PATH + ")");
+//                        break;
+//                }
+
+                byte[] bytes2=new byte[128];
+                mInputStream.read(bytes2);
+                notifyUI(Listener.MSG, "接收字节消息：" + Arrays.toString(bytes2));
             }
         } catch (Throwable e) {
             close();
@@ -198,11 +204,27 @@ public class BtBase {
         });
     }
 
+    private void notifyUIFromByte(final int state, final byte[] obj) {
+        APP.runUi(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (mListener != null)
+                        mListener.socketNotifyByte(state, obj);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
     public interface Listener {
         int DISCONNECTED = 0;
         int CONNECTED = 1;
         int MSG = 2;
 
         void socketNotify(int state, Object obj);
+        void socketNotifyByte(int state, byte[] obj);
     }
+
 }

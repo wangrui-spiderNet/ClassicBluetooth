@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-android'
 
 android {
 
@@ -104,11 +104,23 @@ dependencies {
     //MMKV 数据存储
     implementation 'com.tencent:mmkv-static:1.2.10'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation "androidx.core:core-ktx:+"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+//    implementation "androidx.core:core-ktx:+"
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
+    //权限申请
+    implementation 'pub.devrel:easypermissions:3.0.0'
+    //异步
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.4'
 
 }
 repositories {
     mavenCentral()
+    flatDir {
+        dirs 'libs' //this way we can find the .aar file in libs folder
+    }
+
+    maven {
+        url 'https://jitpack.io'
+    }
 }
