@@ -10,7 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.juplus.app.MyApplication;
+import com.juplus.app.APP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -93,14 +93,14 @@ public class SystemUtil {
      */
     public static void launchAppComment() {
         try {
-            Context ctx = MyApplication.getInstance();
+            Context ctx = APP.getInstance();
             String appPkg = ctx.getPackageName();
 //            String targetActivity = "com.google.android.finsky.writereview.WriteReviewActivity";
 
             if (TextUtils.isEmpty(appPkg))return;
 
             if(!isAvalable(GOOGLE_PACKAGE,ctx)){
-                Toast.makeText(MyApplication.getInstance(),"Google Play Store is not installed!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(APP.getInstance(),"Google Play Store is not installed!",Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -112,7 +112,7 @@ public class SystemUtil {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctx.startActivity(intent);
         } catch (Exception e) {
-            Toast.makeText(MyApplication.getInstance(),"Google Play Store is not installed!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(APP.getInstance(),"Google Play Store is not installed!",Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
@@ -142,7 +142,7 @@ public class SystemUtil {
      * @return 返回文件名称, 便于将文件传送到服务器
      */
     public static String getExceptionMessage(Throwable ex) {
-        Context ctx = MyApplication.getInstance();
+        Context ctx = APP.getInstance();
         // 用来存储设备信息和异常信息
         Map<String, String> infos = new HashMap<String, String>();
         infos.put("systemVersion", getSystemVersion());

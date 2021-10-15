@@ -20,11 +20,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BluetoothAdapter;
-import com.juplus.app.bluetooth.BluetoothConnectionServiceKt;
 import com.juplus.app.bluetooth.BluetoothHelper;
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
-import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
 import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
+import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.entity.DeviceBean;
@@ -89,7 +88,6 @@ public class HomeActivity extends AppCompatActivity {
     private BluetoothHelper mBluetoothHelper;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
 
-    private DeviceBean deviceBean;
 
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
@@ -106,9 +104,9 @@ public class HomeActivity extends AppCompatActivity {
         gson = new Gson();
 
 
-        String json_double_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_double_array.json");
-        String json_long_ear_setting = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_ear_long_array.json");
-        String setting_audio_array = AssetUtil.getJsonFromAsset(MyApplication.getInstance(), "setting_audio_array.json");
+        String json_double_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_double_array.json");
+        String json_long_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_long_array.json");
+        String setting_audio_array = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_audio_array.json");
 
         leftSettingBeans = gson.fromJson(json_double_ear_setting, new TypeToken<List<SettingBean>>() {
         }.getType());
@@ -124,14 +122,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                ToastUtil.showToast(MyApplication.getInstance(), "自动检测耳机：" + b);
+                ToastUtil.showToast(APP.getInstance(), "自动检测耳机：" + b);
             }
         });
 
         checkEar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ToastUtil.showToast(MyApplication.getInstance(), "语音唤醒：" + b);
+                ToastUtil.showToast(APP.getInstance(), "语音唤醒：" + b);
             }
         });
 
@@ -187,7 +185,6 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onItemClickListener(DeviceBean deviceBean) {
 
-                        HomeActivity.this.deviceBean = deviceBean;
                         setDeviceInfo(deviceBean);
 
                         mBluetoothHelper.connectDevice(deviceBean.getBluetoothDevice());
@@ -364,7 +361,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 LogUtils.logBlueTooth("已配对 :" + (dev == null ? 0 : dev.getName()));
 
-                paierDevStateChange(DeviceBean.STATE_BONDED, dev);
+//                paierDevStateChange(DeviceBean.STATE_BONDED, dev);
 
                 LogUtils.logBlueTooth("连接 :" + (dev == null ? 0 : dev.getName()));
                 mBluetoothHelper.connect(dev);

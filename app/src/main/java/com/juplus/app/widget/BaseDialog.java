@@ -1,14 +1,13 @@
 package com.juplus.app.widget;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatDialog;
 
-import com.juplus.app.MyApplication;
+import com.juplus.app.APP;
 import com.juplus.app.R;
 import com.juplus.app.utils.ScreenUtils;
 
@@ -31,7 +30,7 @@ public abstract class BaseDialog extends AppCompatDialog {
         Window window = getWindow();
         WindowManager.LayoutParams params = window.getAttributes();
 
-        int width = ScreenUtils.getScreenWidth(MyApplication.getInstance());
+        int width = ScreenUtils.getScreenWidth(APP.getInstance());
 
         params.width = widthRate==0 ? (int)(width*SCREEN_RATE): (int)(width*widthRate);
 

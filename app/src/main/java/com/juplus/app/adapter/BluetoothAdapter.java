@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.juplus.app.MyApplication;
+import com.juplus.app.APP;
 import com.juplus.app.R;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.utils.UIUtil;
@@ -135,19 +135,19 @@ public class BluetoothAdapter extends RecyclerView.Adapter<BluetoothAdapter.MyVi
 
         Drawable drawableBg;
         if (deviceBean.getSelected()) {
-            drawableBg = new DrawableCreator.Builder().setCornersRadius(UIUtil.dip2px(MyApplication.getInstance(), 10))
+            drawableBg = new DrawableCreator.Builder().setCornersRadius(UIUtil.dip2px(APP.getInstance(), 10))
                     .setSolidColor(Color.parseColor("#1BAEAE"))
                     .build();
             holder.iv_headset_status.setImageResource(R.mipmap.icon_head_status_on);
-            holder.tv_device_name.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.white));
-            holder.tv_device_status.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.white));
+            holder.tv_device_name.setTextColor(APP.getInstance().getResources().getColor(R.color.white));
+            holder.tv_device_status.setTextColor(APP.getInstance().getResources().getColor(R.color.white));
         } else {
-            drawableBg = new DrawableCreator.Builder().setCornersRadius(UIUtil.dip2px(MyApplication.getInstance(), 10))
+            drawableBg = new DrawableCreator.Builder().setCornersRadius(UIUtil.dip2px(APP.getInstance(), 10))
                     .setSolidColor(Color.parseColor("#F6F7F9"))
                     .build();
             holder.iv_headset_status.setImageResource(R.mipmap.icon_head_status_off);
-            holder.tv_device_name.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.color_222222));
-            holder.tv_device_status.setTextColor(MyApplication.getInstance().getResources().getColor(R.color.color_222222));
+            holder.tv_device_name.setTextColor(APP.getInstance().getResources().getColor(R.color.color_222222));
+            holder.tv_device_status.setTextColor(APP.getInstance().getResources().getColor(R.color.color_222222));
         }
 
         holder.layout.setBackground(drawableBg);
