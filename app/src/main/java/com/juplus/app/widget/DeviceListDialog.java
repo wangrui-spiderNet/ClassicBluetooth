@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.juplus.app.R;
-import com.juplus.app.adapter.BluetoothAdapter;
+import com.juplus.app.adapter.BtDeviceAdapter;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.utils.SystemUtil;
 
@@ -30,7 +30,7 @@ import butterknife.OnClick;
 /**
  * 用于操作确认弹窗
  */
-public class DeviceListDialog extends BaseDialog implements BluetoothAdapter.ItemClickListener {
+public class DeviceListDialog extends BaseDialog implements BtDeviceAdapter.ItemClickListener {
     @BindView(R.id.tv_device_count)
     TextView tvDeviceCount;
     @BindView(R.id.tv_enter_bluetooth)
@@ -49,12 +49,12 @@ public class DeviceListDialog extends BaseDialog implements BluetoothAdapter.Ite
 
     private Context mContext;
     private List<DeviceBean> deviceBeans;
-    private BluetoothAdapter mPairedAdapter;
-    private BluetoothAdapter.ItemClickListener itemClickListener;
+    private BtDeviceAdapter mPairedAdapter;
+    private BtDeviceAdapter.ItemClickListener itemClickListener;
 
     public DeviceListDialog(@NonNull Context context
             , List<DeviceBean> deviceBeanList
-            , BluetoothAdapter.ItemClickListener itemClickListener) {
+            , BtDeviceAdapter.ItemClickListener itemClickListener) {
         super(context);
         mContext = context;
         deviceBeans = deviceBeanList;
@@ -71,7 +71,7 @@ public class DeviceListDialog extends BaseDialog implements BluetoothAdapter.Ite
         setCanceledOnTouchOutside(true);
         setWindowParam(Gravity.TOP, 1f);
 
-        mPairedAdapter = new BluetoothAdapter();
+        mPairedAdapter = new BtDeviceAdapter();
         recyclerViewPaired.setLayoutManager(new LinearLayoutManager(getContext()));
 //        recyclerViewPaired.addItemDecoration(new SpacesItemDecoration(10));
         recyclerViewPaired.setAdapter(mPairedAdapter);
@@ -80,7 +80,7 @@ public class DeviceListDialog extends BaseDialog implements BluetoothAdapter.Ite
 
     }
 
-    public BluetoothAdapter getPairedAdapter() {
+    public BtDeviceAdapter getPairedAdapter() {
         return mPairedAdapter;
     }
 

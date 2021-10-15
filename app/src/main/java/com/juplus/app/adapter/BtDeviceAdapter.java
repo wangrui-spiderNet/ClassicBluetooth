@@ -22,11 +22,11 @@ import com.noober.background.drawable.DrawableCreator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BluetoothAdapter extends RecyclerView.Adapter<BluetoothAdapter.MyViewHolder> {
+public class BtDeviceAdapter extends RecyclerView.Adapter<BtDeviceAdapter.MyViewHolder> {
     private List<DeviceBean> datas;
     private ItemClickListener mItemClickListener;
 
-    public BluetoothAdapter() {
+    public BtDeviceAdapter() {
         datas = new ArrayList<>();
     }
 

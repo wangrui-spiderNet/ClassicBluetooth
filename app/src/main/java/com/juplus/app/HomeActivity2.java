@@ -1,7 +1,10 @@
 package com.juplus.app;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,22 +23,24 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BtDeviceAdapter;
-import com.juplus.app.bluetooth.BluetoothHelper;
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
 import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
 import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
+import com.juplus.app.bt.BtBase;
+import com.juplus.app.bt.BtClient;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.entity.SettingBean;
 import com.juplus.app.utils.AssetUtil;
+import com.juplus.app.utils.BtReceiver;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
-import com.juplus.app.widget.SettingActionListDialog;
 import com.juplus.app.widget.CallBack;
 import com.juplus.app.widget.ChangeNameDialog;
 import com.juplus.app.widget.DeviceListDialog;
+import com.juplus.app.widget.SettingActionListDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +52,7 @@ import butterknife.OnClick;
 import butterknife.Optional;
 
 @SuppressLint("MissingPermission")
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity2 extends AppCompatActivity implements BtBase.Listener, BtReceiver.Listener {
     private ImmersionBar immersionBar;
 
     @BindView(R.id.tv_title_name)
@@ -85,16 +90,14 @@ public class HomeActivity extends AppCompatActivity {
 
     private DeviceListDialog mDeviceListDialog;
     private ChangeNameDialog mChangeNameDialog;
-    private BluetoothHelper mBluetoothHelper;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
-
 
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
 
     private Gson gson;
-
-//    private BLESPPUtils mBLESPPUtils;
+    private BluetoothAdapter mBluetoothadapter;
+    private final BtClient mClient = new BtClient(this);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,7 +105,6 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
         gson = new Gson();
-
 
         String json_double_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_double_array.json");
         String json_long_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_long_array.json");
@@ -144,30 +146,50 @@ public class HomeActivity extends AppCompatActivity {
                 switch (i) {
                     case R.id.rbLowNoise:
                         rbLowNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_low_noise_checked, 0, 0);
+
+                        mClient.sendByte(new byte[]{1,2,3});
                         break;
 
                     case R.id.rbCloseNoise:
                         rbCloseNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_close_noise_checked, 0, 0);
+                        mClient.sendByte(new byte[]{4,5,6});
                         break;
 
                     case R.id.rbVentilateNoise:
                         rbVentilateNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_ventilate_checked, 0, 0);
+                        mClient.sendByte(new byte[]{7,8,9});
                         break;
                 }
             }
         });
 
-        mBluetoothHelper = new BluetoothHelper();
-        mBluetoothHelper.setBTStateListener(mBTStateListener);//设置打开关闭状态监听
-        mBluetoothHelper.setBTScanListener(mBTScanListener);//设置扫描监听
-        mBluetoothHelper.setBTBoudListener(mBTBoudListener);//设置配对监听
-        mBluetoothHelper.setBTConnectListener(mBTConnectListener);//设置连接监听
-        mBluetoothHelper.setBTMessageListener(mBTMessageListener);//设置消息监听
-        mBluetoothHelper.init(this);
-
         getBondedDevices();
-        mBluetoothHelper.getConnectedDevices();
 
+    }
+
+    @Override
+    public void foundDev(BluetoothDevice dev) {
+
+    }
+
+    @Override
+    public void socketNotify(int state, Object obj) {
+        if (isDestroyed())
+            return;
+        String msg = null;
+        switch (state) {
+            case BtBase.Listener.CONNECTED:
+                BluetoothDevice dev = (BluetoothDevice) obj;
+                msg = String.format("与%s(%s)连接成功", dev.getName(), dev.getAddress());
+                break;
+            case BtBase.Listener.DISCONNECTED:
+                msg = "连接断开";
+                break;
+            case BtBase.Listener.MSG:
+                msg = String.format("\n%s", obj);
+                break;
+        }
+        APP.toast(msg, 0);
     }
 
     @SuppressLint("StringFormatMatches")
@@ -186,9 +208,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void onItemClickListener(DeviceBean deviceBean) {
 
                         setDeviceInfo(deviceBean);
-
-                        mBluetoothHelper.connectDevice(deviceBean.getBluetoothDevice());
-                        LogUtils.logBlueTooth("连接是否成功：" + mBluetoothHelper.connect(deviceBean.getBluetoothDevice()));
+                        mClient.connect(deviceBean.getBluetoothDevice());
                     }
                 });
 
@@ -207,7 +227,7 @@ public class HomeActivity extends AppCompatActivity {
                         tvDeviceName.setText(o);
                         tvName.setText(o);
 
-                        mBluetoothHelper.sendCommand(o);
+                        mClient.sendMsg(o);
                     }
                 });
                 mChangeNameDialog.show();
@@ -219,7 +239,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void callBack(SettingBean o) {
                         tvAudioType.setText(o.name);
-                        mBluetoothHelper.sendCommand(o.name);
+                        mClient.sendMsg(o.name);
                     }
                 });
                 audioSettingDialog.show();
@@ -231,7 +251,7 @@ public class HomeActivity extends AppCompatActivity {
                 leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
-                        mBluetoothHelper.sendCommand(o.name);
+                        mClient.sendMsg(o.name);
                         tvLeftSetting.setText(o.name);
                     }
                 });
@@ -243,7 +263,7 @@ public class HomeActivity extends AppCompatActivity {
                 leftLongSettingDialog = new SettingActionListDialog(this, "右耳 长按", leftEarLongSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
-                        mBluetoothHelper.sendCommand(o.name);
+                        mClient.sendMsg(o.name);
                         tvRightSetting.setText(o.name);
                     }
                 });
@@ -282,208 +302,6 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //蓝牙状态监听
-    private IBTStateListener mBTStateListener = new IBTStateListener() {
-
-        /**
-         * 蓝牙开关状态
-         * int STATE_OFF = 10; //蓝牙关闭
-         * int STATE_ON = 12; //蓝牙打开
-         * int STATE_TURNING_OFF = 13; //蓝牙正在关闭
-         * int STATE_TURNING_ON = 11; //蓝牙正在打开
-         */
-        @Override
-        public void onStateChange(int state) {
-            switch (state) {
-                case android.bluetooth.BluetoothAdapter.STATE_OFF:
-                    deviceBeanList.clear();
-                    updateDeviceAdapter();
-                    Toast.makeText(HomeActivity.this, "蓝牙已关闭", Toast.LENGTH_SHORT).show();
-                    break;
-                case android.bluetooth.BluetoothAdapter.STATE_ON:
-                    Toast.makeText(HomeActivity.this, "蓝牙已打开", Toast.LENGTH_SHORT).show();
-                    getBondedDevices();
-//                    mBluetoothHelper.setDiscoverableTimeout(300);//设置可见时间
-                    mBluetoothHelper.startDiscovery();
-                    break;
-                case android.bluetooth.BluetoothAdapter.STATE_TURNING_OFF:
-                    Toast.makeText(HomeActivity.this, "蓝牙 STATE_TURNING_OFF", Toast.LENGTH_SHORT).show();
-                    break;
-                case android.bluetooth.BluetoothAdapter.STATE_TURNING_ON:
-                    Toast.makeText(HomeActivity.this, "蓝牙 STATE_TURNING_ON", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
-
-    //蓝牙搜索监听
-    private IBTScanListener mBTScanListener = new IBTScanListener() {
-        @Override
-        public void onScanStart() {//搜索开始
-            Toast.makeText(HomeActivity.this, "搜索开始", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onScanStop(List<BluetoothDevice> deviceList) {//搜索结束
-
-            Toast.makeText(HomeActivity.this, "搜索全部数量:" + (deviceList != null ? deviceList.size() : 0), Toast.LENGTH_SHORT).show();
-        }
-
-        /**
-         *
-         * @param device
-         */
-        @Override
-        public void onFindDevice(BluetoothDevice device) {//发现新设备
-            if (device.getBondState() == BluetoothDevice.BOND_BONDED) {//已配对
-
-                LogUtils.logBlueTooth("onFindDevice  已配对:" + (device == null ? 0 : device.getName()));
-                addDevPair(DeviceBean.STATE_BONDED, device);
-            }
-//            else{
-//                addDevUse(device);
-//            }
-        }
-    };
-
-    //蓝牙配对监听
-    private IBTBoudListener mBTBoudListener = new IBTBoudListener() {
-
-        /**
-         * 设备配对状态改变
-         * int BOND_NONE = 10; //配对没有成功
-         * int BOND_BONDING = 11; //配对中
-         * int BOND_BONDED = 12; //配对成功
-         */
-        @Override
-        public void onBondStateChange(BluetoothDevice dev) {
-            if (dev.getBondState() == BluetoothDevice.BOND_BONDED) {//已配对
-
-                LogUtils.logBlueTooth("已配对 :" + (dev == null ? 0 : dev.getName()));
-
-//                paierDevStateChange(DeviceBean.STATE_BONDED, dev);
-
-                LogUtils.logBlueTooth("连接 :" + (dev == null ? 0 : dev.getName()));
-                mBluetoothHelper.connect(dev);
-            }
-        }
-    };
-
-    private IBTMessageListener mBTMessageListener = new IBTMessageListener() {
-        @Override
-        public void onRead(byte[] data) {
-            LogUtils.logBlueTooth("接收到的消息："+new String(data));
-        }
-
-        @Override
-        public void onWrite(byte[] data) {
-            LogUtils.logBlueTooth("发送的消息："+new String(data));
-        }
-
-        @Override
-        public void onConnectFail() {
-            LogUtils.logBlueTooth("连接失败");
-        }
-
-        @Override
-        public void onSendSuccess() {
-            LogUtils.logBlueTooth("发送成功");
-        }
-
-        @Override
-        public void onMessageFail(String e) {
-            LogUtils.logBlueTooth("发送失败："+e);
-        }
-    };
-
-    //蓝牙配对监听
-    private IBTConnectListener mBTConnectListener = new IBTConnectListener() {
-        @Override
-        public void onConnecting(BluetoothDevice bluetoothDevice) {//连接中
-            LogUtils.logBlueTooth("onConnecting :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
-
-            paierDevStateChange(DeviceBean.STATE_CONNECTING, bluetoothDevice);
-        }
-
-        @Override
-        public void onConnected(BluetoothDevice bluetoothDevice) {//连接成功
-            LogUtils.logBlueTooth("onConnected :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
-
-            paierDevStateChange(DeviceBean.STATE_CONNECTED, bluetoothDevice);
-        }
-
-        @Override
-        public void onDisConnecting(BluetoothDevice bluetoothDevice) {//断开中
-            LogUtils.logBlueTooth("onDisConnecting :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
-            paierDevStateChange(DeviceBean.STATE_DISCONNECTING, bluetoothDevice);
-        }
-
-        @Override
-        public void onDisConnect(BluetoothDevice bluetoothDevice) {//断开
-            LogUtils.logBlueTooth("onDisConnect :" + (bluetoothDevice == null ? 0 : bluetoothDevice.getName()));
-            paierDevStateChange(DeviceBean.STATE_DISCONNECTED, bluetoothDevice);
-        }
-
-        @Override
-        public void onConnectedDevice(List<BluetoothDevice> devices) {//已连接设备
-
-            LogUtils.logBlueTooth("onConnectedDevice :" + (devices == null ? 0 : devices.size()));
-
-            if (devices == null || devices.size() < 1) {
-                return;
-            }
-            for (BluetoothDevice dev : devices) {
-                DeviceBean btUseItem = findItemByList(deviceBeanList, dev);
-                if (btUseItem != null) {
-                    btUseItem.setBluetoothDevice(dev);
-                    if (mBluetoothHelper.isConnected(dev)) {
-                        btUseItem.setState(DeviceBean.STATE_CONNECTED);
-                    } else if (btUseItem.getState() != DeviceBean.STATE_CONNECTED) {
-                        btUseItem.setState(DeviceBean.STATE_DISCONNECTED);
-                    }
-                } else {
-                    DeviceBean bluetoothItem = createBluetoothItem(dev);
-                    if (mBluetoothHelper.isConnected(dev)) {
-                        bluetoothItem.setState(DeviceBean.STATE_CONNECTED);
-                    } else {
-                        btUseItem.setState(DeviceBean.STATE_DISCONNECTED);
-                    }
-                    deviceBeanList.add(0, bluetoothItem);
-                }
-            }
-
-            updateDeviceAdapter();
-        }
-    };
-
-    /**
-     * 配对设备列表发生改变
-     *
-     * @param state
-     * @param dev
-     */
-    private void paierDevStateChange(int state, BluetoothDevice dev) {
-        DeviceBean btUseItem = findItemByList(deviceBeanList, dev);
-        DeviceBean btPaireItem = findItemByList(deviceBeanList, dev);
-        if (btUseItem != null) {
-            btUseItem.setState(state);
-            btUseItem.setBluetoothDevice(dev);
-            if (btPaireItem != null) {
-                deviceBeanList.remove(btPaireItem);
-            }
-            deviceBeanList.add(0, btUseItem);
-        } else if (btPaireItem != null) {
-            btPaireItem.setState(state);
-            btPaireItem.setBluetoothDevice(dev);
-        } else {
-            DeviceBean bluetoothItem = createBluetoothItem(dev);
-            bluetoothItem.setState(state);
-            deviceBeanList.add(0, bluetoothItem);
-        }
-
-        updateDeviceAdapter();
-    }
-
     /**
      * 从集合 datas 中找 dev 对应的项
      *
@@ -512,21 +330,25 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mBluetoothHelper.startDiscovery();
+        mBluetoothadapter.startDiscovery();
         LogUtils.logBlueTooth("onResume  开始搜索");
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mBluetoothHelper.stopDiscovery();
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        mBluetoothadapter.stopDiscovery();
+//    }
 
     /**
      * 获取已配对设备
      */
     private void getBondedDevices() {//以配对设备
-        Set<BluetoothDevice> bluetoothDeviceSet = mBluetoothHelper.getBondedDevices();
+        BluetoothManager   mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothadapter = mBluetoothManager.getAdapter();
+        mBluetoothadapter.startDiscovery();
+
+        Set<BluetoothDevice> bluetoothDeviceSet = mBluetoothadapter.getBondedDevices();
         if (bluetoothDeviceSet != null && bluetoothDeviceSet.size() > 0) {
             for (BluetoothDevice device : bluetoothDeviceSet) {
                 addDevPair(DeviceBean.STATE_BONDED, device);
@@ -550,6 +372,7 @@ public class HomeActivity extends AppCompatActivity {
             deviceBeanList.add(0, bluetoothItem);
         }
 
+        updateDeviceAdapter();
         ToastUtil.showToast(this, "已配对数量:" + deviceBeanList.size());
     }
 
@@ -567,14 +390,8 @@ public class HomeActivity extends AppCompatActivity {
             mChangeNameDialog = null;
         }
 
-        mBluetoothHelper.stopDiscovery();
-        mBluetoothHelper.setBTStateListener(null);//设置打开关闭状态监听
-        mBluetoothHelper.setBTScanListener(null);//设置扫描监听
-        mBluetoothHelper.setBTBoudListener(null);//设置配对监听
-        mBluetoothHelper.setBTConnectListener(null);//设置连接监听
-        mBluetoothHelper.destroy();
-
-
+        mClient.unListener();
+        mClient.close();
     }
 
 }

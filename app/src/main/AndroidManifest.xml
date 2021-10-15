@@ -35,7 +35,7 @@
             android:name="notch.config"
             android:value="portrait|landscape" />
 
-        <activity android:name=".HomeActivity">
+        <activity android:name=".HomeActivity2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

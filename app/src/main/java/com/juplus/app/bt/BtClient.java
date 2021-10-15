@@ -12,7 +12,7 @@ import com.juplus.app.utils.Util;
  */
 @SuppressLint("MissingPermission")
 public class BtClient extends BtBase {
-    BtClient(Listener listener) {
+    public BtClient(Listener listener) {
         super(listener);
     }
 

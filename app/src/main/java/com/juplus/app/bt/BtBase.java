@@ -12,6 +12,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -19,12 +21,14 @@ import java.util.UUID;
  */
 public class BtBase {
     static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private static final String FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/bluetooth/";
+    private static final String FILE_PATH = APP.getInstance().filePath() + "/bluetooth/";
     private static final int FLAG_MSG = 0;  //消息标记
     private static final int FLAG_FILE = 1; //文件标记
+    private static final int FLAG_BYTE = 2; //文件标记
 
     private BluetoothSocket mSocket;
-    private DataOutputStream mOut;
+    private DataOutputStream mDataOut;
+    private OutputStream mStreamOut;
     private Listener mListener;
     private boolean isRead;
     private boolean isSending;
@@ -42,7 +46,8 @@ public class BtBase {
             if (!mSocket.isConnected())
                 mSocket.connect();
             notifyUI(Listener.CONNECTED, mSocket.getRemoteDevice());
-            mOut = new DataOutputStream(mSocket.getOutputStream());
+            mDataOut = new DataOutputStream(mSocket.getOutputStream());
+            mStreamOut = mSocket.getOutputStream();
             DataInputStream in = new DataInputStream(mSocket.getInputStream());
             isRead = true;
             while (isRead) { //死循环读取
@@ -83,10 +88,27 @@ public class BtBase {
         if (checkSend()) return;
         isSending = true;
         try {
-            mOut.writeInt(FLAG_MSG); //消息标记
-            mOut.writeUTF(msg);
-            mOut.flush();
+            mDataOut.writeInt(FLAG_MSG); //消息标记
+            mDataOut.writeUTF(msg);
+            mDataOut.flush();
             notifyUI(Listener.MSG, "发送短消息：" + msg);
+        } catch (Throwable e) {
+            close();
+        }
+        isSending = false;
+    }
+
+    /**
+     * 发送字节数组
+     */
+    public void sendByte(byte[] msg) {
+        if (checkSend()) return;
+        isSending = true;
+        try {
+//            mStreamOut.write(FLAG_BYTE); //消息标记
+            mStreamOut.write(msg);
+            mStreamOut.flush();
+            notifyUI(Listener.MSG, "发送短消息：" + Arrays.toString(msg));
         } catch (Throwable e) {
             close();
         }
@@ -105,15 +127,15 @@ public class BtBase {
                 try {
                     FileInputStream in = new FileInputStream(filePath);
                     File file = new File(filePath);
-                    mOut.writeInt(FLAG_FILE); //文件标记
-                    mOut.writeUTF(file.getName()); //文件名
-                    mOut.writeLong(file.length()); //文件长度
+                    mDataOut.writeInt(FLAG_FILE); //文件标记
+                    mDataOut.writeUTF(file.getName()); //文件名
+                    mDataOut.writeLong(file.length()); //文件长度
                     int r;
                     byte[] b = new byte[4 * 1024];
                     notifyUI(Listener.MSG, "正在发送文件(" + filePath + "),请稍后...");
                     while ((r = in.read(b)) != -1)
-                        mOut.write(b, 0, r);
-                    mOut.flush();
+                        mDataOut.write(b, 0, r);
+                    mDataOut.flush();
                     notifyUI(Listener.MSG, "文件发送完成.");
                 } catch (Throwable e) {
                     close();
