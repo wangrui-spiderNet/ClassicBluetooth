@@ -13,19 +13,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 import com.juplus.app.bluetooth.interfaces.IBTBoudListener;
-import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
 import com.juplus.app.bluetooth.interfaces.IBTConnectListener;
+import com.juplus.app.bluetooth.interfaces.IBTMessageListener;
 import com.juplus.app.bluetooth.interfaces.IBTScanListener;
 import com.juplus.app.bluetooth.interfaces.IBTStateListener;
 import com.juplus.app.bluetooth.interfaces.IBluetoothHelper;
@@ -46,7 +45,7 @@ import static com.juplus.app.bluetooth.BluetoothConnectionServiceKt.MESSAGE_WRIT
  * @desc 蓝牙辅助类
  */
 @SuppressLint("MissingPermission")
-public class BluetoothHelper implements IBluetoothHelper {
+public class BluetoothHelper2 implements IBluetoothHelper {
     private final String TAG = "BluetoothHelper";
     private Context mContext;
     private BluetoothManager mBluetoothManager;
@@ -619,9 +618,6 @@ public class BluetoothHelper implements IBluetoothHelper {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
                     dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     Log.i(TAG, "设备建立连接：" + dev.getBondState());
-                    if (mBTConnectListener != null) {
-                        mBTConnectListener.onConnected(dev);
-                    }
 //                    mCallback.onConnect(dev);
                     break;
                 /**
@@ -630,9 +626,6 @@ public class BluetoothHelper implements IBluetoothHelper {
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                     dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     // mCallback.onConnect(dev.getBondState(), dev);
-                    if (mBTConnectListener != null) {
-                        mBTConnectListener.onDisConnect(dev);
-                    }
                     break;
                 /**
                  * 本地蓝牙适配器

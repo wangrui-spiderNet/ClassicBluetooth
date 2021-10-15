@@ -1,85 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="vertical"
-    android:scrollbarFadeDuration="3000"
-    >
-    <RelativeLayout
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tv_bt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/tv_bluetooth"
-            android:text="蓝牙"
-            android:layout_marginLeft="20px"
-            android:layout_marginBottom="30px"
-            android:layout_marginTop="20px"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Switch
-            android:id="@+id/sw_bluetooth"
-            android:gravity="center"
-            android:focusable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="200px"
-            android:layout_toEndOf="@id/tv_bluetooth"
-            android:button="@drawable/time_settings_auto_sync"
-            android:textOn=""
-            android:textOff=""
-            android:thumb="@null"
-            android:track="@null" />
+        android:gravity="center"
+        android:text="@string/bt"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_name_tip"
-            android:text="设备名称"
-            android:layout_marginLeft="20px"
-            android:layout_marginBottom="20px"
-            android:layout_below="@+id/tv_bluetooth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btn_bt_client"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btClient"
+        android:text="@string/bt_client"
+        app:layout_constraintTop_toBottomOf="@+id/tv_bt" />
 
-        <TextView
-            android:id="@+id/tv_name"
-            android:minWidth="50px"
-            android:layout_marginLeft="50px"
-            android:layout_toEndOf="@id/tv_name_tip"
-            android:layout_below="@+id/tv_bluetooth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btn_bt_server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btServer"
+        android:text="@string/bt_server"
+        app:layout_constraintTop_toBottomOf="@+id/btn_bt_client" />
 
-        <TextView
-            android:id="@+id/tv_paired_device_tip"
-            android:text="已配对设备"
-            android:layout_marginLeft="20px"
-            android:layout_marginBottom="20px"
-            android:layout_below="@+id/tv_name_tip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_paired"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_paired_device_tip"
-            />
+    <View
+        android:id="@+id/line2"
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:layout_marginTop="64dp"
+        android:background="#000"
+        app:layout_constraintTop_toBottomOf="@+id/btn_bt_server" />
 
-        <TextView
-            android:id="@+id/tv_use_device_tip"
-            android:text="可用设备"
-            android:layout_marginLeft="20px"
-            android:layout_marginBottom="20px"
-            android:gravity="center_vertical"
-            android:drawablePadding="15px"
-            android:layout_below="@+id/recycler_view_paired"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_use"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_use_device_tip"
-            />
-    </RelativeLayout>
-</androidx.core.widget.NestedScrollView>
+    <TextView
+        android:id="@+id/tv_ble"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/ble"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/line2" />
+
+    <Button
+        android:id="@+id/btn_ble_client"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="bleClient"
+        android:text="@string/ble_client"
+        app:layout_constraintTop_toBottomOf="@+id/tv_ble" />
+
+    <Button
+        android:id="@+id/btn_ble_server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="bleServer"
+        android:text="@string/ble_server"
+        app:layout_constraintTop_toBottomOf="@+id/btn_ble_client" />
+</android.support.constraint.ConstraintLayout>
