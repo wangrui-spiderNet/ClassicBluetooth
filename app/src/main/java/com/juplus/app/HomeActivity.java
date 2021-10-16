@@ -65,7 +65,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
 @SuppressLint("MissingPermission")
-public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BTConnectListener,BTByteListener, BtReceiver.Listener {
+public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BTConnectListener, BTByteListener, BtReceiver.Listener {
     private ImmersionBar immersionBar;
 
     @BindView(R.id.tv_title_name)
@@ -118,7 +118,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     private static final int OPEN_BLUETOOTH_CODE = 110;
 
     private Gson gson;
-    private BtClient mClient = new BtClient(this,this);
+    private BtClient mClient = new BtClient(this, this);
     private BluetoothAdapter mBluetoothadapter;
 
     @Override
@@ -209,11 +209,219 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     }
 
-    @Override
-    public void onReceiveByte(int state, byte[] msg) {
+    private String mKeyData1, mKeyData2, mKey2;
 
+    @Override
+    public void onReceiveByte(int state, byte[] bytes) {
+        String s = Utils.bytesToHexString(bytes);
+        LogUtils.logBlueTooth("接收到的消息");
+        if (TextUtils.isEmpty(s)) {
+            return;
+        }
+        //if (s.length() < 4) {
+        //    //这里可能需要使用Macaddress来校验
+        //    showSuccess2();
+        //    return;
+        //}
+        String code = s.substring(2, 4);
+        switch (code) {
+            case "01":
+                //握手响应
+                String substring = s.substring(6, 10);
+                if (substring.equalsIgnoreCase("534C")) {
+                    String[] verificationCommand = Utils.getVerificationCommand();
+                    mKeyData1 = verificationCommand[3];
+                    mKeyData2 = verificationCommand[4];
+                    mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
+                    //                    Log.i(TAG, "onReceiveBytes:Key2 " + mKey2);
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append(verificationCommand[0]);
+                    stringBuffer.append(verificationCommand[1]);
+                    stringBuffer.append(verificationCommand[2]);
+                    stringBuffer.append(verificationCommand[3]);
+                    mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showError();
+                        }
+                    });
+                }
+                break;
+            case "02":
+                //校验响应
+                boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
+                if (b) {
+                    mClient.sendByte(Utils.hexStringToByteArray("C003"));
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showError();
+                        }
+                    });
+                }
+                break;
+            case "03":
+//                isWhat110 = true;
+                //芯片型号响应
+                String substring1 = s.substring(6, s.length() - 2);
+                String s1 = Utils.hexStringToString(substring1);
+                //                Log.i(TAG, "onReceiveBytes: " + s1);
+                //                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
+//                BluetoothModel.getInstance().setDh(s1);
+                if ("545753313036".equalsIgnoreCase(substring1)) {
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            try {
+//                                Thread.sleep(2 * 1000);  //线程休眠10秒执行
+//                                handler.sendEmptyMessage(666);
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }).start();
+                    //mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
+                    mClient.sendByte(Utils.hexStringToByteArray("C050"));
+                } else {
+//                    showSuccess2();
+
+                }
+                break;
+            case "04":
+                //产品型号响应
+                String substring2 = s.substring(6, s.length() - 2);
+                String s2 = Utils.hexStringToString(substring2);
+                //                Log.i(TAG, "onReceiveBytes: " + s2);
+//                BluetoothModel.getInstance().setProductNumber(s2);
+                mClient.sendByte(Utils.hexStringToByteArray("C005"));
+                break;
+            case "05":
+                //软件版本响应
+                String substring3 = s.substring(6, s.length() - 2);
+                String s3 = Utils.hexStringToString(substring3);
+                //                Log.i(TAG, "onReceiveBytes: " + s3);
+//                BluetoothModel.getInstance().setSoftwareVersion(s3);
+                mClient.sendByte(Utils.hexStringToByteArray("C006"));
+                break;
+            case "06":
+                //蓝牙地址响应
+                String substring4 = s.substring(6);
+                int len = substring4.length();
+                int num = 0;
+                StringBuffer str = new StringBuffer();
+                while (num < len) {
+                    String substring5 = substring4.substring(num, num + 2);
+                    str.append(substring5);
+                    if (num != len - 2) {
+                        str.append(":");
+                    }
+                    num = num + 2;
+                }
+//                BluetoothModel.getInstance().setBluetoothAddress(str.toString());
+                //                Log.i(TAG, "onReceiveBytes:  " + str.toString());
+
+//                showSuccess1();
+
+                break;
+            case "50":
+//                isWhat110 = false;
+                mClient.sendByte(Utils.hexStringToByteArray("C051"));
+                String content50 = s.substring(6, 8);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (content50.equals("01")) {
+//                            isOpen = true;
+//                            mSawtooth.setChecked(true);
+//                        } else if (content50.equals("00")) {
+//                            isOpen = false;
+//                            mSawtooth.setChecked(false);
+//                        }
+//                        logD(content50);
+//                    }
+//                });
+
+                break;
+            case "51":
+                String SNText = s.substring(6, s.length());
+                for (int i = 0; i < SNText.length(); i++) {
+                    String itemSn = SNText.charAt(i) + "";
+                    if (itemSn.equals("0") || itemSn.equals("F") || itemSn.equals("f")) {
+
+                    } else {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                String SN = Utils.hexStringToString(SNText);
+//                                logD(SN);
+//                                StringBuffer stringBuffer = new StringBuffer();
+//                                try {
+//                                    for (int a = 1; a < 4; a++) {
+//                                        stringBuffer.append(SN.substring(a == 1 ? 0 : (a - 1) * 4, a == 4 ? SN.length() : a * 4) + " ");
+//                                    }
+//                                    mTvSN.setText(stringBuffer.toString());
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                    mTvSN.setText("");
+//                                }
+//
+//                                showSuccess4();
+//                            }
+//                        });
+                        return;
+                    }
+                }
+
+                break;
+            case "60":
+                boolean isSN_0 = false;
+//                String sn = mTvSN.getText().toString().replace(" ", "");
+
+//                if (sn.length() == 12) {
+//                    for (int i = 0; i < 12; i++) {
+//                        String snIndex = sn.charAt(i) + "";
+//                        if (snIndex.equals("0")) {
+//                            isSN_0 = true;
+//                        } else {
+//                            isSN_0 = false;
+//                        }
+//                    }
+//                    if (isSN_0) {
+//                        //确认修改
+//                        StringBuffer cmd_sn = new StringBuffer();
+//                        cmd_sn.append("C0");
+//                        cmd_sn.append("61");
+//                        cmd_sn.append("0C");
+//                        //cmd_sn.append(Utils.stringToHexString(sn));
+//                        cmd_sn.append("000000000000000000000000");
+//                        mClient.sendByte(Utils.hexStringToByteArray(cmd_sn.toString()));
+//                    } else {
+//                        //确认修改
+//                        StringBuffer cmd_sn = new StringBuffer();
+//                        cmd_sn.append("C0");
+//                        cmd_sn.append("61");
+//                        cmd_sn.append("0C");
+//                        cmd_sn.append(Utils.stringToHexString(sn));
+//                        mClient.sendByte(Utils.hexStringToByteArray(cmd_sn.toString()));
+//                    }
+//                }
+                break;
+            case "61":
+
+                initPermissionData();
+                break;
+            default:
+                break;
+        }
     }
 
+    private void showBtList() {
+        deviceBeanList.clear();
+        initPermissionData();
+    }
 
     @Override
     public void onConnected(BluetoothDevice device) {
@@ -521,5 +729,9 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         mClient.close();
     }
 
-
+    private void showError() {
+        ToastUtil.showToast("发送消息出错");
+    }
 }
+
+
