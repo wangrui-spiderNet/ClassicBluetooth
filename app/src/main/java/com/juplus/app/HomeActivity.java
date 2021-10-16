@@ -24,6 +24,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BtDeviceAdapter;
+import com.juplus.app.bt.BTByteListener;
+import com.juplus.app.bt.BTConnectListener;
+import com.juplus.app.bt.BTFileListener;
+import com.juplus.app.bt.BTMsgListener;
 import com.juplus.app.bt.BtBase;
 import com.juplus.app.bt.BtClient;
 import com.juplus.app.entity.DeviceBean;
@@ -61,7 +65,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
 @SuppressLint("MissingPermission")
-public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BtBase.Listener, BtReceiver.Listener {
+public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BTConnectListener,BTByteListener, BtReceiver.Listener {
     private ImmersionBar immersionBar;
 
     @BindView(R.id.tv_title_name)
@@ -114,7 +118,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     private static final int OPEN_BLUETOOTH_CODE = 110;
 
     private Gson gson;
-    private BtClient mClient = new BtClient(this);
+    private BtClient mClient = new BtClient(this,this);
     private BluetoothAdapter mBluetoothadapter;
 
     @Override
@@ -184,6 +188,20 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         initBluetoothAdapter();
         initPermissionData();
 
+        mClient.setFileListener(new BTFileListener() {
+            @Override
+            public void onReceiveFile(int state, Object msg) {
+
+            }
+        });
+
+        mClient.setMsgListener(new BTMsgListener() {
+            @Override
+            public void onReceiveMsg(int state, String msg) {
+
+            }
+        });
+
     }
 
     @Override
@@ -192,35 +210,23 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     @Override
-    public void socketNotifyByte(int state, byte[] obj) {
+    public void onReceiveByte(int state, byte[] msg) {
 
     }
 
+
     @Override
-    public void socketNotify(int state, Object obj) {
-        if (isDestroyed())
-            return;
-        String msg = null;
-        switch (state) {
-            case BtBase.Listener.CONNECTED:
-                BluetoothDevice dev = (BluetoothDevice) obj;
-                msg = String.format("与%s(%s)连接成功", dev.getName(), dev.getAddress());
+    public void onConnected(BluetoothDevice device) {
+        String msg = String.format("与%s(%s)连接成功", device.getName(), device.getAddress());
+        ToastUtil.showToast(msg);
 
-                byte[] handshakeCmd = Utils.getHandshakeCmd();
-                mClient.sendByte(handshakeCmd);
+        byte[] handshakeCmd = Utils.getHandshakeCmd();
+        mClient.sendByte(handshakeCmd);
+    }
 
-                break;
-            case BtBase.Listener.DISCONNECTED:
-                msg = "连接断开";
-                break;
-            case BtBase.Listener.MSG:
-                msg = String.format("\n%s", obj);
+    @Override
+    public void onDisConnected() {
 
-//                String s = Utils.bytesToHexString(bytes);
-
-                break;
-        }
-        APP.toast(msg, 0);
     }
 
     @SuppressLint("StringFormatMatches")

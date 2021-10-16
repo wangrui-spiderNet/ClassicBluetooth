@@ -13,8 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -27,15 +25,36 @@ public class BtBase {
     private static final int FLAG_FILE = 1; //文件标记
     private static final int FLAG_BYTE = 2; //文件标记
 
+    public static final int DISCONNECTED = 0;
+    public static final  int CONNECTED = 1;
+    public static final  int MSG = 2;
+
     private BluetoothSocket mSocket;
     private DataOutputStream mDataOut;
     private OutputStream mStreamOut;
-    private Listener mListener;
     private boolean isRead;
     private boolean isSending;
 
-    BtBase(Listener listener) {
-        mListener = listener;
+    private BTByteListener byteListener;
+    private BTFileListener fileListener;
+    private BTMsgListener msgListener;
+    private BTConnectListener connectListener;
+
+    BtBase(BTConnectListener connectListener,BTByteListener byteListener) {
+        this.byteListener = byteListener;
+        this.connectListener = connectListener;
+    }
+
+    public void setByteListener(BTByteListener byteListener) {
+        this.byteListener = byteListener;
+    }
+
+    public void setMsgListener(BTMsgListener msgListener) {
+        this.msgListener = msgListener;
+    }
+
+    public void setFileListener(BTFileListener fileListener) {
+        this.fileListener = fileListener;
     }
 
     /**
@@ -46,41 +65,46 @@ public class BtBase {
         try {
             if (!mSocket.isConnected())
                 mSocket.connect();
-            notifyUI(Listener.CONNECTED, mSocket.getRemoteDevice());
+            connectListener.onConnected(socket.getRemoteDevice());
             mDataOut = new DataOutputStream(mSocket.getOutputStream());
             mStreamOut = mSocket.getOutputStream();
             InputStream mInputStream = mSocket.getInputStream();
-//            DataInputStream in = new DataInputStream(mSocket.getInputStream());
+            DataInputStream in = new DataInputStream(mSocket.getInputStream());
             isRead = true;
-            while (isRead) { //死循环读取
-//                switch (in.readInt()) {
-//                    case FLAG_MSG: //读取短消息
-//                        String msg = in.readUTF();
-//                        notifyUI(Listener.MSG, "接收短消息：" + msg);
-//                        break;
-//                    case FLAG_FILE: //读取文件
-//                        Util.mkdirs(FILE_PATH);
-//                        String fileName = in.readUTF(); //文件名
-//                        long fileLen = in.readLong(); //文件长度
-//                        // 读取文件内容
-//                        long len = 0;
-//                        int r;
-//                        byte[] b = new byte[4 * 1024];
-//                        FileOutputStream out = new FileOutputStream(FILE_PATH + fileName);
-//                        notifyUI(Listener.MSG, "正在接收文件(" + fileName + "),请稍后...");
-//                        while ((r = in.read(b)) != -1) {
-//                            out.write(b, 0, r);
-//                            len += r;
-//                            if (len >= fileLen)
-//                                break;
-//                        }
-//                        notifyUI(Listener.MSG, "文件接收完成(存放在:" + FILE_PATH + ")");
-//                        break;
-//                }
 
-                byte[] bytes2=new byte[128];
-                mInputStream.read(bytes2);
-                notifyUI(Listener.MSG, "接收字节消息：" + Arrays.toString(bytes2));
+            byte[] bytes2=new byte[128];
+            mInputStream.read(bytes2);
+            receiveUpdateUIFromByte(MSG, bytes2);
+
+            while (isRead) { //死循环读取
+                switch (in.readInt()) {
+                    case FLAG_MSG: //读取短消息
+                        String msg = in.readUTF();
+                        receiveUpdateUIFromMsg(MSG,  msg);
+                        break;
+                    case FLAG_FILE: //读取文件
+                        Util.mkdirs(FILE_PATH);
+                        String fileName = in.readUTF(); //文件名
+                        long fileLen = in.readLong(); //文件长度
+                        // 读取文件内容
+                        long len = 0;
+                        int r;
+                        byte[] b = new byte[4 * 1024];
+                        FileOutputStream out = new FileOutputStream(FILE_PATH + fileName);
+
+                        while ((r = in.read(b)) != -1) {
+                            out.write(b, 0, r);
+                            len += r;
+                            if (len >= fileLen)
+                                break;
+                        }
+
+                        receiveUpdateUIFromFile(MSG,  fileName );
+
+                        break;
+                }
+
+
             }
         } catch (Throwable e) {
             close();
@@ -97,7 +121,6 @@ public class BtBase {
             mDataOut.writeInt(FLAG_MSG); //消息标记
             mDataOut.writeUTF(msg);
             mDataOut.flush();
-            notifyUI(Listener.MSG, "发送短消息：" + msg);
         } catch (Throwable e) {
             close();
         }
@@ -114,7 +137,7 @@ public class BtBase {
 //            mStreamOut.write(FLAG_BYTE); //消息标记
             mStreamOut.write(msg);
             mStreamOut.flush();
-            notifyUI(Listener.MSG, "发送短消息：" + Arrays.toString(msg));
+
         } catch (Throwable e) {
             close();
         }
@@ -138,11 +161,9 @@ public class BtBase {
                     mDataOut.writeLong(file.length()); //文件长度
                     int r;
                     byte[] b = new byte[4 * 1024];
-                    notifyUI(Listener.MSG, "正在发送文件(" + filePath + "),请稍后...");
                     while ((r = in.read(b)) != -1)
                         mDataOut.write(b, 0, r);
                     mDataOut.flush();
-                    notifyUI(Listener.MSG, "文件发送完成.");
                 } catch (Throwable e) {
                     close();
                 }
@@ -155,7 +176,9 @@ public class BtBase {
      * 释放监听引用(例如释放对Activity引用，避免内存泄漏)
      */
     public void unListener() {
-        mListener = null;
+        byteListener = null;
+        msgListener = null;
+        fileListener = null;
     }
 
     /**
@@ -165,7 +188,7 @@ public class BtBase {
         try {
             isRead = false;
             mSocket.close();
-            notifyUI(Listener.DISCONNECTED, null);
+            connectListener.onDisConnected();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -190,13 +213,13 @@ public class BtBase {
         return false;
     }
 
-    private void notifyUI(final int state, final Object obj) {
+    private void receiveUpdateUIFromMsg(final int state, final String obj) {
         APP.runUi(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (mListener != null)
-                        mListener.socketNotify(state, obj);
+                    if (msgListener != null)
+                        msgListener.onReceiveMsg(state, obj);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -204,13 +227,13 @@ public class BtBase {
         });
     }
 
-    private void notifyUIFromByte(final int state, final byte[] obj) {
+    private void receiveUpdateUIFromFile(final int state, final Object filePath) {
         APP.runUi(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (mListener != null)
-                        mListener.socketNotifyByte(state, obj);
+                    if (fileListener != null)
+                        fileListener.onReceiveFile(state, filePath);
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
@@ -218,13 +241,20 @@ public class BtBase {
         });
     }
 
-    public interface Listener {
-        int DISCONNECTED = 0;
-        int CONNECTED = 1;
-        int MSG = 2;
-
-        void socketNotify(int state, Object obj);
-        void socketNotifyByte(int state, byte[] obj);
+    private void receiveUpdateUIFromByte(final int state, final byte[] obj) {
+        APP.runUi(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (byteListener != null)
+                        byteListener.onReceiveByte(state, obj);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
+
+
 
 }
