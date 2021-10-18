@@ -448,6 +448,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         switch (view.getId()) {
             case R.id.tv_title_name:
 
+                getConnectBT();
                 mDeviceListDialog = new DeviceListDialog(this, deviceBeanList, new BtDeviceAdapter.ItemClickListener() {
                     @Override
                     public void onItemClickListener(DeviceBean deviceBean) {
@@ -663,7 +664,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
             } else {
-                getConnectBT();
+//                getConnectBT();
             }
         } else {
             EasyPermissions.requestPermissions(

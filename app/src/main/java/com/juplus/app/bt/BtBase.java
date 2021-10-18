@@ -187,7 +187,9 @@ public class BtBase {
     public void close() {
         try {
             isRead = false;
-            mSocket.close();
+            if(null !=mSocket){
+                mSocket.close();
+            }
             connectListener.onDisConnected();
         } catch (Throwable e) {
             e.printStackTrace();
