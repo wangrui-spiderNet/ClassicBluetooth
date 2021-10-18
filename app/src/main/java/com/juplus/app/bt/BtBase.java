@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import com.juplus.app.APP;
+import com.juplus.app.utils.ToastUtil;
 import com.juplus.app.utils.Util;
 
 import java.io.DataInputStream;
@@ -66,7 +67,9 @@ public class BtBase {
             if (!mSocket.isConnected())
                 mSocket.connect();
 
-//            receiveUpdateUIDConnected(socket.getRemoteDevice());
+            if (connectListener != null){
+                connectListener.onConnected(socket.getRemoteDevice());
+            }
 
             mDataOut = new DataOutputStream(mSocket.getOutputStream());
             mStreamOut = mSocket.getOutputStream();
@@ -79,7 +82,6 @@ public class BtBase {
                 byte[] bytes2=new byte[128];
                 mInputStream.read(bytes2);
                 receiveUpdateUIFromByte(MSG, bytes2);
-
 
                 switch (in.readInt()) {
                     case FLAG_MSG: //读取短消息
@@ -111,6 +113,7 @@ public class BtBase {
 
             }
         } catch (Throwable e) {
+            showErrorMsg("连接时出错:"+e.getMessage());
             close();
         }
     }
@@ -134,15 +137,16 @@ public class BtBase {
     /**
      * 发送字节数组
      */
-    public void sendByte(byte[] msg) {
+    public void sendByte(byte[] bytes) {
         if (checkSend()) return;
         isSending = true;
         try {
 //            mStreamOut.write(FLAG_BYTE); //消息标记
-            mStreamOut.write(msg);
+            mStreamOut.write(bytes);
             mStreamOut.flush();
 
         } catch (Throwable e) {
+            showErrorMsg("发送字节的时候出错:"+e.getMessage());
             close();
         }
         isSending = false;
@@ -218,6 +222,16 @@ public class BtBase {
         }
         return false;
     }
+
+    private void showErrorMsg(String msg){
+        APP.runUi(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showToast(msg);
+            }
+        });
+    }
+
     private void receiveUpdateUIDConnected(BluetoothDevice device) {
         APP.runUi(new Runnable() {
             @Override

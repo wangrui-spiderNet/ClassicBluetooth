@@ -148,6 +148,8 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
                 ToastUtil.showToast("自动检测耳机：" + b);
+
+                handShake();
             }
         });
 
@@ -155,6 +157,9 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 ToastUtil.showToast("语音唤醒：" + b);
+
+
+
             }
         });
 
@@ -236,7 +241,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void onReceiveByte(int state, byte[] bytes) {
-        String s = new String(bytes);
+        String s = Utils.bytesToHexString(bytes);
         LogUtils.logBlueTooth("接收到的消息："+s);
         ToastUtil.showToast("接收到的消息："+s);
         if (TextUtils.isEmpty(s)) {
@@ -449,15 +454,28 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void onConnected(BluetoothDevice device) {
-        String msg = String.format("与%s(%s)连接成功", device.getName(), device.getAddress());
-        ToastUtil.showToast(msg);
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String msg = String.format("与%s(%s)连接成功", device.getName(), device.getAddress());
+                ToastUtil.showToast(msg);
+
+                handShake();
+            }
+        });
+
+    }
+
+    private void handShake(){
         byte[] handshakeCmd = Utils.getHandshakeCmd();
         mClient.sendByte(handshakeCmd);
     }
 
     @Override
     public void onDisConnected() {
+
+        ToastUtil.showToast("关闭连接");
 
     }
 
