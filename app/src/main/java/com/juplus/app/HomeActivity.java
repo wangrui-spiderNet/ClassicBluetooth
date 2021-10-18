@@ -108,16 +108,8 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
-    public String[] mBTPerms = new String[]{
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-    };
 
-    private static final int PERMISSION_REQUEST_CODE = 101;
     private static final int OPEN_BLUETOOTH_CODE = 110;
-
     private Gson gson;
     private BtClient mClient = new BtClient(this, this);
     private BluetoothAdapter mBluetoothadapter;
@@ -669,14 +661,14 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-        if (PERMISSION_REQUEST_CODE == requestCode) {
-            if (isBlueEnable()) {
-                Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
-            } else {
-                getConnectBT();
-            }
-        }
+//        if (PERMISSION_REQUEST_CODE == requestCode) {
+//            if (isBlueEnable()) {
+//                Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
+//            } else {
+//                getConnectBT();
+//            }
+//        }
     }
 
     @Override

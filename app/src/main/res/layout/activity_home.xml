@@ -1,458 +1,465 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_f6f7f9"
+    android:orientation="vertical"
     android:scrollbars="none"
     tools:ignore="MissingPrefix">
 
+    <TextView
+        android:id="@+id/tv_title_name"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_66"
+        android:layout_gravity="center_horizontal"
+        android:drawableRight="@mipmap/icon_swap"
+        android:drawablePadding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="未连接"
+        android:textColor="@color/color_222222"
+        android:textSize="@dimen/sp_22" />
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/tv_title_name"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/dp_66"
-            android:layout_gravity="center_horizontal"
-            android:drawableRight="@mipmap/icon_swap"
-            android:drawablePadding="@dimen/dp_10"
-            android:gravity="center"
-            android:text="耳机名称"
-            android:textColor="@color/color_222222"
-            android:textSize="@dimen/sp_22" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableRight="@mipmap/icon_low_battery"
-                android:drawablePadding="@dimen/dp_5"
-                android:gravity="center_vertical"
-                android:text="@string/left"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/sp_12" />
-
-            <TextView
-                android:id="@+id/tv_right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/dp_25"
-                android:drawableRight="@mipmap/icon_low_battery"
-                android:drawablePadding="@dimen/dp_5"
-                android:gravity="center_vertical"
-                android:text="@string/right"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/sp_12" />
-
-            <TextView
-                android:id="@+id/tv_charge_box"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableRight="@mipmap/icon_full_battery"
-                android:drawablePadding="@dimen/dp_5"
-                android:gravity="center_vertical"
-                android:text="@string/charge_box"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/sp_12" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_info"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_50"
-            android:layout_marginHorizontal="@dimen/dp_20"
-            android:layout_marginTop="@dimen/dp_10"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/dp_20"
-            app:bl_corners_radius="@dimen/dp_10"
-            app:bl_solid_color="@android:color/white"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/name"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:drawableRight="@mipmap/icon_arrow_right"
-                android:drawablePadding="@dimen/dp_16"
-                android:gravity="right"
-                android:text="airpods"
-                android:textColor="@color/color_777777"
-                android:textSize="@dimen/text_size_14" />
-
-        </LinearLayout>
-
-        <TextView
+            android:id="@+id/tv_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dp_20"
-            android:layout_marginVertical="@dimen/dp_10"
-            android:text="@string/noise_control"
-            android:textColor="@color/color_777777"
+            android:drawableRight="@mipmap/icon_low_battery"
+            android:drawablePadding="@dimen/dp_5"
+            android:gravity="center_vertical"
+            android:text="@string/left"
+            android:textColor="@android:color/black"
             android:textSize="@dimen/sp_12" />
 
-        <RadioGroup
-            android:id="@+id/rgNoiseManager"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_80"
-            android:layout_marginHorizontal="@dimen/dp_20"
-            android:layout_marginBottom="@dimen/dp_20"
-            android:orientation="horizontal"
-            app:bl_corners_radius="@dimen/dp_20"
-            app:bl_solid_color="@color/white">
-
-            <kale.ui.view.SelectorTextView
-                android:id="@+id/rbLowNoise"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-
-                android:gravity="center"
-                android:padding="@dimen/dp_10"
-
-                android:text="@string/low_noise"
-                app:bl_checked_textColor="@color/white"
-                app:bl_unChecked_textColor="@color/color_222222"
-
-                app:checkedColor="@color/color_1BAEAE"
-                app:checkedDrawable="@drawable/shape_oval"
-                app:drawableTop="@mipmap/icon_low_noise_normal"
-
-                app:normalColor="@color/white"
-                app:normalDrawable="@drawable/shape_oval" />
-
-
-            <kale.ui.view.SelectorTextView
-                android:id="@+id/rbCloseNoise"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-
-                android:gravity="center"
-                android:padding="@dimen/dp_10"
-
-                android:text="@string/close"
-                app:bl_checked_textColor="@color/white"
-                app:bl_unChecked_textColor="@color/color_222222"
-
-                app:checkedColor="@color/color_1BAEAE"
-
-                app:checkedDrawable="@drawable/shape_oval"
-                app:drawableTop="@mipmap/icon_close_noise_normal"
-
-                app:normalColor="@color/white"
-                app:normalDrawable="@drawable/shape_oval" />
-
-
-            <kale.ui.view.SelectorTextView
-                android:id="@+id/rbVentilateNoise"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-
-                android:gravity="center"
-                android:padding="@dimen/dp_10"
-
-                android:text="@string/ventilate"
-                app:bl_checked_textColor="@color/white"
-
-                app:bl_unChecked_textColor="@color/color_222222"
-                app:checkedColor="@color/color_1BAEAE"
-
-                app:checkedDrawable="@drawable/shape_oval"
-                app:drawableTop="@mipmap/icon_ventilate_normal"
-
-                app:normalColor="@color/white"
-                app:normalDrawable="@drawable/shape_oval" />
-
-        </RadioGroup>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_80"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:padding="@dimen/dp_20">
-
-            <ImageView
-                android:id="@+id/iv_checkout"
-                android:layout_width="@dimen/dp_32"
-                android:layout_height="@dimen/dp_32"
-                android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/icon_check" />
-
-            <TextView
-                android:id="@+id/tvAutoEar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/iv_checkout"
-                android:text="@string/auto_ear_check"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvAutoEar"
-                android:layout_toRightOf="@+id/iv_checkout"
-                android:text="@string/auto_ear_tip"
-                android:textColor="@color/color_999999"
-                android:textSize="@dimen/sp_12" />
-
-            <Switch
-                android:id="@+id/check_ear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:checked="true"
-                android:thumb="@drawable/thumb"
-                android:track="@drawable/track" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_80"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:padding="@dimen/dp_20">
-
-            <ImageView
-                android:id="@+id/iv_smart_wake"
-                android:layout_width="@dimen/dp_32"
-                android:layout_height="@dimen/dp_32"
-                android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/icon_microphone" />
-
-            <TextView
-                android:id="@+id/tv_smart_wake"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/iv_smart_wake"
-                android:text="@string/smart_wake_up"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_smart_wake"
-                android:layout_toRightOf="@+id/iv_smart_wake"
-                android:text="@string/auto_ear_tip"
-                android:textColor="@color/color_999999"
-                android:textSize="@dimen/sp_12" />
-
-            <Switch
-                android:id="@+id/check_smart_wake"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:thumb="@drawable/thumb"
-                android:track="@drawable/track" />
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_audio_setting"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="@dimen/dp_10"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/dp_20"
-            app:bl_corners_radius="@dimen/dp_10"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="@dimen/dp_32"
-                android:layout_height="@dimen/dp_32"
-                android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/icon_audio_setting" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/audio_setting"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:id="@+id/tv_audio_type"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:drawableRight="@mipmap/icon_arrow_right"
-                android:drawablePadding="@dimen/dp_16"
-                android:gravity="right"
-                android:text="环绕立体声"
-                android:textColor="@color/color_777777"
-                android:textSize="@dimen/text_size_14" />
-
-        </LinearLayout>
-
         <TextView
+            android:id="@+id/tv_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dp_20"
-            android:layout_marginVertical="@dimen/dp_10"
-            android:text="@string/keyboard_setting"
-            android:textColor="@color/color_777777"
+            android:layout_marginHorizontal="@dimen/dp_25"
+            android:drawableRight="@mipmap/icon_low_battery"
+            android:drawablePadding="@dimen/dp_5"
+            android:gravity="center_vertical"
+            android:text="@string/right"
+            android:textColor="@android:color/black"
             android:textSize="@dimen/sp_12" />
 
-        <LinearLayout
-            android:id="@+id/layout_left_ear_setting"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="@dimen/dp_10"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/dp_20">
-
-            <ImageView
-                android:layout_width="@dimen/dp_32"
-                android:layout_height="@dimen/dp_32"
-                android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/icon_left_ear" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/left_ear"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:id="@+id/tv_left_setting"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:drawableRight="@mipmap/icon_arrow_right"
-                android:drawablePadding="@dimen/dp_16"
-                android:gravity="right"
-                android:text="语音助手唤醒"
-                android:textColor="@color/color_777777"
-                android:textSize="@dimen/text_size_14" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_right_ear_setting"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/dp_20">
-
-            <ImageView
-                android:layout_width="@dimen/dp_32"
-                android:layout_height="@dimen/dp_32"
-                android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/icon_right_ear" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/right_ear"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:id="@+id/tv_right_setting"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:drawableRight="@mipmap/icon_arrow_right"
-                android:drawablePadding="@dimen/dp_16"
-                android:gravity="right"
-                android:text="播放/暂停"
-                android:textColor="@color/color_777777"
-                android:textSize="@dimen/text_size_14" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_more_setting"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="@dimen/dp_20"
-            android:background="@android:color/white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="@dimen/dp_20">
-
-            <ImageView
-                android:layout_width="@dimen/dp_32"
-                android:layout_height="@dimen/dp_32"
-                android:layout_marginRight="@dimen/dp_10"
-                android:src="@mipmap/icon_points" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/more"
-                android:textColor="@color/color_222222"
-                android:textSize="@dimen/text_size_16" />
-
-            <TextView
-                android:id="@+id/tv_new_version"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:drawableRight="@mipmap/icon_arrow_right"
-                android:drawablePadding="@dimen/dp_16"
-                android:gravity="right"
-                android:text="@string/new_version"
-                android:textColor="@color/color_fc6d7c"
-                android:textSize="@dimen/text_size_14" />
-
-        </LinearLayout>
-
         <TextView
-            android:id="@+id/tv_mac_address"
+            android:id="@+id/tv_charge_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginVertical="@dimen/dp_20"
-            android:gravity="center"
-            android:text="蓝牙地址：CC:BB:00:A0:B3:F0"
-            android:textColor="@color/color_444444"
+            android:drawableRight="@mipmap/icon_full_battery"
+            android:drawablePadding="@dimen/dp_5"
+            android:gravity="center_vertical"
+            android:text="@string/charge_box"
+            android:textColor="@android:color/black"
             android:textSize="@dimen/sp_12" />
 
     </LinearLayout>
 
-</ScrollView>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/layout_info"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_50"
+                android:layout_marginHorizontal="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dp_20"
+                app:bl_corners_radius="@dimen/dp_10"
+                app:bl_solid_color="@android:color/white"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/name"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:drawableRight="@mipmap/icon_arrow_right"
+                    android:drawablePadding="@dimen/dp_16"
+                    android:gravity="right"
+                    android:text="airpods"
+                    android:textColor="@color/color_777777"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_20"
+                android:layout_marginVertical="@dimen/dp_10"
+                android:text="@string/noise_control"
+                android:textColor="@color/color_777777"
+                android:textSize="@dimen/sp_12" />
+
+            <RadioGroup
+                android:id="@+id/rgNoiseManager"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_80"
+                android:layout_marginHorizontal="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_20"
+                android:orientation="horizontal"
+                app:bl_corners_radius="@dimen/dp_20"
+                app:bl_solid_color="@color/white">
+
+                <kale.ui.view.SelectorTextView
+                    android:id="@+id/rbLowNoise"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+
+                    android:gravity="center"
+                    android:padding="@dimen/dp_10"
+
+                    android:text="@string/low_noise"
+                    app:bl_checked_textColor="@color/white"
+                    app:bl_unChecked_textColor="@color/color_222222"
+
+                    app:checkedColor="@color/color_1BAEAE"
+                    app:checkedDrawable="@drawable/shape_oval"
+                    app:drawableTop="@mipmap/icon_low_noise_normal"
+
+                    app:normalColor="@color/white"
+                    app:normalDrawable="@drawable/shape_oval" />
+
+
+                <kale.ui.view.SelectorTextView
+                    android:id="@+id/rbCloseNoise"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+
+                    android:gravity="center"
+                    android:padding="@dimen/dp_10"
+
+                    android:text="@string/close"
+                    app:bl_checked_textColor="@color/white"
+                    app:bl_unChecked_textColor="@color/color_222222"
+
+                    app:checkedColor="@color/color_1BAEAE"
+
+                    app:checkedDrawable="@drawable/shape_oval"
+                    app:drawableTop="@mipmap/icon_close_noise_normal"
+
+                    app:normalColor="@color/white"
+                    app:normalDrawable="@drawable/shape_oval" />
+
+
+                <kale.ui.view.SelectorTextView
+                    android:id="@+id/rbVentilateNoise"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+
+                    android:gravity="center"
+                    android:padding="@dimen/dp_10"
+
+                    android:text="@string/ventilate"
+                    app:bl_checked_textColor="@color/white"
+
+                    app:bl_unChecked_textColor="@color/color_222222"
+                    app:checkedColor="@color/color_1BAEAE"
+
+                    app:checkedDrawable="@drawable/shape_oval"
+                    app:drawableTop="@mipmap/icon_ventilate_normal"
+
+                    app:normalColor="@color/white"
+                    app:normalDrawable="@drawable/shape_oval" />
+
+            </RadioGroup>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_80"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:padding="@dimen/dp_20">
+
+                <ImageView
+                    android:id="@+id/iv_checkout"
+                    android:layout_width="@dimen/dp_32"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:src="@mipmap/icon_check" />
+
+                <TextView
+                    android:id="@+id/tvAutoEar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/iv_checkout"
+                    android:text="@string/auto_ear_check"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvAutoEar"
+                    android:layout_toRightOf="@+id/iv_checkout"
+                    android:text="@string/auto_ear_tip"
+                    android:textColor="@color/color_999999"
+                    android:textSize="@dimen/sp_12" />
+
+                <Switch
+                    android:id="@+id/check_ear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:checked="true"
+                    android:thumb="@drawable/thumb"
+                    android:track="@drawable/track" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_80"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:padding="@dimen/dp_20">
+
+                <ImageView
+                    android:id="@+id/iv_smart_wake"
+                    android:layout_width="@dimen/dp_32"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:src="@mipmap/icon_microphone" />
+
+                <TextView
+                    android:id="@+id/tv_smart_wake"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/iv_smart_wake"
+                    android:text="@string/smart_wake_up"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_smart_wake"
+                    android:layout_toRightOf="@+id/iv_smart_wake"
+                    android:text="@string/auto_ear_tip"
+                    android:textColor="@color/color_999999"
+                    android:textSize="@dimen/sp_12" />
+
+                <Switch
+                    android:id="@+id/check_smart_wake"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:thumb="@drawable/thumb"
+                    android:track="@drawable/track" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_audio_setting"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dp_20"
+                app:bl_corners_radius="@dimen/dp_10"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_32"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:src="@mipmap/icon_audio_setting" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/audio_setting"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_audio_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:drawableRight="@mipmap/icon_arrow_right"
+                    android:drawablePadding="@dimen/dp_16"
+                    android:gravity="right"
+                    android:text="环绕立体声"
+                    android:textColor="@color/color_777777"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_20"
+                android:layout_marginVertical="@dimen/dp_10"
+                android:text="@string/keyboard_setting"
+                android:textColor="@color/color_777777"
+                android:textSize="@dimen/sp_12" />
+
+            <LinearLayout
+                android:id="@+id/layout_left_ear_setting"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dp_20">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_32"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:src="@mipmap/icon_left_ear" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/left_ear"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_left_setting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:drawableRight="@mipmap/icon_arrow_right"
+                    android:drawablePadding="@dimen/dp_16"
+                    android:gravity="right"
+                    android:text="语音助手唤醒"
+                    android:textColor="@color/color_777777"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_right_ear_setting"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dp_20">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_32"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:src="@mipmap/icon_right_ear" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/right_ear"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_right_setting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:drawableRight="@mipmap/icon_arrow_right"
+                    android:drawablePadding="@dimen/dp_16"
+                    android:gravity="right"
+                    android:text="播放/暂停"
+                    android:textColor="@color/color_777777"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_more_setting"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="@dimen/dp_20"
+                android:background="@android:color/white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dp_20">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_32"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:src="@mipmap/icon_points" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/more"
+                    android:textColor="@color/color_222222"
+                    android:textSize="@dimen/text_size_16" />
+
+                <TextView
+                    android:id="@+id/tv_new_version"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:drawableRight="@mipmap/icon_arrow_right"
+                    android:drawablePadding="@dimen/dp_16"
+                    android:gravity="right"
+                    android:text="@string/new_version"
+                    android:textColor="@color/color_fc6d7c"
+                    android:textSize="@dimen/text_size_14" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_mac_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginVertical="@dimen/dp_20"
+                android:gravity="center"
+                android:text="蓝牙地址：CC:BB:00:A0:B3:F0"
+                android:textColor="@color/color_444444"
+                android:textSize="@dimen/sp_12" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

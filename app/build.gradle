@@ -115,10 +115,12 @@ dependencies {
 
     //权限申请
     implementation 'pub.devrel:easypermissions:3.0.0'
+    implementation 'com.github.getActivity:XXPermissions:12.2'
+
     //异步
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.4'
-
+    implementation 'com.github.getActivity:XXPermissions:12.2'
 }
 repositories {
     mavenCentral()
