@@ -6,8 +6,8 @@ import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class Util {
-    private static final String TAG = Util.class.getSimpleName();
+public class FileUtil {
+    private static final String TAG = FileUtil.class.getSimpleName();
     public static final Executor EXECUTOR = Executors.newCachedThreadPool();
 
     public static void mkdirs(String filePath) {

@@ -159,7 +159,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 ToastUtil.showToast("语音唤醒：" + b);
 
 
-
             }
         });
 
@@ -175,17 +174,18 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                     case R.id.rbLowNoise:
                         rbLowNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_low_noise_checked, 0, 0);
 
-                        mClient.sendByte(new byte[]{1, 2, 3});
+                        mClient.sendByte(Utils.getHandshakeCmd());
                         break;
 
                     case R.id.rbCloseNoise:
                         rbCloseNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_close_noise_checked, 0, 0);
-                        mClient.sendByte(new byte[]{4, 5, 6});
+                        startVerify();
                         break;
 
                     case R.id.rbVentilateNoise:
                         rbVentilateNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_ventilate_checked, 0, 0);
-                        mClient.sendByte(new byte[]{7, 8, 9});
+
+                        mClient.sendByte(Utils.hexStringToByteArray("C009"));
                         break;
                 }
             }
@@ -194,12 +194,12 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         mBtReceiver = new BtReceiver(this, new BtReceiver.Listener() {
             @Override
             public void foundDev(BluetoothDevice dev) {
-                ToastUtil.showToast("新发现的设备:"+dev);
+                ToastUtil.showToast("新发现的设备:" + dev);
             }
 
             @Override
             public void newDeviceConnected(BluetoothDevice dev) {
-                ToastUtil.showToast("新增加的设备:"+dev);
+                ToastUtil.showToast("新增加的设备:" + dev);
             }
 
             @Override
@@ -207,7 +207,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
             }
         });//注册蓝牙广播
-
 
 
         mClient.setFileListener(new BTFileListener() {
@@ -231,7 +230,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         getBondedDevices();
     }
 
-    private void reScan(){
+    private void reScan() {
 
         deviceBeanList.clear();
         getBondedDevices();
@@ -242,8 +241,8 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     public void onReceiveByte(int state, byte[] bytes) {
         String s = Utils.bytesToHexString(bytes);
-        LogUtils.logBlueTooth("接收到的消息："+s);
-        ToastUtil.showToast("接收到的消息："+s);
+        LogUtils.logBlueTooth("接收到的消息：" + s);
+        ToastUtil.showToast("接收到的消息：" + s);
         if (TextUtils.isEmpty(s)) {
             return;
         }
@@ -258,38 +257,20 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 //握手响应
                 String substring = s.substring(6, 10);
                 if (substring.equalsIgnoreCase("534C")) {
-                    String[] verificationCommand = Utils.getVerificationCommand();
-                    mKeyData1 = verificationCommand[3];
-                    mKeyData2 = verificationCommand[4];
-                    mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
-                    //                    Log.i(TAG, "onReceiveBytes:Key2 " + mKey2);
-                    StringBuffer stringBuffer = new StringBuffer();
-                    stringBuffer.append(verificationCommand[0]);
-                    stringBuffer.append(verificationCommand[1]);
-                    stringBuffer.append(verificationCommand[2]);
-                    stringBuffer.append(verificationCommand[3]);
-                    mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
+                    ToastUtil.showToast("握手成功!");
+                    startVerify();
                 } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showError();
-                        }
-                    });
+                    showError("握手出错");
                 }
                 break;
             case "02":
                 //校验响应
                 boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
                 if (b) {
-                    mClient.sendByte(Utils.hexStringToByteArray("C003"));
+                    mClient.sendByte(Utils.hexStringToByteArray("C009"));//获取电量
+//                    mClient.sendByte(Utils.hexStringToByteArray("C003"));//获取基本参数
                 } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showError();
-                        }
-                    });
+                    showError("校验出错");
                 }
                 break;
             case "03":
@@ -355,26 +336,25 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 //                showSuccess1();
 
                 break;
-            case "50":
+
+
+            case "07"://设备唯一ID
+
+                break;
+            case "08"://产品类型
+
+                break;
+            case "09"://电量
+
+                ToastUtil.showToast("电量");
+                break;
+            case "50"://弹窗开关
 //                isWhat110 = false;
                 mClient.sendByte(Utils.hexStringToByteArray("C051"));
                 String content50 = s.substring(6, 8);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (content50.equals("01")) {
-//                            isOpen = true;
-//                            mSawtooth.setChecked(true);
-//                        } else if (content50.equals("00")) {
-//                            isOpen = false;
-//                            mSawtooth.setChecked(false);
-//                        }
-//                        logD(content50);
-//                    }
-//                });
 
                 break;
-            case "51":
+            case "51"://SN码
                 String SNText = s.substring(6, s.length());
                 for (int i = 0; i < SNText.length(); i++) {
                     String itemSn = SNText.charAt(i) + "";
@@ -405,46 +385,54 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 }
 
                 break;
-            case "60":
-                boolean isSN_0 = false;
-//                String sn = mTvSN.getText().toString().replace(" ", "");
 
-//                if (sn.length() == 12) {
-//                    for (int i = 0; i < 12; i++) {
-//                        String snIndex = sn.charAt(i) + "";
-//                        if (snIndex.equals("0")) {
-//                            isSN_0 = true;
-//                        } else {
-//                            isSN_0 = false;
-//                        }
-//                    }
-//                    if (isSN_0) {
-//                        //确认修改
-//                        StringBuffer cmd_sn = new StringBuffer();
-//                        cmd_sn.append("C0");
-//                        cmd_sn.append("61");
-//                        cmd_sn.append("0C");
-//                        //cmd_sn.append(Utils.stringToHexString(sn));
-//                        cmd_sn.append("000000000000000000000000");
-//                        mClient.sendByte(Utils.hexStringToByteArray(cmd_sn.toString()));
-//                    } else {
-//                        //确认修改
-//                        StringBuffer cmd_sn = new StringBuffer();
-//                        cmd_sn.append("C0");
-//                        cmd_sn.append("61");
-//                        cmd_sn.append("0C");
-//                        cmd_sn.append(Utils.stringToHexString(sn));
-//                        mClient.sendByte(Utils.hexStringToByteArray(cmd_sn.toString()));
-//                    }
-//                }
-                break;
-            case "61":
+            case "52"://耳机语音唤醒
 
-//                initPermissionData();
                 break;
+
+            case "54"://蓝牙名字
+                break;
+
+            case "55"://自动入耳检测
+                break;
+
+            case "56"://音效设置
+                break;
+
+            case "57"://游戏模式
+                break;
+
+            case "58"://空间音频
+                break;
+
+            case "59"://噪声控制
+                break;
+            case "5A"://按住耳机（左）
+                break;
+            case "5B"://按住耳机（右）
+                break;
+            case "5C"://轻点两下耳机（左
+                break;
+            case "5D"://轻点两下耳机（右）
+                break;
+
             default:
                 break;
         }
+    }
+
+    private void startVerify() {
+        String[] verificationCommand = Utils.getVerificationCommand();
+        mKeyData1 = verificationCommand[3];
+        mKeyData2 = verificationCommand[4];
+        mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
+        //                    Log.i(TAG, "onReceiveBytes:Key2 " + mKey2);
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(verificationCommand[0]);
+        stringBuffer.append(verificationCommand[1]);
+        stringBuffer.append(verificationCommand[2]);
+        stringBuffer.append(verificationCommand[3]);
+        mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
     }
 
     private void showBtList() {
@@ -467,7 +455,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     }
 
-    private void handShake(){
+    private void handShake() {
         byte[] handshakeCmd = Utils.getHandshakeCmd();
         mClient.sendByte(handshakeCmd);
     }
@@ -723,13 +711,13 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
      * 获取已配对设备
      */
     private void getBondedDevices() {//以配对设备
-        BluetoothManager   mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothadapter = mBluetoothManager.getAdapter();
         mBluetoothadapter.startDiscovery();
 
         Set<BluetoothDevice> bluetoothDeviceSet = mBluetoothadapter.getBondedDevices();
 
-        ToastUtil.showToast("已配对的数量:"+bluetoothDeviceSet.size());
+        ToastUtil.showToast("已配对的数量:" + bluetoothDeviceSet.size());
 
         if (bluetoothDeviceSet != null && bluetoothDeviceSet.size() > 0) {
             for (BluetoothDevice device : bluetoothDeviceSet) {
@@ -797,7 +785,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         mClient.close();
     }
 
-    private void showError() {
+    private void showError(String msg) {
         ToastUtil.showToast("发送消息出错");
     }
 }

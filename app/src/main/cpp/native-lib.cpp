@@ -2,16 +2,18 @@
 #include <string>
 #include "LSFR.h"
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_what_verification_MainActivity_stringFromJNI(
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_juplus_app_verification_MainActivity_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
 }
+
 extern "C"
 JNIEXPORT jbyteArray JNICALL
-Java_com_what_verification_Utils_encryptData(JNIEnv *env, jclass thiz, jint init_key,
+Java_com_juplus_app_utils_Utils_encryptData(JNIEnv *env, jclass thiz, jint init_key,
                                              jbyteArray l_data, jint length) {
     // TODO: implement stringFromJNI()
 
