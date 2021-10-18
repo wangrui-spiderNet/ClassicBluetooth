@@ -114,7 +114,6 @@ dependencies {
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     //权限申请
-    implementation 'pub.devrel:easypermissions:3.0.0'
     implementation 'com.github.getActivity:XXPermissions:12.2'
 
     //异步
