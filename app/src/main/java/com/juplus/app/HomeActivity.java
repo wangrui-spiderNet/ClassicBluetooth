@@ -65,7 +65,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
 @SuppressLint("MissingPermission")
-public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BTConnectListener, BTByteListener, BtReceiver.Listener {
+public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BTConnectListener, BTByteListener {
     private ImmersionBar immersionBar;
 
     @BindView(R.id.tv_title_name)
@@ -104,6 +104,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     private DeviceListDialog mDeviceListDialog;
     private ChangeNameDialog mChangeNameDialog;
     private List<DeviceBean> deviceBeanList = new ArrayList<>();
+    private BtReceiver mBtReceiver;
 
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
@@ -185,8 +186,26 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
-        initBluetoothAdapter();
+        mBtReceiver = new BtReceiver(this, new BtReceiver.Listener() {
+            @Override
+            public void foundDev(BluetoothDevice dev) {
+                ToastUtil.showToast("新发现的设备:"+dev);
+            }
+
+            @Override
+            public void newDeviceConnected(BluetoothDevice dev) {
+                ToastUtil.showToast("新增加的设备:"+dev);
+                reScan();
+            }
+
+            @Override
+            public void stateChanged(BluetoothDevice dev) {
+
+            }
+        });//注册蓝牙广播
+
         initPermissionData();
+        initBluetoothAdapter();
 
         mClient.setFileListener(new BTFileListener() {
             @Override
@@ -202,11 +221,13 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
+        mBluetoothadapter.startDiscovery();
     }
 
-    @Override
-    public void foundDev(BluetoothDevice dev) {
+    private void reScan(){
 
+        deviceBeanList.clear();
+        getBondedDevices();
     }
 
     private String mKeyData1, mKeyData2, mKey2;
@@ -475,7 +496,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
                         if (isConnected) {
                             tvDeviceName.setText(bluetoothDevice.getName() + "");
-                            tvName.setText(bluetoothDevice.getAddress() + "");
+                            tvName.setText(bluetoothDevice.getName() + "");
                             //        BluetoothSPPUtil.setEnableLogOut();
                             // 设置接收停止标志位字符串
 //                            mBluetoothSPPUtil.setStopString("");
@@ -651,7 +672,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     protected void onResume() {
         super.onResume();
-        initPermissionData();
+//        initPermissionData();
     }
 
     /**
@@ -665,11 +686,32 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
             } else {
 //                getConnectBT();
+                getBondedDevices();
             }
         } else {
-            EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(this, PERMISSION_REQUEST_CODE, mBTPerms)
-                            .build());
+//            EasyPermissions.requestPermissions(
+//                    new PermissionRequest.Builder(this, PERMISSION_REQUEST_CODE, mBTPerms)
+//                            .build());
+        }
+
+        getBondedDevices();
+    }
+
+    /**
+     * 获取已配对设备
+     */
+    private void getBondedDevices() {//以配对设备
+        BluetoothManager   mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothadapter = mBluetoothManager.getAdapter();
+        mBluetoothadapter.startDiscovery();
+
+        Set<BluetoothDevice> bluetoothDeviceSet = mBluetoothadapter.getBondedDevices();
+        if (bluetoothDeviceSet != null && bluetoothDeviceSet.size() > 0) {
+            for (BluetoothDevice device : bluetoothDeviceSet) {
+
+                deviceBeanList.add(createBluetoothItem(device));
+                updateDeviceAdapter();
+            }
         }
     }
 

@@ -72,17 +72,21 @@ public class BtReceiver extends BroadcastReceiver {
                 Log.i(TAG, "BOND_STATE: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0));
                 break;
             case BluetoothDevice.ACTION_ACL_CONNECTED:
+                mListener.newDeviceConnected(dev);
                 break;
             case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                 break;
 
             case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
+                mListener.stateChanged(dev);
                 Log.i(TAG, "CONN_STATE: " + intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, 0));
                 break;
             case BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED:
+                mListener.stateChanged(dev);
                 Log.i(TAG, "CONN_STATE: " + intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, 0));
                 break;
             case BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED:
+                mListener.stateChanged(dev);
                 Log.i(TAG, "CONN_STATE: " + intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, 0));
                 break;
         }
@@ -90,5 +94,7 @@ public class BtReceiver extends BroadcastReceiver {
 
     public interface Listener {
         void foundDev(BluetoothDevice dev);
+        void newDeviceConnected(BluetoothDevice dev);
+        void stateChanged(BluetoothDevice dev);
     }
 }
