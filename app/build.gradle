@@ -53,6 +53,12 @@ android {
         }
     }
 
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
     dexOptions {
         //最大堆内存
         javaMaxHeapSize '2048m'

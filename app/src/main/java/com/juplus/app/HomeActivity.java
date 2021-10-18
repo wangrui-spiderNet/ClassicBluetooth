@@ -195,7 +195,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             @Override
             public void newDeviceConnected(BluetoothDevice dev) {
                 ToastUtil.showToast("新增加的设备:"+dev);
-                reScan();
             }
 
             @Override
@@ -204,8 +203,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });//注册蓝牙广播
 
-        initPermissionData();
-        initBluetoothAdapter();
+
 
         mClient.setFileListener(new BTFileListener() {
             @Override
@@ -221,7 +219,11 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
 
-        mBluetoothadapter.startDiscovery();
+        //        initPermissionData();
+//        initBluetoothAdapter();
+//        mBluetoothadapter.startDiscovery();
+
+        getBondedDevices();
     }
 
     private void reScan(){
@@ -234,8 +236,9 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void onReceiveByte(int state, byte[] bytes) {
-        String s = Utils.bytesToHexString(bytes);
-        LogUtils.logBlueTooth("接收到的消息");
+        String s = new String(bytes);
+        LogUtils.logBlueTooth("接收到的消息："+s);
+        ToastUtil.showToast("接收到的消息："+s);
         if (TextUtils.isEmpty(s)) {
             return;
         }
@@ -432,7 +435,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 break;
             case "61":
 
-                initPermissionData();
+//                initPermissionData();
                 break;
             default:
                 break;
@@ -441,7 +444,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     private void showBtList() {
         deviceBeanList.clear();
-        initPermissionData();
+//        initPermissionData();
     }
 
     @Override
@@ -469,45 +472,46 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         switch (view.getId()) {
             case R.id.tv_title_name:
 
-                getConnectBT();
+//                getConnectBT();
+
                 mDeviceListDialog = new DeviceListDialog(this, deviceBeanList, new BtDeviceAdapter.ItemClickListener() {
                     @Override
                     public void onItemClickListener(DeviceBean deviceBean) {
 
                         setDeviceInfo(deviceBean);
 
-                        if (null != mClient) {
-                            mClient.close();
-                        }
-                        boolean isConnected = false;
-                        try {
-                            Method isConnectedMethod = BluetoothDevice.class.getDeclaredMethod("isConnected", (Class[]) null);
-                            isConnectedMethod.setAccessible(true);
-                            isConnected = (boolean) isConnectedMethod.invoke(deviceBean.getBluetoothDevice(), (Object[]) null);
-                        } catch (NoSuchMethodException e) {
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-
-                        BluetoothDevice bluetoothDevice = deviceBean.getBluetoothDevice();
-
-                        if (isConnected) {
-                            tvDeviceName.setText(bluetoothDevice.getName() + "");
-                            tvName.setText(bluetoothDevice.getName() + "");
-                            //        BluetoothSPPUtil.setEnableLogOut();
-                            // 设置接收停止标志位字符串
-//                            mBluetoothSPPUtil.setStopString("");
-                            mClient.connect(deviceBean.getBluetoothDevice());
-                        } else {
-                            ToastUtil.showToast("设备已断开");
-                            initPermissionData();
-                        }
+                        mClient.connect(deviceBean.getBluetoothDevice());
+//                        if (null != mClient) {
+//                            mClient.close();
+//                        }
+//                        boolean isConnected = false;
+//                        try {
+//                            Method isConnectedMethod = BluetoothDevice.class.getDeclaredMethod("isConnected", (Class[]) null);
+//                            isConnectedMethod.setAccessible(true);
+//                            isConnected = (boolean) isConnectedMethod.invoke(deviceBean.getBluetoothDevice(), (Object[]) null);
+//                        } catch (NoSuchMethodException e) {
+//                            e.printStackTrace();
+//                        } catch (IllegalAccessException e) {
+//                            e.printStackTrace();
+//                        } catch (InvocationTargetException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        BluetoothDevice bluetoothDevice = deviceBean.getBluetoothDevice();
+//
+//                        if (isConnected) {
+//                            tvDeviceName.setText(bluetoothDevice.getName() + "");
+//                            tvName.setText(bluetoothDevice.getName() + "");
+//                            //        BluetoothSPPUtil.setEnableLogOut();
+//                            // 设置接收停止标志位字符串
+////                            mBluetoothSPPUtil.setStopString("");
+//                            mClient.connect(deviceBean.getBluetoothDevice());
+//                        } else {
+//                            ToastUtil.showToast("设备已断开");
+//                            initPermissionData();
+//                        }
                     }
                 });
-
                 mDeviceListDialog.show();
 
                 break;
@@ -678,24 +682,24 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     /**
      * 初始化已链接设备
      */
-    private void initPermissionData() {
-        if (EasyPermissions.hasPermissions(this, mBTPerms)) {
-            //开始扫描
-            if (isBlueEnable()) {
-                Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
-            } else {
-//                getConnectBT();
-                getBondedDevices();
-            }
-        } else {
-//            EasyPermissions.requestPermissions(
-//                    new PermissionRequest.Builder(this, PERMISSION_REQUEST_CODE, mBTPerms)
-//                            .build());
-        }
-
-        getBondedDevices();
-    }
+//    private void initPermissionData() {
+//        if (EasyPermissions.hasPermissions(this, mBTPerms)) {
+//            //开始扫描
+//            if (isBlueEnable()) {
+//                Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
+//            } else {
+////                getConnectBT();
+//                getBondedDevices();
+//            }
+//        } else {
+////            EasyPermissions.requestPermissions(
+////                    new PermissionRequest.Builder(this, PERMISSION_REQUEST_CODE, mBTPerms)
+////                            .build());
+//        }
+//
+//        getBondedDevices();
+//    }
 
     /**
      * 获取已配对设备
@@ -706,6 +710,9 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         mBluetoothadapter.startDiscovery();
 
         Set<BluetoothDevice> bluetoothDeviceSet = mBluetoothadapter.getBondedDevices();
+
+        ToastUtil.showToast("已配对的数量:"+bluetoothDeviceSet.size());
+
         if (bluetoothDeviceSet != null && bluetoothDeviceSet.size() > 0) {
             for (BluetoothDevice device : bluetoothDeviceSet) {
 

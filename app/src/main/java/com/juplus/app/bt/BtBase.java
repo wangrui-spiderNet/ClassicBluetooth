@@ -65,18 +65,22 @@ public class BtBase {
         try {
             if (!mSocket.isConnected())
                 mSocket.connect();
-            connectListener.onConnected(socket.getRemoteDevice());
+
+//            receiveUpdateUIDConnected(socket.getRemoteDevice());
+
             mDataOut = new DataOutputStream(mSocket.getOutputStream());
             mStreamOut = mSocket.getOutputStream();
             InputStream mInputStream = mSocket.getInputStream();
             DataInputStream in = new DataInputStream(mSocket.getInputStream());
             isRead = true;
 
-            byte[] bytes2=new byte[128];
-            mInputStream.read(bytes2);
-            receiveUpdateUIFromByte(MSG, bytes2);
-
             while (isRead) { //死循环读取
+
+                byte[] bytes2=new byte[128];
+                mInputStream.read(bytes2);
+                receiveUpdateUIFromByte(MSG, bytes2);
+
+
                 switch (in.readInt()) {
                     case FLAG_MSG: //读取短消息
                         String msg = in.readUTF();
@@ -190,7 +194,7 @@ public class BtBase {
             if(null !=mSocket){
                 mSocket.close();
             }
-            connectListener.onDisConnected();
+            receiveUpdateUIDisConnected();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -213,6 +217,33 @@ public class BtBase {
             return true;
         }
         return false;
+    }
+    private void receiveUpdateUIDConnected(BluetoothDevice device) {
+        APP.runUi(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (connectListener != null)
+                        connectListener.onConnected(device);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void receiveUpdateUIDisConnected() {
+        APP.runUi(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (connectListener != null)
+                        connectListener.onDisConnected();
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void receiveUpdateUIFromMsg(final int state, final String obj) {
