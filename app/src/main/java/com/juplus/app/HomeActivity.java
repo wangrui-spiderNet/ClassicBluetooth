@@ -301,7 +301,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
             case R.id.tv_name:
 //                Intent intent = new Intent(this, MainActivity.class);
 //                startActivity(intent);
-
+                mClient.startVerify();
                 mChangeNameDialog = new ChangeNameDialog(this, tvName.getText().toString(), new CallBack<String>() {
                     @Override
                     public void callBack(String o) {
@@ -372,6 +372,9 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         getBondedDevices();
     }
 
+    private String mKey2;
+    private String mKeyData1;
+    private String mKeyData2;
 
     /**
      * 字节消息回调
@@ -383,7 +386,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
     public void onReceiveByte(int state, byte[] bytes) {
         String originMsg = Utils.bytesToHexString(bytes);
         LogUtils.logBlueTooth("接收到的消息：" + originMsg);
-        ToastUtil.showToast("接收到的消息：" + originMsg);
+//        ToastUtil.showToast("接收到的消息：" + originMsg);
         if (TextUtils.isEmpty(originMsg)) {
             return;
         }
@@ -399,10 +402,19 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 String substring = originMsg.substring(6, 10);
                 if (substring.equalsIgnoreCase("534C")) {
                     ToastUtil.showToast("握手成功!");
-                    mClient.startVerify();
+//                    mClient.startVerify();
 //                    timer.scheduleAtFixedRate(timerTask, 2000, 2000);
 
-
+                    String[] verificationCommand = Utils.getVerificationCommand();
+                    mKeyData1 = verificationCommand[3];
+                    mKeyData2 = verificationCommand[4];
+                    mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append(verificationCommand[0]);
+                    stringBuffer.append(verificationCommand[1]);
+                    stringBuffer.append(verificationCommand[2]);
+                    stringBuffer.append(verificationCommand[3]);
+                    mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
 
                 } else {
                     showError("握手出错");

@@ -145,10 +145,11 @@ public class BtBase {
         isSending = true;
         try {
 //            mStreamOut.write(FLAG_BYTE); //消息标记
-            LogUtils.logBlueTooth("发送消息:"+ Utils.bytesToHexString(bytes));
-            LogUtils.logBlueTooth("发送消息:"+ Arrays.toString(bytes));
+
+//            LogUtils.logBlueTooth("发送消息:"+ Arrays.toString(bytes));
             mStreamOut.write(bytes);
             mStreamOut.flush();
+            LogUtils.logBlueTooth("发送消息:"+ Utils.bytesToHexString(bytes));
 
         } catch (Throwable e) {
             showErrorMsg("发送字节的时候出错:"+e.getMessage());
