@@ -399,8 +399,11 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 String substring = originMsg.substring(6, 10);
                 if (substring.equalsIgnoreCase("534C")) {
                     ToastUtil.showToast("握手成功!");
-//                    mClient.startVerify();
-                    timer.scheduleAtFixedRate(timerTask, 0, 2000);
+                    mClient.startVerify();
+//                    timer.scheduleAtFixedRate(timerTask, 2000, 2000);
+
+
+
                 } else {
                     showError("握手出错");
                 }
@@ -410,7 +413,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 boolean b = mClient.verificationCmd(originMsg);
                 if (b) {
 //                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHIP_MODEL));
-//                    timer.scheduleAtFixedRate(timerTask, 0, 2000);
+                    timer.scheduleAtFixedRate(timerTask, 0, 2000);
 
                 } else {
                     showError("校验出错");

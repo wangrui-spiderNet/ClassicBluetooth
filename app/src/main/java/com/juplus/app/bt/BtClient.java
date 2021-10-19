@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
+import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.ThreadUtil;
 import com.juplus.app.utils.Utils;
 
@@ -68,7 +69,11 @@ public class BtClient extends BtBase {
         mKeyData1 = verificationCommand[3];
         mKeyData2 = verificationCommand[4];
         mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
-        //                    Log.i(TAG, "onReceiveBytes:Key2 " + mKey2);
+
+        LogUtils.logBlueTooth("校验 mKeyData1:"+mKeyData1);
+        LogUtils.logBlueTooth("校验 mKeyData2:"+mKeyData2);
+        LogUtils.logBlueTooth("校验 mKey2:"+mKey2);
+
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(verificationCommand[0]);
         stringBuffer.append(verificationCommand[1]);
@@ -86,9 +91,10 @@ public class BtClient extends BtBase {
     public boolean verificationCmd(String data) {
 
         String substring = data.substring(32, 96);
-        //        Log.i("TAG", "verificationCmd: 30-3F： " + oldData);
-        //        Log.i("TAG", "verificationCmd: 10-2F： " + old2Data);
-        //        Log.i("TAG", "verificationCmd: new 10-2F： " + substring);
+        LogUtils.logBlueTooth("mKeyData1:"+mKeyData1);
+        LogUtils.logBlueTooth("mKeyData2:"+mKeyData2);
+        LogUtils.logBlueTooth("mKey2:"+mKey2);
+
         byte[] bytes =Utils.hexStringToByteArray(substring);
         int i = Integer.parseInt(mKey2, 16);
         //解密数据
