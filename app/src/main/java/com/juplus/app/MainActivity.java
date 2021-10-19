@@ -43,6 +43,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.juplus.app.adapter.BleListAdapter;
 import com.juplus.app.bt.BluetoothSPPUtil;
+import com.juplus.app.bt.CMDConfig;
 import com.juplus.app.entity.BluetoothModel;
 import com.juplus.app.utils.ToastUtil;
 import com.juplus.app.utils.Utils;
@@ -404,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements  BleListAdapter.O
                 
                 mLlBle.setVisibility(View.GONE);
                 showLoading();
-                byte[] handshakeCmd = Utils.getHandshakeCmd();
+                byte[] handshakeCmd = CMDConfig.getHandshakeCmd();
                 mBluetoothSPPUtil.send(handshakeCmd);
             }
         });
@@ -503,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements  BleListAdapter.O
                 //握手响应
                 String substring = s.substring(6, 10);
                 if (substring.equalsIgnoreCase("534C")) {
-                    String[] verificationCommand = Utils.getVerificationCommand();
+                    String[] verificationCommand = CMDConfig.getVerificationCommand();
                     mKeyData1 = verificationCommand[3];
                     mKeyData2 = verificationCommand[4];
                     mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);

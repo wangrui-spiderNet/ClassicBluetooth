@@ -55,7 +55,7 @@ public class BtClient extends BtBase {
      * 握手
      */
     public void handShake() {
-        byte[] handshakeCmd = Utils.getHandshakeCmd();
+        byte[] handshakeCmd = CMDConfig.getHandshakeCmd();
         sendByte(handshakeCmd);
     }
 
@@ -65,7 +65,7 @@ public class BtClient extends BtBase {
      * 校验
      */
     public void startVerify() {
-        String[] verificationCommand = Utils.getVerificationCommand();
+        String[] verificationCommand = CMDConfig.getVerificationCommand();
         mKeyData1 = verificationCommand[3];
         mKeyData2 = verificationCommand[4];
         mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);

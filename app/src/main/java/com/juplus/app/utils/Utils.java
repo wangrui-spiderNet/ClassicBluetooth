@@ -4,68 +4,16 @@ import android.text.TextUtils;
 
 import java.util.Random;
 
+import static com.juplus.app.bt.CMDConfig.CMD_READ_SHAKE_HANDS_01;
+import static com.juplus.app.bt.CMDConfig.CMD_READ_VERIFY_02;
+
 
 public class Utils {
 
     public static final String RANDOM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    private static String hexString = "0123456789abcdef";
     static {
         System.loadLibrary("native-lib");
     }
-
-    /**
-     * 获取握手命令   //8o46pJ2wRtl18Qt8KkCsDpexyrG3yd0
-     *
-     * @return
-     */
-    public static byte[] getHandshakeCmd() {
-        StringBuffer cmd = new StringBuffer();
-        cmd.append("C0");
-        cmd.append("01");
-        cmd.append("3D");
-        cmd.append(getRandomNumber(61));
-        return hexStringToByteArray(cmd.toString());
-    }
-
-    /**
-     * 获取校验命令
-     *
-     * @return
-     */
-    public static String[] getVerificationCommand() {
-        String[] s = new String[5];
-        //000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
-        StringBuffer cmd = new StringBuffer();
-        cmd.append("C0");
-        cmd.append("02");
-        cmd.append("3D");
-        cmd.append(getRandomNumber(11));
-        s[0] = cmd.toString();
-        s[1] = getRandomNumber(2); //密钥
-        s[2] = getRandomNumber(32);
-        //        Log.i("TAG", "getVerificationCommand: 10-2F" + s[2]);
-        s[3] = getRandomNumber(16); //异或原参
-        //        Log.i("TAG", "getVerificationCommand: 30-3F" + s[3]);
-        byte[] bytes = hexStringToByteArray(s[2]);
-        int i = Integer.parseInt(s[1], 16);
-        s[4] = bytesToHexString(bytes); //未加密数据
-        s[2] = bytesToHexString(encryptData(i, bytes, bytes.length));
-        //        Log.i("测试", "getVerificationCommand:加密后10-2f " + s[2]);
-        return s;
-    }
-
-    private static String getRandomNumber(int length) {
-        char[] chars = RANDOM.toCharArray();
-        long l = System.currentTimeMillis();
-        Random random = new Random(l);
-        StringBuffer stringBuffer = new StringBuffer();
-        for (int i = 0; i < length; i++) {
-            stringBuffer.append(chars[random.nextInt(chars.length)]);
-        }
-        return stringToHexString(stringBuffer.toString());
-    }
-    //C0013E 485a7648564254656d74574838644247686831745453396b3571573168
-    //C0013D6c44714159546170676562647350457662725530564c7565306a4a6d64503575797762334e30304768725a4c7464674e447a6c6646546b355655365435
 
     /**
      * 字符串转换为16进制字符串

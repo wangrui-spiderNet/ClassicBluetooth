@@ -405,7 +405,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 //                    mClient.startVerify();
 //                    timer.scheduleAtFixedRate(timerTask, 2000, 2000);
 
-                    String[] verificationCommand = Utils.getVerificationCommand();
+                    String[] verificationCommand = CMDConfig.getVerificationCommand();
                     mKeyData1 = verificationCommand[3];
                     mKeyData2 = verificationCommand[4];
                     mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
@@ -452,7 +452,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 //                        }
 //                    }).start();
                     //mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
-                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_MODEL));
+                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_MODEL_04));
                 } else {
 //                    showSuccess2();
                     ToastUtil.showToast("芯片信息获取出错");
@@ -467,7 +467,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 
                 ToastUtil.showToast("产品型号：" + s2);
 
-                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SOFTWARE_VERSION));
+                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SOFTWARE_VERSION_05));
 
 
                 break;
@@ -478,7 +478,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 
                 ToastUtil.showToast("软件版本:" + s3);
 
-                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_ADDRESS));
+                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_ADDRESS_06));
 
                 break;
             case "06":
@@ -497,7 +497,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 }
 
                 ToastUtil.showToast("蓝牙地址:" + str);
-                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DEVICE_ID));
+                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DEVICE_ID_07));
 
                 break;
 
