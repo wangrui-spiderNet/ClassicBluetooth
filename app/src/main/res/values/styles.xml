@@ -3,6 +3,37 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/ActivityInOutAnim</item>
+        <item name="android:windowBackground">@mipmap/bg_splash</item>
+    </style>
+
+    <style name="LaunchTheme" parent="AppTheme">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="ActivityInOutAnim">
+
+        <item name="android:activityOpenEnterAnimation">
+            @anim/slide_bottom_in
+        </item>
+
+        <item name="android:activityCloseExitAnimation">@anim/slide_top_out
+        </item>
+
+        <item name="android:activityCloseEnterAnimation">
+            @anim/slide_top_out
+        </item>
+
+        <item name="android:activityOpenExitAnimation">
+            @anim/slide_bottom_in
+        </item>
+
     </style>
 
     <!-- 定义对话框样式 -->
@@ -18,7 +49,7 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="dialog_container" >
+    <style name="dialog_container">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
@@ -27,7 +58,7 @@
         <item name="android:background">@drawable/shape_dialog_bg_normal</item>
     </style>
 
-    <style name="dialog_tip" >
+    <style name="dialog_tip">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
@@ -38,7 +69,7 @@
         <item name="android:textSize">@dimen/sp_18</item>
     </style>
 
-    <style name="dot_line_style" >
+    <style name="dot_line_style">
         <item name="android:layout_width">@dimen/dp_100</item>
         <item name="android:layout_height">@dimen/dp_5</item>
         <item name="android:layout_marginTop">@dimen/dp_30</item>

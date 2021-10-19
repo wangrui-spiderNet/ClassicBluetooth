@@ -1,6 +1,5 @@
 package com.juplus.app;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,7 +27,6 @@ import com.juplus.app.bt.BTByteListener;
 import com.juplus.app.bt.BTConnectListener;
 import com.juplus.app.bt.BTFileListener;
 import com.juplus.app.bt.BTMsgListener;
-import com.juplus.app.bt.BtBase;
 import com.juplus.app.bt.BtClient;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.entity.SettingBean;
@@ -42,14 +40,11 @@ import com.juplus.app.widget.CallBack;
 import com.juplus.app.widget.ChangeNameDialog;
 import com.juplus.app.widget.DeviceListDialog;
 import com.juplus.app.widget.SettingActionListDialog;
-
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -61,11 +56,9 @@ import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pub.devrel.easypermissions.EasyPermissions;
-import pub.devrel.easypermissions.PermissionRequest;
 
 @SuppressLint("MissingPermission")
-public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, BTConnectListener, BTByteListener {
+public class HomeActivity extends AppCompatActivity implements BTConnectListener, BTByteListener {
     private ImmersionBar immersionBar;
 
     @BindView(R.id.tv_title_name)
@@ -109,7 +102,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
 
-    private static final int OPEN_BLUETOOTH_CODE = 110;
     private Gson gson;
     private BtClient mClient = new BtClient(this, this);
     private BluetoothAdapter mBluetoothadapter;
@@ -165,7 +157,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 switch (i) {
                     case R.id.rbLowNoise:
                         rbLowNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_low_noise_checked, 0, 0);
-
                         mClient.sendByte(Utils.getHandshakeCmd());
                         break;
 
@@ -260,7 +251,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                 boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
                 if (b) {
                     mClient.sendByte(Utils.hexStringToByteArray("C009"));//获取电量
-//                    mClient.sendByte(Utils.hexStringToByteArray("C003"));//获取基本参数
                 } else {
                     showError("校验出错");
                 }
@@ -637,6 +627,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
                     @Override
                     public void onNext(@NonNull BluetoothDevice device) {
+                        ToastUtil.showToast("添加设备:"+device.getName());
                         deviceBeanList.add(createBluetoothItem(device));
                     }
 
@@ -653,51 +644,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
                     }
                 });
     }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-//        if (PERMISSION_REQUEST_CODE == requestCode) {
-//            if (isBlueEnable()) {
-//                Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
-//            } else {
-//                getConnectBT();
-//            }
-//        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        initPermissionData();
-    }
-
-    /**
-     * 初始化已链接设备
-     */
-//    private void initPermissionData() {
-//        if (EasyPermissions.hasPermissions(this, mBTPerms)) {
-//            //开始扫描
-//            if (isBlueEnable()) {
-//                Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                startActivityForResult(turnOn, OPEN_BLUETOOTH_CODE);
-//            } else {
-////                getConnectBT();
-//                getBondedDevices();
-//            }
-//        } else {
-////            EasyPermissions.requestPermissions(
-////                    new PermissionRequest.Builder(this, PERMISSION_REQUEST_CODE, mBTPerms)
-////                            .build());
-//        }
-//
-//        getBondedDevices();
-//    }
 
     /**
      * 获取已配对设备
@@ -778,7 +724,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void showError(String msg) {
-        ToastUtil.showToast("发送消息出错");
+        ToastUtil.showToast(msg);
     }
 }
 
