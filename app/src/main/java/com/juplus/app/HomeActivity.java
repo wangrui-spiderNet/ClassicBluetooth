@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -59,7 +60,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @SuppressLint("MissingPermission")
 public class HomeActivity extends AppCompatActivity implements BTConnectListener, BTByteListener {
-    private ImmersionBar immersionBar;
 
     @BindView(R.id.tv_title_name)
     TextView tvDeviceName;
@@ -124,8 +124,11 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         audioSettingBeans = gson.fromJson(setting_audio_array, new TypeToken<List<SettingBean>>() {
         }.getType());
 
-        immersionBar = ImmersionBar.with(this);
-//        immersionBar.init();
+        ImmersionBar.with(this)
+                .statusBarDarkFont(true)
+                .statusBarColor(R.color.color_f6f7f9)
+                .fitsSystemWindows(true)
+                .init();
 
         checkSmart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -415,11 +418,6 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         stringBuffer.append(verificationCommand[2]);
         stringBuffer.append(verificationCommand[3]);
         mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
-    }
-
-    private void showBtList() {
-        deviceBeanList.clear();
-//        initPermissionData();
     }
 
     @Override
@@ -721,6 +719,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 
         mClient.unListener();
         mClient.close();
+        unregisterReceiver(mBtReceiver);
     }
 
     private void showError(String msg) {

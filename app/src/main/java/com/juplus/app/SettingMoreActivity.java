@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.base.BaseActivity;
 
 import butterknife.BindView;
@@ -31,6 +32,11 @@ public class SettingMoreActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more);
         ButterKnife.bind(this);
+        ImmersionBar.with(this)
+                .statusBarDarkFont(true)
+                .statusBarColor(R.color.color_f6f7f9)
+                .fitsSystemWindows(true)
+                .init();
     }
 
     @OnClick({R.id.iv_back,R.id.tv_new_version})
