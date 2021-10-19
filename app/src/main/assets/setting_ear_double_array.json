@@ -1,7 +1,27 @@
 [
-  {"name":"语音助手唤醒","select": false},
-  {"name":"播放/暂停","select": false},
-  {"name":"下一曲","select": false},
-  {"name":"上一曲","select": false},
-  {"name":"关闭左耳","select": false}
+  {
+    "name": "语音助手唤醒",
+    "select": false,
+    "code": "02"
+  },
+  {
+    "name": "播放/暂停",
+    "select": false,
+    "code": "03"
+  },
+  {
+    "name": "下一曲",
+    "select": false,
+    "code": "04"
+  },
+  {
+    "name": "上一曲",
+    "select": false,
+    "code": "05"
+  },
+  {
+    "name": "关闭",
+    "select": false,
+    "code": "01"
+  }
 ]

@@ -6,7 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import com.juplus.app.APP;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.ToastUtil;
-import com.juplus.app.utils.FileUtil;
+import com.juplus.app.utils.ThreadUtil;
 import com.juplus.app.utils.Utils;
 
 import java.io.DataInputStream;
@@ -91,7 +91,7 @@ public class BtBase {
                         receiveUpdateUIFromMsg(MSG,  msg);
                         break;
                     case FLAG_FILE: //读取文件
-                        FileUtil.mkdirs(FILE_PATH);
+                        ThreadUtil.mkdirs(FILE_PATH);
                         String fileName = in.readUTF(); //文件名
                         long fileLen = in.readLong(); //文件长度
                         // 读取文件内容
@@ -161,7 +161,7 @@ public class BtBase {
     public void sendFile(final String filePath) {
         if (checkSend()) return;
         isSending = true;
-        FileUtil.EXECUTOR.execute(new Runnable() {
+        ThreadUtil.EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
                 try {

@@ -117,7 +117,7 @@ public class HomeActivity2 extends AppCompatActivity {
         audioSettingBeans = gson.fromJson(setting_audio_array, new TypeToken<List<SettingBean>>() {
         }.getType());
 
-        mClient = new BtClient(new BTConnectListener() {
+        mClient = BtClient.getInstance(new BTConnectListener() {
             @Override
             public void onConnected(BluetoothDevice device) {
 

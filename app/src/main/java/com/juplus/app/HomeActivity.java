@@ -103,7 +103,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
 
     private Gson gson;
-    private BtClient mClient = new BtClient(this, this);
+    private BtClient mClient ;
     private BluetoothAdapter mBluetoothadapter;
 
     @Override
@@ -112,6 +112,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
         gson = new Gson();
+        mClient = BtClient.getInstance(this,this);
 
         String json_double_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_double_array.json");
         String json_long_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_long_array.json");
@@ -165,13 +166,13 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 
                     case R.id.rbCloseNoise:
                         rbCloseNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_close_noise_checked, 0, 0);
-                        startVerify();
+                        mClient.startVerify();
                         break;
 
                     case R.id.rbVentilateNoise:
                         rbVentilateNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_ventilate_checked, 0, 0);
 
-                        mClient.sendByte(Utils.hexStringToByteArray("C009"));
+                        mClient.sendByte(Utils.hexStringToByteArray("C003"));
                         break;
                 }
             }
@@ -194,7 +195,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
             }
         });//注册蓝牙广播
 
-
+        //接收文件回调
         mClient.setFileListener(new BTFileListener() {
             @Override
             public void onReceiveFile(int state, Object msg) {
@@ -202,6 +203,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
             }
         });
 
+        //接收字符串消息回调
         mClient.setMsgListener(new BTMsgListener() {
             @Override
             public void onReceiveMsg(int state, String msg) {
@@ -222,8 +224,13 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         getBondedDevices();
     }
 
-    private String mKeyData1, mKeyData2, mKey2;
 
+
+    /**
+     * 字节消息回调
+     * @param state
+     * @param bytes
+     */
     @Override
     public void onReceiveByte(int state, byte[] bytes) {
         String s = Utils.bytesToHexString(bytes);
@@ -244,16 +251,16 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 String substring = s.substring(6, 10);
                 if (substring.equalsIgnoreCase("534C")) {
                     ToastUtil.showToast("握手成功!");
-                    startVerify();
+                    mClient.startVerify();
                 } else {
                     showError("握手出错");
                 }
                 break;
             case "02":
                 //校验响应
-                boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
+                boolean b = mClient.verificationCmd(s);
                 if (b) {
-                    mClient.sendByte(Utils.hexStringToByteArray("C009"));//获取电量
+                    mClient.sendByte(Utils.hexStringToByteArray("C050"));//获取电量
                 } else {
                     showError("校验出错");
                 }
@@ -406,19 +413,7 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         }
     }
 
-    private void startVerify() {
-        String[] verificationCommand = Utils.getVerificationCommand();
-        mKeyData1 = verificationCommand[3];
-        mKeyData2 = verificationCommand[4];
-        mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
-        //                    Log.i(TAG, "onReceiveBytes:Key2 " + mKey2);
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(verificationCommand[0]);
-        stringBuffer.append(verificationCommand[1]);
-        stringBuffer.append(verificationCommand[2]);
-        stringBuffer.append(verificationCommand[3]);
-        mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
-    }
+
 
     @Override
     public void onConnected(BluetoothDevice device) {

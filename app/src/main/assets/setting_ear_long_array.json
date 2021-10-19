@@ -1,5 +1,18 @@
 [
-  {"name":"语音助手唤醒","select": false},
-  {"name":"噪声控制（降噪/通透）","select": false},
-  {"name":"噪声控制（降噪/通透/关闭）","select": false}
+  {
+    "name": "语音助手唤醒",
+    "select": false,
+    "code": "01"
+  },
+  {
+    "name": "噪声控制（降噪/通透）",
+    "select": false,
+    "code": "02"
+
+  },
+  {
+    "name": "噪声控制（降噪/通透/关闭）",
+    "select": false,
+    "code": "03"
+  }
 ]

@@ -152,7 +152,7 @@ public class Utils {
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
-    private static native byte[] encryptData(int key, byte[] data, int length);
+    public static native byte[] encryptData(int key, byte[] data, int length);
 
     /**
      * 计算出key2
@@ -178,39 +178,5 @@ public class Utils {
         return hex;
     }
 
-    /**
-     * 解密并验证数据
-     *
-     * @param data
-     * @param key2
-     * @param oldData
-     * @return
-     */
-    public static boolean verificationCmd(String data, String key2, String oldData, String old2Data) {
-        String substring = data.substring(32, 96);
-        //        Log.i("TAG", "verificationCmd: 30-3F： " + oldData);
-        //        Log.i("TAG", "verificationCmd: 10-2F： " + old2Data);
-        //        Log.i("TAG", "verificationCmd: new 10-2F： " + substring);
-        byte[] bytes = hexStringToByteArray(substring);
-        int i = Integer.parseInt(key2, 16);
-        //解密数据
-        String s2 = bytesToHexString(encryptData(i, bytes, bytes.length));
-        //        Log.i("TAG", "verificationCmd:解密后的10-2F： " + s2);
-        //异或
-        String substring1 = s2.substring(0, 32);
-        String substring2 = s2.substring(32);
-        byte[] bytes1 = hexStringToByteArray(substring1);
-        byte[] bytes2 = hexStringToByteArray(substring2);
-        byte[] bytes3 = hexStringToByteArray(oldData);
-        byte[] bytes4 = new byte[bytes1.length + bytes2.length];
-        for (int j = 0; j < bytes1.length; j++) {
-            bytes4[j] = (byte) (bytes1[j] ^ bytes3[j]);
-        }
-        for (int j = 0; j < bytes2.length; j++) {
-            bytes4[j + bytes2.length] = (byte) (bytes2[j] ^ bytes3[j]);
-        }
-        //        String s3 = bytesToHexString(encryptData(i, bytes4, bytes4.length));
-        //        Log.i("TAG", "verificationCmd:异或后的数据： " + bytesToHexString(bytes4));
-        return bytesToHexString(bytes4).equalsIgnoreCase(old2Data);
-    }
+
 }
