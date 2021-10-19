@@ -19,11 +19,11 @@ import java.util.UUID;
 
 public class BluetoothSPPUtil {
 
-    private static boolean           mEnableLogOut     = false;
-    private        Context           mContext;
-    private        BluetoothAdapter  mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private        OnBluetoothAction mOnBluetoothAction;
-    private        ConnectTask       mConnectTask      = new ConnectTask();
+    private static boolean mEnableLogOut = false;
+    private Context mContext;
+    private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private OnBluetoothAction mOnBluetoothAction;
+    private ConnectTask mConnectTask = new ConnectTask();
 
     /**
      * 搜索到新设备广播广播接收器
@@ -57,11 +57,11 @@ public class BluetoothSPPUtil {
      */
     private static class ConnectTask extends AsyncTask<String, Byte[], Void> {
         private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        BluetoothSocket   bluetoothSocket;
-        BluetoothDevice   romoteDevice;
+        BluetoothSocket bluetoothSocket;
+        BluetoothDevice romoteDevice;
         OnBluetoothAction onBluetoothAction;
-        boolean           isRunning  = false;
-        String            stopString = "";
+        boolean isRunning = false;
+        String stopString = "";
 
         @Override
         protected Void doInBackground(String... bluetoothDevicesMac) {
