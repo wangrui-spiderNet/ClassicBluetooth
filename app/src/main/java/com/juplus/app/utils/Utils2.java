@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import java.util.Random;
 
 
-public class Utils {
+public class Utils2 {
 
     public static final String RANDOM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static String hexString = "0123456789abcdef";
@@ -152,7 +152,7 @@ public class Utils {
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
-    public static native byte[] encryptData(int key, byte[] data, int length);
+    private static native byte[] encryptData(int key, byte[] data, int length);
 
     /**
      * 计算出key2
@@ -213,5 +213,4 @@ public class Utils {
         //        Log.i("TAG", "verificationCmd:异或后的数据： " + bytesToHexString(bytes4));
         return bytesToHexString(bytes4).equalsIgnoreCase(old2Data);
     }
-
 }
