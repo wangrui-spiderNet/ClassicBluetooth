@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -145,6 +146,7 @@ public class BtBase {
         try {
 //            mStreamOut.write(FLAG_BYTE); //消息标记
             LogUtils.logBlueTooth("发送消息:"+ Utils.bytesToHexString(bytes));
+            LogUtils.logBlueTooth("发送消息:"+ Arrays.toString(bytes));
             mStreamOut.write(bytes);
             mStreamOut.flush();
 

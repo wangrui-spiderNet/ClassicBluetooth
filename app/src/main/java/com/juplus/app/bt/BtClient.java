@@ -50,7 +50,10 @@ public class BtClient extends BtBase {
         }
     }
 
-    public void sharkHands(){
+    /**
+     * 握手
+     */
+    public void handShake() {
         byte[] handshakeCmd = Utils.getHandshakeCmd();
         sendByte(handshakeCmd);
     }
@@ -58,7 +61,7 @@ public class BtClient extends BtBase {
     private String mKeyData1, mKeyData2, mKey2;
 
     /**
-     * 开始验证
+     * 校验
      */
     public void startVerify() {
         String[] verificationCommand = Utils.getVerificationCommand();
