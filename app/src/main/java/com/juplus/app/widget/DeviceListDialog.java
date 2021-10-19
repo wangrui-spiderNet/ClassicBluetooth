@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,7 +69,7 @@ public class DeviceListDialog extends BaseDialog implements BtDeviceAdapter.Item
         setContentView(view);
         ButterKnife.bind(this);
         setCancelable(false);
-        setCanceledOnTouchOutside(true);
+        setCanceledOnTouchOutside(false);
         setWindowParam(Gravity.TOP, 1f);
 
         mPairedAdapter = new BtDeviceAdapter();
@@ -125,4 +126,13 @@ public class DeviceListDialog extends BaseDialog implements BtDeviceAdapter.Item
         itemClickListener.onItemClickListener(deviceBean);
         dismiss();
     }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            dismiss();
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
 }

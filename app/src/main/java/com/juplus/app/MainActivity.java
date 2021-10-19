@@ -389,6 +389,21 @@ public class MainActivity extends AppCompatActivity implements  BleListAdapter.O
         //不需要，因为不扫描
     }
 
+    @Override
+    public void onDisconnectedChanged(BluetoothDevice device) {
+
+    }
+
+    @Override
+    public void onNewDeviceConnect(BluetoothDevice device) {
+
+    }
+
+    @Override
+    public void onStateChanged(BluetoothDevice device) {
+
+    }
+
     /**
      * 当连接成功
      *

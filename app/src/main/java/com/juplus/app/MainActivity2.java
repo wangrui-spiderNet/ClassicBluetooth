@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
@@ -105,7 +104,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
 
-    private List<DeviceBean> mBleList = new ArrayList<>();
+    private List<DeviceBean> mDeviceList = new ArrayList<>();
     private BluetoothSPPUtil mBluetoothSPPUtil;
     private String mKey2;
     private String mKeyData1;
@@ -143,6 +142,8 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
+                if (!hasDevice()) return;
+
                 if (b) {
                     mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUTO_CHECK_ON));
                 } else {
@@ -155,6 +156,8 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
         checkEar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                if (!hasDevice()) return;
 
                 if (b) {
                     mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_VOICE_WAKE_ON));
@@ -175,22 +178,37 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 switch (i) {
                     case R.id.rbLowNoise:
                         rbLowNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_low_noise_checked, 0, 0);
+                        if (!hasDevice()) return;
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_02));
                         break;
 
                     case R.id.rbCloseNoise:
                         rbCloseNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_close_noise_checked, 0, 0);
+                        if (!hasDevice()) return;
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_01));
                         break;
 
                     case R.id.rbVentilateNoise:
                         rbVentilateNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_ventilate_checked, 0, 0);
+                        if (!hasDevice()) return;
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_03));
+
                         break;
                 }
             }
         });
         initData();
+    }
+
+    private boolean hasDevice() {
+
+        boolean hasNo = mBluetoothSPPUtil != null;
+
+        if (!hasNo) {
+            ToastUtil.showToast("没有连接耳机设备");
+        }
+
+        return hasNo;
     }
 
     @SuppressLint("StringFormatMatches")
@@ -217,6 +235,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                         tvDeviceName.setText(o);
                         tvName.setText(o);
 
+                        if (!hasDevice()) return;
                         int length = o.length();
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_BT_NAME + length + o));
                     }
@@ -229,6 +248,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 audioSettingDialog = new SettingActionListDialog(this, "", audioSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
+                        if (!hasDevice()) return;
                         tvAudioType.setText(o.name);
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUDIO_TYPE + o.code));
                     }
@@ -242,8 +262,8 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
+                        if (!hasDevice()) return;
                         tvLeftSetting.setText(o.name);
-
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_DOUBLE_CLICK_LEFT + o.code));
                     }
                 });
@@ -255,13 +275,13 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 leftLongSettingDialog = new SettingActionListDialog(this, "右耳 长按", leftEarLongSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
+                        if (!hasDevice()) return;
                         tvRightSetting.setText(o.name);
                         mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_LONG_PRESS_RIGHT + o.code));
                     }
                 });
 
                 leftLongSettingDialog.show();
-
                 break;
 
             case R.id.tv_new_version:
@@ -277,6 +297,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
     private void toSettingMore() {
         Intent intent = new Intent(this, SettingMoreActivity.class);
         startActivity(intent);
+//        overridePendingTransition(R.anim.picture_anim_enter,R.anim.picture_anim_exit);
     }
 
     private void showBleList() {
@@ -287,7 +308,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
     @Override
     protected void onRestart() {
         super.onRestart();
-        LogUtils.logBlueTooth( "onRestart: ");
+        LogUtils.logBlueTooth("onRestart: ");
         initData();
     }
 
@@ -330,7 +351,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                     emitter.onComplete();
                     return;
                 }
-                mBleList.clear();
+                mDeviceList.clear();
                 try {
                     //是否存在连接的蓝牙设备
                     Set<BluetoothDevice> bondedDevices = defaultAdapter.getBondedDevices();
@@ -365,7 +386,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                     @Override
                     public void onNext(@NonNull BluetoothDevice device) {
 
-                        mBleList.add(createBluetoothItem(device));
+                        mDeviceList.add(createBluetoothItem(device));
                     }
 
                     @Override
@@ -377,18 +398,29 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                     @Override
                     public void onComplete() {
 
-
                         showDeviceList();
                     }
                 });
     }
 
+    private void updateDeviceAdapter() {
+        if (mDeviceListDialog != null && mDeviceListDialog.isShowing() && mDeviceListDialog.getPairedAdapter() != null) {
+            mDeviceListDialog.updateData(mDeviceList);
+        }
+    }
+
     private void showDeviceList() {
         if (mDeviceListDialog != null) {
+            mDeviceListDialog.dismiss();
             mDeviceListDialog = null;
         }
 
-        mDeviceListDialog = new DeviceListDialog(MainActivity2.this, mBleList, new BtDeviceAdapter.ItemClickListener() {
+        mBluetoothSPPUtil = new BluetoothSPPUtil(this, this);
+        // 设置接收停止标志位字符串
+        mBluetoothSPPUtil.setStopString("");
+        mBluetoothSPPUtil.onCreate();
+
+        mDeviceListDialog = new DeviceListDialog(MainActivity2.this, mDeviceList, new BtDeviceAdapter.ItemClickListener() {
             @Override
             public void onItemClickListener(DeviceBean deviceBean) {
 
@@ -427,9 +459,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
         }
         if (isConnected) {
             //        BluetoothSPPUtil.setEnableLogOut();
-            mBluetoothSPPUtil = new BluetoothSPPUtil(this, this);
-            // 设置接收停止标志位字符串
-            mBluetoothSPPUtil.setStopString("");
+
             mBluetoothSPPUtil.connect(bleDevice);
         } else {
             showToast("设备已断开");
@@ -468,6 +498,38 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
         //不需要，因为不扫描
     }
 
+    @Override
+    public void onStateChanged(BluetoothDevice device) {
+        ToastUtil.showToast("状态变化：" + device.getName());
+    }
+
+    @Override
+    public void onDisconnectedChanged(BluetoothDevice device) {
+        for (DeviceBean deviceBean : mDeviceList) {
+            if (deviceBean.getBluetoothDevice().getName().equals(device.getName())
+                    && deviceBean.getBluetoothDevice().getAddress().equals(device.getAddress())) {
+                mDeviceList.remove(deviceBean);
+                break;
+            }
+        }
+
+        updateDeviceAdapter();
+
+        ToastUtil.showToast("断开连接：" + device.getName());
+    }
+
+    private boolean isContains(BluetoothDevice device) {
+        for (DeviceBean deviceBean : mDeviceList) {
+            if (deviceBean.getBluetoothDevice().getName().equals(device.getName())
+                    && deviceBean.getBluetoothDevice().getAddress().equals(device.getAddress())) {
+                mDeviceList.remove(deviceBean);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * 当连接成功
      *
@@ -485,7 +547,15 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 mBluetoothSPPUtil.send(handshakeCmd);
             }
         });
+    }
 
+    @Override
+    public void onNewDeviceConnect(BluetoothDevice device) {
+        ToastUtil.showToast("新连上一个设备：" + device.getName() + device.getBondState());
+        if (!isContains(device)) {
+            mDeviceList.add(createBluetoothItem(device));
+            updateDeviceAdapter();
+        }
     }
 
     /**
@@ -538,7 +608,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                     stringBuffer.append(verificationCommand[2]);
                     stringBuffer.append(verificationCommand[3]);
 
-                    LogUtils.logBlueTooth( "onReceiveBytes:最终命令 " + stringBuffer.toString());
+                    LogUtils.logBlueTooth("onReceiveBytes:最终命令 " + stringBuffer.toString());
                     mBluetoothSPPUtil.send(Utils.hexStringToByteArray(stringBuffer.toString()));
                 } else {
                     runOnUiThread(new Runnable() {
@@ -551,7 +621,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 break;
             case "02":
                 //校验响应
-                LogUtils.logBlueTooth( "校验响应:原始数据 " + s);
+                LogUtils.logBlueTooth("校验响应:原始数据 " + s);
 
                 boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
                 if (b) {
@@ -562,7 +632,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                         }
                     });
 
-                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C003"));
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHIP_MODEL_03));
                 } else {
                     runOnUiThread(new Runnable() {
                         @Override
@@ -581,7 +651,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 //                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
                 BluetoothModel.getInstance().setDh(s1);
 
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_MODEL_04));
 
                 break;
             case "04":
@@ -590,7 +660,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 String s2 = Utils.hexStringToString(substring2);
                 //                LogUtils.logBlueTooth( "onReceiveBytes: " + s2);
                 BluetoothModel.getInstance().setProductNumber(s2);
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C005"));
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SOFTWARE_VERSION_05));
                 break;
             case "05":
                 //软件版本响应
@@ -598,7 +668,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 String s3 = Utils.hexStringToString(substring3);
                 //                LogUtils.logBlueTooth( "onReceiveBytes: " + s3);
                 BluetoothModel.getInstance().setSoftwareVersion(s3);
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C006"));
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_ADDRESS_06));
                 break;
             case "06":
                 //蓝牙地址响应
@@ -623,7 +693,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                 break;
             case "50":
                 isWhat110 = false;
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C051"));
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SN_CODE_51));
                 String content50 = s.substring(6, 8);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -648,7 +718,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
                     } else {
 
                         String SN = Utils.hexStringToString(SNText);
-                        showToast("序列号"+SNText);
+                        showToast("序列号" + SNText);
                         StringBuffer stringBuffer = new StringBuffer();
                         try {
                             for (int a = 1; a < 4; a++) {

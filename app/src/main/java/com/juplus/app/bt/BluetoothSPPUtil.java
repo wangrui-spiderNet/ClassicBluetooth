@@ -1,7 +1,10 @@
 package com.juplus.app.bt;
 
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +20,7 @@ import java.util.Formatter;
 import java.util.UUID;
 
 
+@SuppressLint("MissingPermission")
 public class BluetoothSPPUtil {
 
     private static boolean mEnableLogOut = false;
@@ -31,24 +35,51 @@ public class BluetoothSPPUtil {
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (mOnBluetoothAction != null)
-                    mOnBluetoothAction.onFoundDevice(device);
-            }
-        }
-    };
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-    /**
-     * 搜索结束广播接收器
-     */
-    private final BroadcastReceiver mFinishFoundReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                if (mOnBluetoothAction != null)
-                    mOnBluetoothAction.onFinishFoundDevice();
+            if (device == null) {
+                return;
             }
+
+            switch (action) {
+
+//                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+//                    break;
+//                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+//                    break;
+
+                case BluetoothDevice.ACTION_FOUND:
+                    if (mOnBluetoothAction != null)
+                        mOnBluetoothAction.onFoundDevice(device);
+                    break;
+                case BluetoothDevice.ACTION_PAIRING_REQUEST: //在系统弹出配对框之前，实现自动配对，取消系统配对框
+                /*try {
+                    abortBroadcast();//终止配对广播，取消系统配对框
+                    boolean ret = dev.setPin("1234".getBytes()); //设置PIN配对码(必须是固定的)
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }*/
+                    break;
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
+                case BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED:
+                case BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED:
+                case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                    if (mOnBluetoothAction != null)
+                        mOnBluetoothAction.onStateChanged(device);
+                    break;
+                case BluetoothDevice.ACTION_ACL_CONNECTED:
+                    if (mOnBluetoothAction != null)
+                        mOnBluetoothAction.onNewDeviceConnect(device);
+                    break;
+                case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+                    if (mOnBluetoothAction != null)
+                        mOnBluetoothAction.onDisconnectedChanged(device);
+                    break;
+
+            }
+
         }
     };
 
@@ -236,6 +267,24 @@ public class BluetoothSPPUtil {
         void onConnectSuccess(BluetoothDevice device);
 
         /**
+         * 当连接成功
+         */
+        void onNewDeviceConnect(BluetoothDevice device);
+        /**
+         * 状态变化
+         *
+         * @param device
+         */
+        void onStateChanged(BluetoothDevice device);
+
+        /**
+         * 断开连接
+         *
+         * @param device
+         */
+        void onDisconnectedChanged(BluetoothDevice device);
+
+        /**
          * 当连接失败
          *
          * @param msg 失败信息
@@ -278,9 +327,20 @@ public class BluetoothSPPUtil {
      */
     public void onCreate() {
         IntentFilter foundFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        foundFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);//蓝牙开关状态
+        foundFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);//蓝牙开始搜索
+        foundFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);//蓝牙搜索结束
+
+        foundFilter.addAction(BluetoothDevice.ACTION_FOUND);//蓝牙发现新设备(未配对的设备)
+        foundFilter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);//在系统弹出配对框之前(确认/输入配对码)
+        foundFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);//设备配对状态改变
+        foundFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);//最底层连接建立
+        foundFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);//最底层连接断开
+
+        foundFilter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED); //BluetoothAdapter连接状态
+        foundFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED); //BluetoothHeadset连接状态
+        foundFilter.addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED); //BluetoothA2dp连接状态
         mContext.registerReceiver(mReceiver, foundFilter);
-        IntentFilter finishFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        mContext.registerReceiver(mFinishFoundReceiver, finishFilter);
     }
 
     /**
