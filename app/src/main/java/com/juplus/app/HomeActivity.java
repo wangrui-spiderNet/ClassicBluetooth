@@ -3,17 +3,21 @@ package com.juplus.app;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,16 +27,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gyf.immersionbar.ImmersionBar;
 import com.juplus.app.adapter.BtDeviceAdapter;
-import com.juplus.app.bt.BTByteListener;
-import com.juplus.app.bt.BTConnectListener;
-import com.juplus.app.bt.BTFileListener;
-import com.juplus.app.bt.BTMsgListener;
-import com.juplus.app.bt.BtClient;
+import com.juplus.app.bt.BluetoothSPPUtil;
 import com.juplus.app.bt.CMDConfig;
+import com.juplus.app.entity.BluetoothModel;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.entity.SettingBean;
 import com.juplus.app.utils.AssetUtil;
-import com.juplus.app.utils.BtReceiver;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
@@ -42,13 +42,12 @@ import com.juplus.app.widget.ChangeNameDialog;
 import com.juplus.app.widget.DeviceListDialog;
 import com.juplus.app.widget.SettingActionListDialog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,10 +61,8 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.juplus.app.bt.CMDConfig.CMD_ARRAY;
-
 @SuppressLint("MissingPermission")
-public class HomeActivity extends AppCompatActivity implements BTConnectListener, BTByteListener {
+public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.OnBluetoothAction {
 
     @BindView(R.id.tv_title_name)
     TextView tvDeviceName;
@@ -102,27 +99,24 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 
     private DeviceListDialog mDeviceListDialog;
     private ChangeNameDialog mChangeNameDialog;
-    private List<DeviceBean> deviceBeanList = new ArrayList<>();
-    private BtReceiver mBtReceiver;
-
     private SettingActionListDialog leftDoubleSettingDialog, leftLongSettingDialog, audioSettingDialog;
     private List<SettingBean> leftSettingBeans, audioSettingBeans, leftEarLongSettingBeans;
 
+    private List<DeviceBean> mDeviceList = new ArrayList<>();
+    private BluetoothSPPUtil mBluetoothSPPUtil;
+    private String mKey2;
+    private String mKeyData1;
+    private String mKeyData2;
+    private BluetoothDevice mBluetoothDevice;
+
     private Gson gson;
-    private BtClient mClient;
-    private BluetoothAdapter mBluetoothadapter;
-
-
-    private Timer timer;
-    private TimerTask timerTask;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
         gson = new Gson();
-        mClient = BtClient.getInstance(this, this);
 
         String json_double_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_double_array.json");
         String json_long_ear_setting = AssetUtil.getJsonFromAsset(APP.getInstance(), "setting_ear_long_array.json");
@@ -145,10 +139,12 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
+                if (!hasDevice()) return;
+
                 if (b) {
-                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUTO_CHECK_ON));
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUTO_CHECK_ON));
                 } else {
-                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUTO_CHECK_OFF));
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUTO_CHECK_OFF));
                 }
 
             }
@@ -158,10 +154,12 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
+                if (!hasDevice()) return;
+
                 if (b) {
-                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_VOICE_WAKE_ON));
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_VOICE_WAKE_ON));
                 } else {
-                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_VOICE_WAKE_OFF));
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_VOICE_WAKE_OFF));
                 }
             }
         });
@@ -177,71 +175,38 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 switch (i) {
                     case R.id.rbLowNoise:
                         rbLowNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_low_noise_checked, 0, 0);
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_02));
+                        if (!hasDevice()) return;
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_02));
                         break;
 
                     case R.id.rbCloseNoise:
                         rbCloseNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_close_noise_checked, 0, 0);
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_01));
+                        if (!hasDevice()) return;
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_01));
                         break;
 
                     case R.id.rbVentilateNoise:
                         rbVentilateNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_ventilate_checked, 0, 0);
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_03));
+                        if (!hasDevice()) return;
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMDConfig.CMD_03));
+
                         break;
                 }
             }
         });
-
-        mBtReceiver = new BtReceiver(this, new BtReceiver.Listener() {
-            @Override
-            public void foundDev(BluetoothDevice dev) {
-//                ToastUtil.showToast("新发现的设备:" + dev.getName());
-            }
-
-            @Override
-            public void newDeviceConnected(BluetoothDevice dev) {
-                ToastUtil.showToast("新增加的设备:" + dev);
-            }
-
-            @Override
-            public void stateChanged(BluetoothDevice dev) {
-
-            }
-        });//注册蓝牙广播
-
-        //接收文件回调
-        mClient.setFileListener(new BTFileListener() {
-            @Override
-            public void onReceiveFile(int state, Object msg) {
-
-            }
-        });
-
-        //接收字符串消息回调
-        mClient.setMsgListener(new BTMsgListener() {
-            @Override
-            public void onReceiveMsg(int state, String msg) {
-
-            }
-        });
-
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-
-                if(index<CMD_ARRAY.length){
-                    mClient.sendByte(Utils.hexStringToByteArray(CMD_ARRAY[index++]));
-                }
-
-            }
-        };
-
-        getBondedDevices();
+        initData();
     }
 
-    int index = 0;
+    private boolean hasDevice() {
+
+        boolean hasNo = mBluetoothSPPUtil != null && mBluetoothDevice != null;
+
+        if (!hasNo) {
+            ToastUtil.showToast("没有连接耳机设备");
+        }
+
+        return hasNo;
+    }
 
     @SuppressLint("StringFormatMatches")
     @Optional
@@ -254,54 +219,12 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         switch (view.getId()) {
             case R.id.tv_title_name:
 
-//                getConnectBT();
-
-                mDeviceListDialog = new DeviceListDialog(this, deviceBeanList, new BtDeviceAdapter.ItemClickListener() {
-                    @Override
-                    public void onItemClickListener(DeviceBean deviceBean) {
-
-                        setDeviceInfo(deviceBean);
-
-                        mClient.connect(deviceBean.getBluetoothDevice());
-//                        if (null != mClient) {
-//                            mClient.close();
-//                        }
-//                        boolean isConnected = false;
-//                        try {
-//                            Method isConnectedMethod = BluetoothDevice.class.getDeclaredMethod("isConnected", (Class[]) null);
-//                            isConnectedMethod.setAccessible(true);
-//                            isConnected = (boolean) isConnectedMethod.invoke(deviceBean.getBluetoothDevice(), (Object[]) null);
-//                        } catch (NoSuchMethodException e) {
-//                            e.printStackTrace();
-//                        } catch (IllegalAccessException e) {
-//                            e.printStackTrace();
-//                        } catch (InvocationTargetException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        BluetoothDevice bluetoothDevice = deviceBean.getBluetoothDevice();
-//
-//                        if (isConnected) {
-//                            tvDeviceName.setText(bluetoothDevice.getName() + "");
-//                            tvName.setText(bluetoothDevice.getName() + "");
-//                            //        BluetoothSPPUtil.setEnableLogOut();
-//                            // 设置接收停止标志位字符串
-////                            mBluetoothSPPUtil.setStopString("");
-//                            mClient.connect(deviceBean.getBluetoothDevice());
-//                        } else {
-//                            ToastUtil.showToast("设备已断开");
-//                            initPermissionData();
-//                        }
-                    }
-                });
-                mDeviceListDialog.show();
+                showDeviceList();
 
                 break;
 
             case R.id.tv_name:
-//                Intent intent = new Intent(this, MainActivity.class);
-//                startActivity(intent);
-                mClient.startVerify();
+
                 mChangeNameDialog = new ChangeNameDialog(this, tvName.getText().toString(), new CallBack<String>() {
                     @Override
                     public void callBack(String o) {
@@ -309,8 +232,9 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                         tvDeviceName.setText(o);
                         tvName.setText(o);
 
+                        if (!hasDevice()) return;
                         int length = o.length();
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_BT_NAME + length + o));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_BT_NAME + length + o));
                     }
                 });
                 mChangeNameDialog.show();
@@ -321,8 +245,9 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 audioSettingDialog = new SettingActionListDialog(this, "", audioSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
+                        if (!hasDevice()) return;
                         tvAudioType.setText(o.name);
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUDIO_TYPE + o.code));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_AUDIO_TYPE + o.code));
                     }
                 });
                 audioSettingDialog.show();
@@ -334,9 +259,9 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 leftDoubleSettingDialog = new SettingActionListDialog(this, "左耳 轻按2次", leftSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
+                        if (!hasDevice()) return;
                         tvLeftSetting.setText(o.name);
-
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_DOUBLE_CLICK_LEFT + o.code));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_DOUBLE_CLICK_LEFT + o.code));
                     }
                 });
 
@@ -347,13 +272,13 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
                 leftLongSettingDialog = new SettingActionListDialog(this, "右耳 长按", leftEarLongSettingBeans, new CallBack<SettingBean>() {
                     @Override
                     public void callBack(SettingBean o) {
+                        if (!hasDevice()) return;
                         tvRightSetting.setText(o.name);
-                        mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_LONG_PRESS_RIGHT + o.code));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_LONG_PRESS_RIGHT + o.code));
                     }
                 });
 
                 leftLongSettingDialog.show();
-
                 break;
 
             case R.id.tv_new_version:
@@ -366,286 +291,67 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
         }
     }
 
-    private void reScan() {
-
-        deviceBeanList.clear();
-        getBondedDevices();
+    private void toSettingMore() {
+        Intent intent = new Intent(this, SettingMoreActivity.class);
+        startActivity(intent);
+//        overridePendingTransition(R.anim.picture_anim_enter,R.anim.picture_anim_exit);
     }
 
-    private String mKey2;
-    private String mKeyData1;
-    private String mKeyData2;
+    private void showBleList() {
+        BluetoothModel.getInstance().clear();
+        initData();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        LogUtils.logBlueTooth("onRestart: ");
+        initData();
+    }
 
     /**
-     * 字节消息回调
-     *
-     * @param state
-     * @param bytes
+     * 初始化已链接设备
      */
-    @Override
-    public void onReceiveByte(int state, byte[] bytes) {
-        String originMsg = Utils.bytesToHexString(bytes);
-        LogUtils.logBlueTooth("接收到的消息：" + originMsg);
-//        ToastUtil.showToast("接收到的消息：" + originMsg);
-        if (TextUtils.isEmpty(originMsg)) {
-            return;
-        }
-        //if (s.length() < 4) {
-        //    //这里可能需要使用Macaddress来校验
-        //    showSuccess2();
-        //    return;
-        //}
-        String code = originMsg.substring(2, 4);
-        switch (code) {
-            case "01":
-                //握手响应
-                String substring = originMsg.substring(6, 10);
-                if (substring.equalsIgnoreCase("534C")) {
-                    ToastUtil.showToast("握手成功!");
-//                    mClient.startVerify();
-//                    timer.scheduleAtFixedRate(timerTask, 2000, 2000);
-
-                    String[] verificationCommand = CMDConfig.getVerificationCommand();
-                    mKeyData1 = verificationCommand[3];
-                    mKeyData2 = verificationCommand[4];
-                    mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
-                    StringBuffer stringBuffer = new StringBuffer();
-                    stringBuffer.append(verificationCommand[0]);
-                    stringBuffer.append(verificationCommand[1]);
-                    stringBuffer.append(verificationCommand[2]);
-                    stringBuffer.append(verificationCommand[3]);
-                    mClient.sendByte(Utils.hexStringToByteArray(stringBuffer.toString()));
-
-                } else {
-                    showError("握手出错");
-                }
-                break;
-            case "02":
-                //校验响应
-                boolean b = mClient.verificationCmd(originMsg);
-                if (b) {
-//                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHIP_MODEL));
-                    timer.scheduleAtFixedRate(timerTask, 0, 2000);
-
-                } else {
-                    showError("校验出错");
-                }
-                break;
-            case "03":
-//                isWhat110 = true;
-                //芯片型号响应
-                String substring1 = originMsg.substring(6, originMsg.length() - 2);
-                String s1 = Utils.hexStringToString(substring1);
-                //                Log.i(TAG, "onReceiveBytes: " + s1);
-                //                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
-//                BluetoothModel.getInstance().setDh(s1);
-                if ("545753313036".equalsIgnoreCase(substring1)) {
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            try {
-//                                Thread.sleep(2 * 1000);  //线程休眠10秒执行
-//                                handler.sendEmptyMessage(666);
-//                            } catch (InterruptedException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }).start();
-                    //mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
-                    mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_MODEL_04));
-                } else {
-//                    showSuccess2();
-                    ToastUtil.showToast("芯片信息获取出错");
-
-                }
-                break;
-            case "04":
-                //产品型号响应
-
-                String substring2 = originMsg.substring(6, originMsg.length() - 2);
-                String s2 = Utils.hexStringToString(substring2);
-
-                ToastUtil.showToast("产品型号：" + s2);
-
-                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SOFTWARE_VERSION_05));
-
-
-                break;
-            case "05":
-                //软件版本响应
-                String substring3 = originMsg.substring(6, originMsg.length() - 2);
-                String s3 = Utils.hexStringToString(substring3);
-
-                ToastUtil.showToast("软件版本:" + s3);
-
-                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_ADDRESS_06));
-
-                break;
-            case "06":
-                //蓝牙地址响应
-                String substring4 = originMsg.substring(6);
-                int len = substring4.length();
-                int num = 0;
-                StringBuffer str = new StringBuffer();
-                while (num < len) {
-                    String substring5 = substring4.substring(num, num + 2);
-                    str.append(substring5);
-                    if (num != len - 2) {
-                        str.append(":");
-                    }
-                    num = num + 2;
-                }
-
-                ToastUtil.showToast("蓝牙地址:" + str);
-                mClient.sendByte(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DEVICE_ID_07));
-
-                break;
-
-
-            case "07"://设备唯一ID
-                String deviceId = originMsg.substring(6, originMsg.length() - 2);
-                String deviceIdName = Utils.hexStringToString(deviceId);
-
-                ToastUtil.showToast("设备ID:" + deviceIdName);
-
-                break;
-            case "08"://产品类型
-
-                break;
-            case "09"://电量
-
-                ToastUtil.showToast("电量");
-                break;
-            case "50"://弹窗开关
-//                isWhat110 = false;
-                mClient.sendByte(Utils.hexStringToByteArray("C051"));
-                String content50 = originMsg.substring(6, 8);
-
-                break;
-            case "51"://SN码
-                String SNText = originMsg.substring(6, originMsg.length());
-                for (int i = 0; i < SNText.length(); i++) {
-                    String itemSn = SNText.charAt(i) + "";
-                    if (itemSn.equals("0") || itemSn.equals("F") || itemSn.equals("f")) {
-
-                    } else {
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                String SN = Utils.hexStringToString(SNText);
-//                                logD(SN);
-//                                StringBuffer stringBuffer = new StringBuffer();
-//                                try {
-//                                    for (int a = 1; a < 4; a++) {
-//                                        stringBuffer.append(SN.substring(a == 1 ? 0 : (a - 1) * 4, a == 4 ? SN.length() : a * 4) + " ");
-//                                    }
-//                                    mTvSN.setText(stringBuffer.toString());
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                    mTvSN.setText("");
-//                                }
-//
-//                                showSuccess4();
-//                            }
-//                        });
-                        return;
-                    }
-                }
-
-                break;
-
-            case "52"://耳机语音唤醒
-
-                break;
-
-            case "54"://蓝牙名字
-                break;
-
-            case "55"://自动入耳检测
-                break;
-
-            case "56"://音效设置
-
-                break;
-
-            case "57"://游戏模式
-
-                break;
-
-            case "58"://空间音频
-
-                break;
-
-            case "59"://噪声控制
-
-                break;
-            case "5A"://按住耳机（左）
-
-                break;
-            case "5B"://按住耳机（右）
-
-                break;
-            case "5C"://轻点两下耳机（左)
-
-                break;
-            case "5D"://轻点两下耳机（右）
-                break;
-
-            default:
-                break;
-        }
+    private void initData() {
+        getConnectBle();
     }
 
-    @Override
-    public void onConnected(BluetoothDevice device) {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String msg = String.format("与%s(%s)连接成功", device.getName(), device.getAddress());
-                ToastUtil.showToast(msg);
-
-                mClient.handShake();
-
-            }
-        });
+    /**
+     * 蓝牙是否打开
+     *
+     * @return
+     */
+    private boolean isBlueEnable() {
+        BluetoothAdapter defaultAdapter = BluetoothAdapter.getDefaultAdapter();
+        return defaultAdapter != null && defaultAdapter.isEnabled();
     }
 
-    @Override
-    public void onDisConnected() {
-
-        ToastUtil.showToast("关闭连接");
-
-    }
-
-
-    private void setDeviceInfo(DeviceBean deviceBean) {
-
-        tvDeviceName.setText(deviceBean.getBluetoothDevice().getName());
-        tvName.setText(deviceBean.getBluetoothDevice().getName());
-
-        tvMacAddress.setText("蓝牙地址：" + deviceBean.getBluetoothDevice().getAddress());
+    private DeviceBean createBluetoothItem(BluetoothDevice device) {
+        DeviceBean deviceBean = new DeviceBean();
+        deviceBean.setBluetoothDevice(device);
+        return deviceBean;
     }
 
     /**
      * 初始化蓝牙
      */
-    private void getConnectBT() {
+    private void getConnectBle() {
+
         Observable.create(new ObservableOnSubscribe<BluetoothDevice>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<BluetoothDevice> emitter) throws Throwable {
                 // 初始化
                 //获取已链接蓝牙设备
-
-                if (null == mBluetoothadapter) {
-                    ToastUtil.showToast("设备蓝牙无法使用");
+                BluetoothAdapter defaultAdapter = BluetoothAdapter.getDefaultAdapter();
+                if (null == defaultAdapter) {
+                    showToast("设备蓝牙无法使用");
                     emitter.onComplete();
                     return;
                 }
-                deviceBeanList.clear();
+                mDeviceList.clear();
                 try {
                     //是否存在连接的蓝牙设备
-                    Set<BluetoothDevice> bondedDevices = mBluetoothadapter.getBondedDevices();
+                    Set<BluetoothDevice> bondedDevices = defaultAdapter.getBondedDevices();
                     Iterator<BluetoothDevice> iterator = bondedDevices.iterator();
                     while (iterator.hasNext()) {
                         BluetoothDevice bluetoothDevice = iterator.next();
@@ -676,106 +382,444 @@ public class HomeActivity extends AppCompatActivity implements BTConnectListener
 
                     @Override
                     public void onNext(@NonNull BluetoothDevice device) {
-                        ToastUtil.showToast("添加设备:" + device.getName());
-                        deviceBeanList.add(createBluetoothItem(device));
+
+                        mDeviceList.add(createBluetoothItem(device));
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        ToastUtil.showToast("您的手机系统版本不支持此验证方式");
+                        showToast("您的手机系统版本不支持此验证方式");
                     }
 
 
                     @Override
                     public void onComplete() {
-                        //筛选完成，展示
-                        updateDeviceAdapter();
+
+                        showDeviceList();
                     }
                 });
     }
 
-    /**
-     * 获取已配对设备
-     */
-    private void getBondedDevices() {//以配对设备
-        BluetoothManager mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothadapter = mBluetoothManager.getAdapter();
-        mBluetoothadapter.startDiscovery();
+    private void updateDeviceAdapter() {
+        if (mDeviceListDialog != null && mDeviceListDialog.isShowing() && mDeviceListDialog.getPairedAdapter() != null) {
+            mDeviceListDialog.updateData(mDeviceList);
+        }
+    }
 
-        Set<BluetoothDevice> bluetoothDeviceSet = mBluetoothadapter.getBondedDevices();
+    private void showDeviceList() {
+        if (mDeviceListDialog != null) {
+            mDeviceListDialog.dismiss();
+            mDeviceListDialog = null;
+        }
 
-        ToastUtil.showToast("已配对的数量:" + bluetoothDeviceSet.size());
+        mBluetoothSPPUtil = new BluetoothSPPUtil(this, this);
+        // 设置接收停止标志位字符串
+        mBluetoothSPPUtil.setStopString("");
+        mBluetoothSPPUtil.onCreate();
 
-        if (bluetoothDeviceSet != null && bluetoothDeviceSet.size() > 0) {
-            for (BluetoothDevice device : bluetoothDeviceSet) {
+        mDeviceListDialog = new DeviceListDialog(HomeActivity.this, mDeviceList, new BtDeviceAdapter.ItemClickListener() {
+            @Override
+            public void onItemClickListener(DeviceBean deviceBean) {
 
-                deviceBeanList.add(createBluetoothItem(device));
-                updateDeviceAdapter();
+                setDeviceInfo(deviceBean);
+                connectDevice(deviceBean.getBluetoothDevice());
+
+            }
+        });
+        mDeviceListDialog.show();
+    }
+
+    private void setDeviceInfo(DeviceBean deviceBean) {
+
+        if (deviceBean != null) {
+            tvDeviceName.setText(deviceBean.getBluetoothDevice().getName());
+            tvName.setText(deviceBean.getBluetoothDevice().getName());
+            tvMacAddress.setText("蓝牙地址：" + deviceBean.getBluetoothDevice().getAddress());
+        } else {
+            tvDeviceName.setText("未连接");
+            tvName.setText("未连接");
+            tvMacAddress.setText("未连接设备");
+        }
+
+    }
+
+    private void connectDevice(BluetoothDevice bleDevice) {
+        if (null != mBluetoothSPPUtil) {
+            mBluetoothSPPUtil.onDestroy();
+        }
+        mBluetoothDevice = bleDevice;
+        boolean isConnected = false;
+        try {
+            Method isConnectedMethod = BluetoothDevice.class.getDeclaredMethod("isConnected", (Class[]) null);
+            isConnectedMethod.setAccessible(true);
+            isConnected = (boolean) isConnectedMethod.invoke(mBluetoothDevice, (Object[]) null);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        if (isConnected) {
+            //        BluetoothSPPUtil.setEnableLogOut();
+
+            mBluetoothSPPUtil.connect(bleDevice);
+        } else {
+            showToast("设备已断开");
+            initData();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 110) {
+            if (isBlueEnable()) {
+                getConnectBle();
+            } else {
+                showToast("蓝牙未打开");
             }
         }
     }
 
-    /**
-     * 蓝牙是否打开
-     *
-     * @return
-     */
-    private boolean isBlueEnable() {
-        return mBluetoothadapter != null && mBluetoothadapter.isEnabled();
+    private void showToast(String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showToast(msg);
+            }
+        });
     }
 
     /**
-     * 初始化 BluetoothAdapter
+     * 当发现新设备
      *
-     * @return
+     * @param device 设备
      */
-    private BluetoothAdapter initBluetoothAdapter() {
-        BluetoothManager mBluetoothManager = (BluetoothManager) HomeActivity.this.getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothadapter = mBluetoothManager.getAdapter();
-        return mBluetoothadapter;
+    @Override
+    public void onFoundDevice(BluetoothDevice device) {
+        //不需要，因为不扫描
     }
 
-    private void updateDeviceAdapter() {
-        if (mDeviceListDialog != null && mDeviceListDialog.isShowing() && mDeviceListDialog.getPairedAdapter() != null) {
-            mDeviceListDialog.updateData(deviceBeanList);
+    @Override
+    public void onStateChanged(BluetoothDevice device) {
+        ToastUtil.showToast("状态变化：" + device.getName());
+    }
+
+    @Override
+    public void onDisconnectedChanged(BluetoothDevice device) {
+        for (DeviceBean deviceBean : mDeviceList) {
+            if (deviceBean.getBluetoothDevice().getName().equals(device.getName())
+                    && deviceBean.getBluetoothDevice().getAddress().equals(device.getAddress())) {
+                mDeviceList.remove(deviceBean);
+                mBluetoothDevice = null;
+                setDeviceInfo(null);
+                break;
+            }
+        }
+
+        updateDeviceAdapter();
+
+        ToastUtil.showToast("断开连接：" + device.getName());
+    }
+
+    /**
+     * 当连接成功
+     *
+     * @param device
+     */
+    @Override
+    public void onConnectSuccess(BluetoothDevice device) {
+        mBluetoothDevice = device;
+        BluetoothModel.getInstance().setBluetoothName(device.getName());
+        //链接成功开始写数据
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                byte[] handshakeCmd = CMDConfig.getHandshakeCmd();
+                mBluetoothSPPUtil.send(handshakeCmd);
+            }
+        });
+    }
+
+    @Override
+    public void onNewDeviceConnect(BluetoothDevice device) {
+        ToastUtil.showToast("新连上一个设备：" + device.getName() + device.getBondState());
+        if (!isContains(device)) {
+            mDeviceList.add(createBluetoothItem(device));
+            updateDeviceAdapter();
         }
     }
 
-    private void toSettingMore() {
-        Intent intent = new Intent(this, SettingMoreActivity.class);
-        startActivity(intent);
+    private boolean isContains(BluetoothDevice device) {
+        for (DeviceBean deviceBean : mDeviceList) {
+            if (deviceBean.getBluetoothDevice().getName().equals(device.getName())
+                    && deviceBean.getBluetoothDevice().getAddress().equals(device.getAddress())) {
+                mDeviceList.remove(deviceBean);
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
-    private DeviceBean createBluetoothItem(BluetoothDevice device) {
-        DeviceBean deviceBean = new DeviceBean();
-        deviceBean.setBluetoothDevice(device);
-        return deviceBean;
+
+    /**
+     * 当连接失败
+     *
+     * @param msg 失败信息
+     */
+    @Override
+    public void onConnectFailed(String msg) {
+
+        showToast("连接失败");
+    }
+
+    private String SNShow;
+
+    /**
+     * 当接收到 byte 数组
+     *
+     * @param bytes 内容
+     */
+    @Override
+    public void onReceiveBytes(byte[] bytes) {
+        String s = Utils.bytesToHexString(bytes);
+
+        LogUtils.logBlueTooth("收到消息：" + s);
+
+        if (TextUtils.isEmpty(s)) {
+            return;
+        }
+        //if (s.length() < 4) {
+        //    //这里可能需要使用Macaddress来校验
+        //    showSuccess2();
+        //    return;
+        //}
+        String code = s.substring(2, 4);
+        switch (code) {
+            case "01":
+                //握手响应
+                String substring = s.substring(6, 10);
+                if (substring.equalsIgnoreCase("534C")) {
+                    String[] verificationCommand = CMDConfig.getVerificationCommand();
+                    mKeyData1 = verificationCommand[3];
+                    mKeyData2 = verificationCommand[4];
+                    mKey2 = Utils.getTheAccumulatedValueAnd(verificationCommand[2]);
+
+
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append(verificationCommand[0]);
+                    stringBuffer.append(verificationCommand[1]);
+                    stringBuffer.append(verificationCommand[2]);
+                    stringBuffer.append(verificationCommand[3]);
+
+                    LogUtils.logBlueTooth("onReceiveBytes:最终命令 " + stringBuffer.toString());
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(stringBuffer.toString()));
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ToastUtil.showToast("握手失败");
+                        }
+                    });
+                }
+                break;
+            case "02":
+                //校验响应
+                LogUtils.logBlueTooth("校验响应:原始数据 " + s);
+
+                boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
+                if (b) {
+                    showToast("校验成功");
+
+                    mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHIP_MODEL_03));
+                } else {
+                    showToast("校验失败");
+                }
+                break;
+            case "03":
+                //芯片型号响应
+                String substring1 = s.substring(6, s.length() - 2);
+                String s1 = Utils.hexStringToString(substring1);
+                //                LogUtils.logBlueTooth( "onReceiveBytes: " + s1);
+                //                mBluetoothSPPUtil.send(Utils.hexStringToByteArray("C004"));
+                BluetoothModel.getInstance().setDh(s1);
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_MODEL_04));
+
+                break;
+            case "04":
+                //产品型号响应
+                String substring2 = s.substring(6, s.length() - 2);
+                String s2 = Utils.hexStringToString(substring2);
+                //                LogUtils.logBlueTooth( "onReceiveBytes: " + s2);
+                BluetoothModel.getInstance().setProductNumber(s2);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SOFTWARE_VERSION_05));
+                break;
+            case "05":
+                //软件版本响应
+                String substring3 = s.substring(6, s.length() - 2);
+                String s3 = Utils.hexStringToString(substring3);
+                //                LogUtils.logBlueTooth( "onReceiveBytes: " + s3);
+                BluetoothModel.getInstance().setSoftwareVersion(s3);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_ADDRESS_06));
+                break;
+            case "06":
+                //蓝牙地址响应
+                String substring4 = s.substring(6);
+                int len = substring4.length();
+                int num = 0;
+                StringBuffer str = new StringBuffer();
+                while (num < len) {
+                    String substring5 = substring4.substring(num, num + 2);
+                    str.append(substring5);
+                    if (num != len - 2) {
+                        str.append(":");
+                    }
+                    num = num + 2;
+                }
+                BluetoothModel.getInstance().setBluetoothAddress(str.toString());
+
+                showToast(str.toString());
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DIALOG_OP_50));
+
+                break;
+            case "50":
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SN_CODE_51));
+                String content50 = s.substring(6, 8);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (content50.equals("01")) {
+                            checkEar.setChecked(false);
+                        } else if (content50.equals("00")) {
+                            checkEar.setChecked(true);
+                        }
+                    }
+                });
+
+                break;
+            case "51":
+                String SNText = s.substring(6, s.length());
+
+
+                for (int i = 0; i < SNText.length(); i++) {
+                    String itemSn = SNText.charAt(i) + "";
+                    if (itemSn.equals("0") || itemSn.equals("F") || itemSn.equals("f")) {
+
+                    } else {
+
+                        String SN = Utils.hexStringToString(SNText);
+                        showToast("序列号" + SNText);
+                        StringBuffer stringBuffer = new StringBuffer();
+                        try {
+                            for (int a = 1; a < 4; a++) {
+                                stringBuffer.append(SN.substring(a == 1 ? 0 : (a - 1) * 4, a == 4 ? SN.length() : a * 4) + " ");
+                            }
+
+                            SNShow = stringBuffer.toString();
+//                                    mTvSN.setText(stringBuffer.toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+//                                    mTvSN.setText("");
+                        }
+
+                        return;
+                    }
+                }
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_60));
+
+                break;
+            case "60":
+                boolean isSN_0 = false;
+                String sn = SNShow.replace(" ", "");
+                if (sn.length() == 12) {
+                    for (int i = 0; i < 12; i++) {
+                        String snIndex = sn.charAt(i) + "";
+                        if (snIndex.equals("0")) {
+                            isSN_0 = true;
+                        } else {
+                            isSN_0 = false;
+                        }
+                    }
+                    if (isSN_0) {
+                        //确认修改
+                        StringBuffer cmd_sn = new StringBuffer();
+                        cmd_sn.append("C0");
+                        cmd_sn.append("61");
+                        cmd_sn.append("0C");
+                        //cmd_sn.append(Utils.stringToHexString(sn));
+                        cmd_sn.append("000000000000000000000000");
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(cmd_sn.toString()));
+                    } else {
+                        //确认修改
+                        StringBuffer cmd_sn = new StringBuffer();
+                        cmd_sn.append("C0");
+                        cmd_sn.append("61");
+                        cmd_sn.append("0C");
+                        cmd_sn.append(Utils.stringToHexString(sn));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(cmd_sn.toString()));
+                    }
+                }
+                break;
+            case "61":
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showBleList();
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 当调用接口发送了 byte 数组
+     *
+     * @param bytes 内容
+     */
+    @Override
+    public void onSendBytes(byte[] bytes) {
+        //LogUtils.logBlueTooth( "onSendBytes: " + Utils.bytesToHexString(bytes));
+        LogUtils.logBlueTooth("发送消息：" + Utils.bytesToHexString(bytes));
+    }
+
+    /**
+     * 当结束搜索设备
+     */
+    @Override
+    public void onFinishFoundDevice() {
+        //不需要
+    }
+
+    private void doHuWeiToastCovered(TextView mTvSN) {
+        if (Build.MANUFACTURER.equalsIgnoreCase("huawei")) {
+            View focus = getWindow().getDecorView().findFocus();
+            if (focus instanceof EditText) {
+                EditText et = (EditText) focus;
+                if ((et.getInputType() == (InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT))
+                        || (et.getInputType() == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)) {
+                    InputMethodManager methodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    methodManager.hideSoftInputFromWindow(et.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+            }
+        } else {
+            Toast.makeText(getBaseContext(), "输入不少于12个字", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (null != mDeviceListDialog) {
-            mDeviceListDialog.dismiss();
-            mDeviceListDialog = null;
+        if (null != mBluetoothSPPUtil) {
+            mBluetoothSPPUtil.onDestroy();
         }
-
-        if (null != mChangeNameDialog) {
-            mChangeNameDialog.dismiss();
-            mChangeNameDialog = null;
-        }
-
-        mClient.unListener();
-        mClient.close();
-        unregisterReceiver(mBtReceiver);
-    }
-
-    private void showError(String msg) {
-        ToastUtil.showToast(msg);
     }
 }
-
-
