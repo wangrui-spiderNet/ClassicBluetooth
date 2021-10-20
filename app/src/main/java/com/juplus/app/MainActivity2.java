@@ -110,7 +110,6 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
     private String mKeyData1;
     private String mKeyData2;
     private BluetoothDevice mBluetoothDevice;
-    private boolean isWhat110 = true;
 
     private Gson gson;
 
@@ -202,7 +201,7 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
 
     private boolean hasDevice() {
 
-        boolean hasNo = mBluetoothSPPUtil != null;
+        boolean hasNo = mBluetoothSPPUtil != null && mBluetoothDevice != null;
 
         if (!hasNo) {
             ToastUtil.showToast("没有连接耳机设备");
@@ -434,10 +433,16 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
 
     private void setDeviceInfo(DeviceBean deviceBean) {
 
-        tvDeviceName.setText(deviceBean.getBluetoothDevice().getName());
-        tvName.setText(deviceBean.getBluetoothDevice().getName());
+        if (deviceBean != null) {
+            tvDeviceName.setText(deviceBean.getBluetoothDevice().getName());
+            tvName.setText(deviceBean.getBluetoothDevice().getName());
+            tvMacAddress.setText("蓝牙地址：" + deviceBean.getBluetoothDevice().getAddress());
+        } else {
+            tvDeviceName.setText("未连接");
+            tvName.setText("未连接");
+            tvMacAddress.setText("未连接设备");
+        }
 
-        tvMacAddress.setText("蓝牙地址：" + deviceBean.getBluetoothDevice().getAddress());
     }
 
     private void connectDevice(BluetoothDevice bleDevice) {
@@ -509,10 +514,12 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
             if (deviceBean.getBluetoothDevice().getName().equals(device.getName())
                     && deviceBean.getBluetoothDevice().getAddress().equals(device.getAddress())) {
                 mDeviceList.remove(deviceBean);
+                mBluetoothDevice = null;
                 break;
             }
         }
 
+        setDeviceInfo(null);
         updateDeviceAdapter();
 
         ToastUtil.showToast("断开连接：" + device.getName());
@@ -625,25 +632,14 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
 
                 boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
                 if (b) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ToastUtil.showToast("校验成功");
-                        }
-                    });
+                    showToast("校验成功");
 
                     mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHIP_MODEL_03));
                 } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ToastUtil.showToast("握手失败");
-                        }
-                    });
+                    showToast("校验失败");
                 }
                 break;
             case "03":
-                isWhat110 = true;
                 //芯片型号响应
                 String substring1 = s.substring(6, s.length() - 2);
                 String s1 = Utils.hexStringToString(substring1);
@@ -692,7 +688,6 @@ public class MainActivity2 extends AppCompatActivity implements BluetoothSPPUtil
 
                 break;
             case "50":
-                isWhat110 = false;
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SN_CODE_51));
                 String content50 = s.substring(6, 8);
                 runOnUiThread(new Runnable() {
