@@ -194,7 +194,12 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 }
             }
         });
-        initData();
+        
+        mBluetoothSPPUtil = new BluetoothSPPUtil(this, this);
+        // 设置接收停止标志位字符串
+        mBluetoothSPPUtil.setStopString("");
+        mBluetoothSPPUtil.onCreate();
+        getConnectBle();
     }
 
     private boolean hasDevice() {
@@ -299,22 +304,16 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
     private void showBleList() {
         BluetoothModel.getInstance().clear();
-        initData();
+        getConnectBle();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         LogUtils.logBlueTooth("onRestart: ");
-        initData();
-    }
-
-    /**
-     * 初始化已链接设备
-     */
-    private void initData() {
         getConnectBle();
     }
+
 
     /**
      * 蓝牙是否打开
@@ -412,10 +411,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
             mDeviceListDialog = null;
         }
 
-        mBluetoothSPPUtil = new BluetoothSPPUtil(this, this);
-        // 设置接收停止标志位字符串
-        mBluetoothSPPUtil.setStopString("");
-        mBluetoothSPPUtil.onCreate();
+       
 
         mDeviceListDialog = new DeviceListDialog(HomeActivity.this, mDeviceList, new BtDeviceAdapter.ItemClickListener() {
             @Override
@@ -444,9 +440,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     }
 
     private void connectDevice(BluetoothDevice bleDevice) {
-        if (null != mBluetoothSPPUtil) {
-            mBluetoothSPPUtil.onDestroy();
-        }
+
         mBluetoothDevice = bleDevice;
         boolean isConnected = false;
         try {
@@ -461,12 +455,12 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
             e.printStackTrace();
         }
         if (isConnected) {
-            //        BluetoothSPPUtil.setEnableLogOut();
+
 
             mBluetoothSPPUtil.connect(bleDevice);
         } else {
             showToast("设备已断开");
-            initData();
+            getConnectBle();
         }
     }
 

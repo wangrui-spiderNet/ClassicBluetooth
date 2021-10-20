@@ -14,6 +14,8 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.juplus.app.utils.LogUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Formatter;
@@ -105,7 +107,7 @@ public class BluetoothSPPUtil {
                 romoteDevice = bluetoothAdapter.getRemoteDevice(bluetoothDevicesMac[0]);
                 bluetoothSocket = romoteDevice.createRfcommSocketToServiceRecord(SPP_UUID);
             } catch (Exception e) {
-                logD("获取Socket失败");
+                LogUtils.logBlueTooth("获取Socket失败");
                 isRunning = false;
                 e.printStackTrace();
                 return null;
@@ -122,11 +124,11 @@ public class BluetoothSPPUtil {
             try {
                 // 等待连接，会阻塞线程
                 bluetoothSocket.connect();
-                logD("连接成功");
+                 LogUtils.logBlueTooth("连接成功");
                 onBluetoothAction.onConnectSuccess(romoteDevice);
             } catch (Exception connectException) {
                 connectException.printStackTrace();
-                logD("连接失败:" + connectException.getMessage());
+                 LogUtils.logBlueTooth("连接失败:" + connectException.getMessage());
                 onBluetoothAction.onConnectFailed("连接失败:" + connectException.getMessage());
                 return null;
             }
@@ -136,7 +138,7 @@ public class BluetoothSPPUtil {
                 InputStream inputStream = bluetoothSocket.getInputStream();
                 byte[] result = new byte[0];
                 while (isRunning) {
-                    logD("looping");
+                     LogUtils.logBlueTooth("looping");
                     byte[] buffer = new byte[256];
                     // 等待有数据
                     while (inputStream.available() == 0 && isRunning) {
@@ -160,7 +162,7 @@ public class BluetoothSPPUtil {
                     }
                     try {
                         // 返回数据
-                        logD("当前累计收到的数据=>" + byte2Hex(result));
+//                         LogUtils.logBlueTooth("当前累计收到的数据=>" + byte2Hex(result));
 
                         byte[] stopFlag = stopString.getBytes();
                         int stopFlagSize = stopFlag.length;
@@ -178,19 +180,19 @@ public class BluetoothSPPUtil {
                                 shouldCallOnReceiveBytes = true;
                             }
                         } else {
-                            logD("标志位为：" + byte2Hex(stopFlag));
+                             LogUtils.logBlueTooth("标志位为：" + byte2Hex(stopFlag));
                             for (int i = stopFlagSize - 1; i >= 0; i--) {
                                 int indexInResult = result.length - (stopFlagSize - i);
                                 if (indexInResult >= result.length || indexInResult < 0) {
                                     shouldCallOnReceiveBytes = false;
-                                    logD("收到的数据比停止字符串短");
+                                     LogUtils.logBlueTooth("收到的数据比停止字符串短");
                                     break;
                                 }
                                 if (stopFlag[i] == result[indexInResult]) {
-                                    logD("发现" + byte2Hex(stopFlag[i]) + "等于" + byte2Hex(result[indexInResult]));
+                                     LogUtils.logBlueTooth("发现" + byte2Hex(stopFlag[i]) + "等于" + byte2Hex(result[indexInResult]));
                                     shouldCallOnReceiveBytes = true;
                                 } else {
-                                    logD("发现" + byte2Hex(stopFlag[i]) + "不等于" + byte2Hex(result[indexInResult]));
+                                     LogUtils.logBlueTooth("发现" + byte2Hex(stopFlag[i]) + "不等于" + byte2Hex(result[indexInResult]));
                                     shouldCallOnReceiveBytes = false;
                                 }
                             }
@@ -215,7 +217,7 @@ public class BluetoothSPPUtil {
         @Override
         protected void onCancelled() {
             try {
-                logD("AsyncTask 开始释放资源");
+                 LogUtils.logBlueTooth("AsyncTask 开始释放资源");
                 isRunning = false;
                 if (null != bluetoothSocket) {
                     bluetoothSocket.close();
@@ -348,7 +350,7 @@ public class BluetoothSPPUtil {
      */
     public void onDestroy() {
         try {
-            logD("onDestroy，开始释放资源");
+             LogUtils.logBlueTooth("onDestroy，开始释放资源");
             mConnectTask.isRunning = false;
             mConnectTask.cancel(true);
             //            mContext.unregisterReceiver(mReceiver);
@@ -452,22 +454,6 @@ public class BluetoothSPPUtil {
         String hash = formatter.toString();
         formatter.close();
         return hash;
-    }
-
-    /**
-     * 启用日志输出
-     */
-    @SuppressWarnings("unused")
-    public static void setEnableLogOut() {
-        mEnableLogOut = true;
-    }
-
-    /**
-     * 打印日志
-     */
-    private static void logD(String msg) {
-        if (mEnableLogOut)
-            Log.d("BLEUTILS", msg);
     }
 
 }
