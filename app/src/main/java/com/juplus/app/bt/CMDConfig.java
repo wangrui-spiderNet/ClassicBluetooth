@@ -36,10 +36,10 @@ public class CMDConfig {
     //01 – 语音唤醒；
     //02 – 噪声控制（降噪/通透）；
     //03 – 噪声控制（降噪/通透/关闭）；
-    public static final String CMD_READ_LONG_PRESS_LEFT = "C05A";
-    public static final String CMD_READ_LONG_PRESS_RIGHT = "C05B";
-    public static final String CMD_READ_DOUBLE_CLICK_LEFT = "C05C";
-    public static final String CMD_READ_DOUBLE_CLICK_RIGHT = "C05D";
+    public static final String CMD_READ_LONG_PRESS_LEFT_5A = "C05A";
+    public static final String CMD_READ_LONG_PRESS_RIGHT_5B = "C05B";
+    public static final String CMD_READ_DOUBLE_CLICK_LEFT_5C = "C05C";
+    public static final String CMD_READ_DOUBLE_CLICK_RIGHT_5D = "C05D";
 
     public static String[] CMD_ARRAY={
             CMD_READ_CHIP_MODEL_03,
@@ -58,43 +58,43 @@ public class CMDConfig {
             CMD_READ_GAME_MODEL_57,
             CMD_READ_AUDIO_SPACE_58,
             CMD_READ_NOISE_CONTROL_59,
-            CMD_READ_LONG_PRESS_LEFT,
-            CMD_READ_LONG_PRESS_RIGHT,
-            CMD_READ_DOUBLE_CLICK_LEFT,
-            CMD_READ_DOUBLE_CLICK_RIGHT
+            CMD_READ_LONG_PRESS_LEFT_5A,
+            CMD_READ_LONG_PRESS_RIGHT_5B,
+            CMD_READ_DOUBLE_CLICK_LEFT_5C,
+            CMD_READ_DOUBLE_CLICK_RIGHT_5D
     };
 
     /*写入命令*/
     //语音唤醒
-    public static final String CMD_WRITE_VOICE_WAKE_ON = "C0620201";
-    public static final String CMD_WRITE_VOICE_WAKE_OFF = "C0620200";
+    public static final String CMD_WRITE_VOICE_WAKE_ON = "C0620101";
+    public static final String CMD_WRITE_VOICE_WAKE_OFF = "C0620100";
 
     //写入蓝牙地址
     public static final String CMD_WRITE_BT_NAME = "C064";
 
     //自动入耳检测
-    public static final String CMD_WRITE_AUTO_CHECK_ON = "C0650200";
-    public static final String CMD_WRITE_AUTO_CHECK_OFF = "C0650201";
+    public static final String CMD_WRITE_AUTO_CHECK_ON = "C0650100";
+    public static final String CMD_WRITE_AUTO_CHECK_OFF = "C0650101";
 
     //音效设置
     //01 – 近场环绕；
     //02 – 清澈旋律；
     //03 – 现场律动；
     //04 – 宽广环绕；
-    public static final String CMD_WRITE_AUDIO_TYPE = "C06602";
+    public static final String CMD_WRITE_AUDIO_TYPE = "C06601";
 
     //噪声控制
     //01 – 关闭；
     //02 – 降噪；
     //03 – 通透；
-    public static final String CMD_WRITE_NOISE_CONTROL = "C06902";
+    public static final String CMD_WRITE_NOISE_CONTROL = "C06901";
 
     //长按设置
     //01 – 语音唤醒；
     //02 – 噪声控制（降噪/通透）；
     //03 – 噪声控制（降噪/通透/关闭）；
-    public static final String CMD_WRITE_LONG_PRESS_LEFT = "C06A02";
-    public static final String CMD_WRITE_LONG_PRESS_RIGHT = "C06B02";
+    public static final String CMD_WRITE_LONG_PRESS_LEFT = "C06A01";
+    public static final String CMD_WRITE_LONG_PRESS_RIGHT = "C06B01";
 
     //双击设置
     //01 – 关闭；
@@ -102,8 +102,8 @@ public class CMDConfig {
     //03 – 播放/暂停；
     //04 – 下一首；
     //05 – 上一首；
-    public static final String CMD_WRITE_DOUBLE_CLICK_LEFT = "C06C02";
-    public static final String CMD_WRITE_DOUBLE_CLICK_RIGHT = "C06D02";
+    public static final String CMD_WRITE_DOUBLE_CLICK_LEFT = "C06C01";
+    public static final String CMD_WRITE_DOUBLE_CLICK_RIGHT = "C06D01";
 
     public static final String CMD_01 = "01";
     public static final String CMD_02 = "02";

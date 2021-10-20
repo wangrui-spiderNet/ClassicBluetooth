@@ -138,7 +138,7 @@ public class BluetoothSPPUtil {
                 InputStream inputStream = bluetoothSocket.getInputStream();
                 byte[] result = new byte[0];
                 while (isRunning) {
-                     LogUtils.logBlueTooth("looping");
+//                     LogUtils.logBlueTooth("looping");
                     byte[] buffer = new byte[256];
                     // 等待有数据
                     while (inputStream.available() == 0 && isRunning) {

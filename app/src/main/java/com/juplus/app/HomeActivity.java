@@ -581,7 +581,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     public void onReceiveBytes(byte[] bytes) {
         String s = Utils.bytesToHexString(bytes);
 
-        LogUtils.logBlueTooth("收到消息：" + s);
+//        LogUtils.logBlueTooth("收到消息：" + s);
 
         if (TextUtils.isEmpty(s)) {
             return;
@@ -635,6 +635,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 break;
             case "03":
                 //芯片型号响应
+                LogUtils.logBlueTooth("芯片型号:"+s);
                 String substring1 = s.substring(6, s.length() - 2);
                 String s1 = Utils.hexStringToString(substring1);
                 //                LogUtils.logBlueTooth( "onReceiveBytes: " + s1);
@@ -646,6 +647,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 break;
             case "04":
                 //产品型号响应
+                LogUtils.logBlueTooth("产品型号:"+s);
                 String substring2 = s.substring(6, s.length() - 2);
                 String s2 = Utils.hexStringToString(substring2);
                 //                LogUtils.logBlueTooth( "onReceiveBytes: " + s2);
@@ -654,6 +656,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 break;
             case "05":
                 //软件版本响应
+                LogUtils.logBlueTooth("软件版本:"+s);
                 String substring3 = s.substring(6, s.length() - 2);
                 String s3 = Utils.hexStringToString(substring3);
                 //                LogUtils.logBlueTooth( "onReceiveBytes: " + s3);
@@ -676,12 +679,32 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 }
                 BluetoothModel.getInstance().setBluetoothAddress(str.toString());
 
-                showToast(str.toString());
+                showToast("蓝牙地址："+str.toString());
 
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DEVICE_ID_07));
+                LogUtils.logBlueTooth("蓝牙地址:"+s);
+                break;
+
+            case "07":
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_TYPE_08));
+                LogUtils.logBlueTooth("设备唯一ID:"+s);
+                break;
+
+            case "08":
+
+                LogUtils.logBlueTooth("产品类型:"+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_POWER_STATUS_09));
+                break;
+
+            case "09":
+
+                LogUtils.logBlueTooth("电量:"+s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DIALOG_OP_50));
 
                 break;
+
             case "50":
+                LogUtils.logBlueTooth("弹窗开关："+s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SN_CODE_51));
                 String content50 = s.substring(6, 8);
                 runOnUiThread(new Runnable() {
@@ -697,6 +720,8 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 break;
             case "51":
+
+                LogUtils.logBlueTooth("SN码："+s);
                 String SNText = s.substring(6, s.length());
 
 
@@ -725,9 +750,63 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                     }
                 }
 
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_60));
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_VOICE_WAKE_52));
 
                 break;
+
+            case "52":
+                LogUtils.logBlueTooth("语音唤醒："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_NAME_54));
+                break;
+            case "54":
+                LogUtils.logBlueTooth("蓝牙名字："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHECK_IN_EAR_55));
+                break;
+            case "55":
+                LogUtils.logBlueTooth("自动入耳检测："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_AUTO_TYPE_56));
+                break;
+            case "56":
+                LogUtils.logBlueTooth("音效设置："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_GAME_MODEL_57));
+                break;
+
+            case "57":
+                LogUtils.logBlueTooth("游戏模式："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_AUDIO_SPACE_58));
+                break;
+
+            case "58":
+                LogUtils.logBlueTooth("空间音频："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_NOISE_CONTROL_59));
+                break;
+
+            case "59":
+                LogUtils.logBlueTooth("噪音控制："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_LONG_PRESS_LEFT_5A));
+
+                break;
+
+            case "5A":
+                LogUtils.logBlueTooth("按住左耳："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_LONG_PRESS_RIGHT_5B));
+                break;
+
+            case "5B":
+                LogUtils.logBlueTooth("按住右耳："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_LEFT_5C));
+                break;
+
+            case "5C":
+                LogUtils.logBlueTooth("双击左耳："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_RIGHT_5D));
+                break;
+
+            case "5D":
+                LogUtils.logBlueTooth("双击右耳："+s);
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_60));
+                break;
+
             case "60":
                 boolean isSN_0 = false;
                 String sn = SNShow.replace(" ", "");
