@@ -235,7 +235,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:checked="true"
+                    android:checked="false"
                     android:thumb="@drawable/thumb"
                     android:track="@drawable/track" />
 

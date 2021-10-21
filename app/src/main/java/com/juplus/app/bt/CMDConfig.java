@@ -105,11 +105,21 @@ public class CMDConfig {
     public static final String CMD_WRITE_DOUBLE_CLICK_LEFT = "C06C01";
     public static final String CMD_WRITE_DOUBLE_CLICK_RIGHT = "C06D01";
 
+    public static final String CMD_00 = "00";
     public static final String CMD_01 = "01";
     public static final String CMD_02 = "02";
     public static final String CMD_03 = "03";
     public static final String CMD_04 = "04";
     public static final String CMD_05 = "05";
+    public static final String CMD_06 = "06";
+    public static final String CMD_07 = "07";
+    public static final String CMD_08 = "08";
+    public static final String CMD_09 = "09";
+
+    public static final String PRODUCT_TYPE_TWS_2 = "tws公版二代";
+    public static final String PRODUCT_TYPE_TWS_3 = "tws公版三代";
+    public static final String PRODUCT_TYPE_TWS_S = "tws私模";
+    public static final String PRODUCT_TYPE_YP3 = "yp3";
 
 
     /**

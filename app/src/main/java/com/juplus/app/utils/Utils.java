@@ -32,6 +32,48 @@ public class Utils {
     }
 
     /**
+     * 10进制转16进制
+     * @param decimal
+     * @return
+     */
+    public static String decimalToHex(int decimal){
+        String hex = "";
+        while(decimal != 0){
+            int hexValue = decimal % 16;
+            hex = toHexChar(hexValue) + hex;
+            decimal = decimal / 16;
+        }
+
+        if(hex.length()==1){
+            hex=hex+"0";
+        }
+        return  hex;
+    }
+
+    public  static char toHexChar(int hexValue){
+        if(hexValue <= 9 && hexValue >= 0)
+            return (char)(hexValue + '0');
+        else
+            return (char)(hexValue - 10 + 'A');
+    }
+
+    /**
+     * 16进制转为10进制
+     * @param s
+     * @return
+     */
+    public static int hexToInt(String s) {
+        int i = 0, l = s.length(), n = 0;
+        while (i < l) {
+            int x = s.codePointAt(i);
+            n = n << 4 | (x > '9' ? x - ('A' - 10) : x - '0');
+            i += 1;
+        }
+        return n;
+    }
+
+
+    /**
      * 16进制字符串转换为字符串
      *
      * @param s
