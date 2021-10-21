@@ -11,6 +11,7 @@ import static com.juplus.app.bt.CMDConfig.CMD_READ_VERIFY_02;
 public class Utils {
 
     public static final String RANDOM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
     static {
         System.loadLibrary("native-lib");
     }
@@ -31,37 +32,19 @@ public class Utils {
         return str;
     }
 
-    /**
-     * 10进制转16进制
-     * @param decimal
-     * @return
-     */
-    public static String decimalToHex(int decimal){
-        String hex = "";
-        while(decimal != 0){
-            int hexValue = decimal % 16;
-            hex = toHexChar(hexValue) + hex;
-            decimal = decimal / 16;
+    public static String intToHex(int n) {
+
+        String num = Integer.toHexString(n);
+
+        if (num.length() == 1 && num.matches("[0-9]+")) {
+            num = "0" + num;
+        } else if (num.length() == 1 && num.matches("[A-Za-z]+")) {
+            num = num + "0";
         }
 
-        if(hex.length()==1){
-            hex=hex+"0";
-        }
-        return  hex;
+        return num;
     }
 
-    public  static char toHexChar(int hexValue){
-        if(hexValue <= 9 && hexValue >= 0)
-            return (char)(hexValue + '0');
-        else
-            return (char)(hexValue - 10 + 'A');
-    }
-
-    /**
-     * 16进制转为10进制
-     * @param s
-     * @return
-     */
     public static int hexToInt(String s) {
         int i = 0, l = s.length(), n = 0;
         while (i < l) {
@@ -71,7 +54,6 @@ public class Utils {
         }
         return n;
     }
-
 
     /**
      * 16进制字符串转换为字符串
@@ -94,8 +76,7 @@ public class Utils {
             }
         }
         try {
-            s = new String(baKeyword, "gbk");
-            new String();
+            s = new String(baKeyword, "utf-8");
         } catch (Exception e1) {
             e1.printStackTrace();
         }

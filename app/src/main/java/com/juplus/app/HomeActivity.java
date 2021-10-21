@@ -33,7 +33,7 @@ import com.juplus.app.entity.BluetoothModel;
 import com.juplus.app.entity.DeviceBean;
 import com.juplus.app.entity.SettingBean;
 import com.juplus.app.utils.AssetUtil;
-import com.juplus.app.utils.BytesUtils;
+import com.juplus.app.utils.Encode;
 import com.juplus.app.utils.LogUtils;
 import com.juplus.app.utils.SystemUtil;
 import com.juplus.app.utils.ToastUtil;
@@ -46,6 +46,7 @@ import com.juplus.app.widget.SettingActionListDialog;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -79,7 +80,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     @BindView(R.id.tv_right)
     TextView tvRightBattery;
     @BindView(R.id.tv_charge_box)
-    TextView tvChargeBox;
+    TextView tvBoxBattery;
     @BindView(R.id.tv_name)
     TextView tvName;
     @BindView(R.id.check_ear)
@@ -106,10 +107,10 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     RadioButton rbVentilateNoise;
 
     private Gson gson;
-    private List<SettingBean> earSettingBeans,doubleSettingBeans, audioSettingBeans, longPressSettingBeans;
+    private List<SettingBean> earSettingBeans, doubleSettingBeans, audioSettingBeans, longPressSettingBeans;
     private String SNShow;
     private String proType;
-    private String leftEarDialogSettingName,rightEarDialogSettingName;
+    private String leftEarDialogSettingName, rightEarDialogSettingName;
     private DeviceListDialog mDeviceListDialog;
     private ChangeNameDialog mChangeNameDialog;
     private SettingActionListDialog doubleSettingDialog, longSettingDialog, audioSettingDialog;
@@ -120,7 +121,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     private String mKeyData1;
     private String mKeyData2;
     private BluetoothDevice mBluetoothDevice;
-
 
 
     @Override
@@ -255,18 +255,28 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                         LogUtils.logBlueTooth("新名字:" + o);
 
-                        String hexString = Utils.stringToHexString(o);
+                        try {
+                            String hexString = Encode.encode(o,"GBK");
 
-                        LogUtils.logBlueTooth("名字16进制格式:" + hexString);
+                            String len = Utils.intToHex(hexString.length() / 2);
 
-                        String len = Utils.decimalToHex(hexString.length());
+                            LogUtils.logBlueTooth("名字16进制长度:" + len);
 
-                        LogUtils.logBlueTooth("名字16进制长度:" + len);
+                            String hexNameCmd = CMDConfig.CMD_WRITE_BT_NAME + len + hexString;
 
-                        String changName = CMDConfig.CMD_WRITE_BT_NAME + len + hexString;
+                            LogUtils.logBlueTooth("修改名字：" + hexNameCmd);
 
-                        LogUtils.logBlueTooth("修改名字：" + changName);
-                        mBluetoothSPPUtil.send(BytesUtils.hexStringToBytes(changName));
+                            byte[] cmdbyteArray = Utils.hexStringToByteArray(hexNameCmd);
+
+                            mBluetoothSPPUtil.send(cmdbyteArray);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+
+//                        LogUtils.logBlueTooth("名字16进制长度:" + hexString.length());
+
+
                     }
                 });
                 mChangeNameDialog.show();
@@ -288,7 +298,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
             case R.id.tv_left_setting:
 
-                if(earSettingBeans==null){
+                if (earSettingBeans == null) {
 
                     ToastUtil.showToast("获取蓝牙配置失败！");
                     earSettingBeans = longPressSettingBeans;
@@ -309,7 +319,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
             case R.id.tv_right_setting:
 
-                if(earSettingBeans==null){
+                if (earSettingBeans == null) {
 
                     ToastUtil.showToast("获取蓝牙配置失败！");
                     earSettingBeans = longPressSettingBeans;
@@ -614,7 +624,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     }
 
 
-
     /**
      * 当接收到 byte 数组
      *
@@ -624,16 +633,23 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     public void onReceiveBytes(byte[] bytes) {
         String s = Utils.bytesToHexString(bytes);
 
+        LogUtils.logBlueTooth("收到字节消息：" + Arrays.toString(bytes));
         LogUtils.logBlueTooth("收到消息：" + s);
 
         if (TextUtils.isEmpty(s)) {
             return;
         }
-        //if (s.length() < 4) {
-        //    //这里可能需要使用Macaddress来校验
-        //    showSuccess2();
-        //    return;
-        //}
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateUi(s);
+            }
+        });
+
+    }
+
+    private void updateUi(String s) {
         String code = s.substring(2, 4);
         switch (code) {
             case "01":
@@ -660,7 +676,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 break;
             case "02":
                 //校验响应
-                LogUtils.logBlueTooth("校验响应:原始数据 " + s);
 
                 boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
                 if (b) {
@@ -740,7 +755,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 LogUtils.logBlueTooth("产品类型:" + s);
 
-                proType = s.substring(6,8);
+                proType = s.substring(6, 8);
 
                 String typeName = "";
 
@@ -789,9 +804,43 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 if (powerInfo.length() == 6) {
 
-                    LogUtils.logBlueTooth("左耳电量 left power:" + Utils.hexToInt(powerInfo.substring(0, 2)));
-                    LogUtils.logBlueTooth("右耳电量 right power:" + Utils.hexToInt(powerInfo.substring(2, 4)));
-                    LogUtils.logBlueTooth("盒子电量 box power:" + Utils.hexToInt(powerInfo.substring(4, 6)));
+                    int left = Utils.hexToInt(powerInfo.substring(0, 2));
+                    int right = Utils.hexToInt(powerInfo.substring(2, 4));
+                    int box = Utils.hexToInt(powerInfo.substring(4, 6));
+
+                    if (left <= 25) {
+                        tvLeftBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_25, 0);
+                    } else if (25 < left && left < 50) {
+                        tvLeftBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_50, 0);
+                    } else if (50 < left && left < 75) {
+                        tvLeftBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_75, 0);
+                    } else if (left > 75) {
+                        tvLeftBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_100, 0);
+                    }
+
+                    if (right <= 25) {
+                        tvRightBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_25, 0);
+                    } else if (25 < right && right < 50) {
+                        tvRightBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_50, 0);
+                    } else if (50 < right && right < 75) {
+                        tvRightBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_75, 0);
+                    } else if (right > 75) {
+                        tvRightBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_100, 0);
+                    }
+
+                    if (box <= 25) {
+                        tvBoxBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_25, 0);
+                    } else if (25 < box && box < 50) {
+                        tvBoxBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_50, 0);
+                    } else if (50 < box && box < 75) {
+                        tvBoxBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_75, 0);
+                    } else if (box > 75) {
+                        tvBoxBattery.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.mipmap.icon_battery_100, 0);
+                    }
+
+                    LogUtils.logBlueTooth("左耳电量 left power:" + left);
+                    LogUtils.logBlueTooth("右耳电量 right power:" + right);
+                    LogUtils.logBlueTooth("盒子电量 box power:" + box);
                 }
 
                 break;
@@ -804,9 +853,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (content50.equals("01")) {
+                        if (content50.equals(CMD_01)) {
                             checkEar.setChecked(true);
-                        } else if (content50.equals("00")) {
+                        } else if (content50.equals(CMD_00)) {
                             checkEar.setChecked(false);
                         }
                     }
@@ -867,16 +916,14 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
             case "54":
                 LogUtils.logBlueTooth("蓝牙名字：" + s);
 
-                String blueToothName = Utils.hexStringToString(s.substring(6));
-                LogUtils.logBlueTooth("蓝牙名字：" + blueToothName);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvDeviceName.setText(blueToothName);
-                        tvName.setText(blueToothName);
-                    }
-                });
+                try {
+                    String blueToothName = Encode.decode(s.substring(6),"GBK");
+                    LogUtils.logBlueTooth("蓝牙名字：" + blueToothName);
+                    tvDeviceName.setText(blueToothName);
+                    tvName.setText(blueToothName);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHECK_IN_EAR_55));
                 break;
@@ -983,7 +1030,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 String press_left = s.substring(6, 8);
 
-                switch (press_left){
+                setSelected(press_left);
+
+                switch (press_left) {
                     case CMD_01:
                         tvLeftSetting.setText("语音唤醒");
                         break;
@@ -1001,19 +1050,27 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
             case "5B":
                 LogUtils.logBlueTooth("按住右耳：" + s);
 
-                String press_right = s.substring(6, 8);
 
-                switch (press_right){
-                    case CMD_01:
-                        tvRightSetting.setText("语音唤醒");
-                        break;
-                    case CMD_02:
-                        tvRightSetting.setText("噪声控制（降噪/通透）");
-                        break;
-                    case CMD_03:
-                        tvRightSetting.setText("噪声控制（降噪/通透/关闭）");
-                        break;
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String press_right = s.substring(6, 8);
+
+                        setSelected(press_right);
+
+                        switch (press_right) {
+                            case CMD_01:
+                                tvRightSetting.setText("语音唤醒");
+                                break;
+                            case CMD_02:
+                                tvRightSetting.setText("噪声控制（降噪/通透）");
+                                break;
+                            case CMD_03:
+                                tvRightSetting.setText("噪声控制（降噪/通透/关闭）");
+                                break;
+                        }
+                    }
+                });
 
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_LEFT_5C));
                 break;
@@ -1021,9 +1078,12 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
             case "5C":
                 LogUtils.logBlueTooth("双击左耳：" + s);
 
+
                 String double_left = s.substring(6, 8);
 
-                switch (double_left){
+                setSelected(double_left);
+
+                switch (double_left) {
                     case CMD_01:
                         tvLeftSetting.setText("关闭");
                         break;
@@ -1048,7 +1108,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 LogUtils.logBlueTooth("双击右耳：" + s);
                 String double_right = s.substring(6, 8);
 
-                switch (double_right){
+                setSelected(double_right);
+
+                switch (double_right) {
                     case CMD_01:
                         tvRightSetting.setText("关闭");
                         break;
@@ -1130,6 +1192,15 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
         }
     }
 
+    private void setSelected(String press_left) {
+        for (SettingBean settingBean : earSettingBeans) {
+            if (settingBean.code.equals(press_left)) {
+                settingBean.isSelected = true;
+                break;
+            }
+        }
+    }
+
     /**
      * 当调用接口发送了 byte 数组
      *
@@ -1137,7 +1208,6 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
      */
     @Override
     public void onSendBytes(byte[] bytes) {
-        //LogUtils.logBlueTooth( "onSendBytes: " + Utils.bytesToHexString(bytes));
         LogUtils.logBlueTooth("发送消息：" + Utils.bytesToHexString(bytes));
     }
 
