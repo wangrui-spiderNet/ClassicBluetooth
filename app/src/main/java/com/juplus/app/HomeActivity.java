@@ -69,6 +69,37 @@ import static com.juplus.app.bt.CMDConfig.CMD_02;
 import static com.juplus.app.bt.CMDConfig.CMD_03;
 import static com.juplus.app.bt.CMDConfig.CMD_04;
 import static com.juplus.app.bt.CMDConfig.CMD_05;
+import static com.juplus.app.bt.CMDConfig.CMD_06;
+import static com.juplus.app.bt.CMDConfig.CMD_07;
+import static com.juplus.app.bt.CMDConfig.CMD_08;
+import static com.juplus.app.bt.CMDConfig.CMD_09;
+import static com.juplus.app.bt.CMDConfig.CMD_50;
+import static com.juplus.app.bt.CMDConfig.CMD_51;
+import static com.juplus.app.bt.CMDConfig.CMD_52;
+import static com.juplus.app.bt.CMDConfig.CMD_54;
+import static com.juplus.app.bt.CMDConfig.CMD_55;
+import static com.juplus.app.bt.CMDConfig.CMD_56;
+import static com.juplus.app.bt.CMDConfig.CMD_57;
+import static com.juplus.app.bt.CMDConfig.CMD_58;
+import static com.juplus.app.bt.CMDConfig.CMD_59;
+import static com.juplus.app.bt.CMDConfig.CMD_5A;
+import static com.juplus.app.bt.CMDConfig.CMD_5B;
+import static com.juplus.app.bt.CMDConfig.CMD_5C;
+import static com.juplus.app.bt.CMDConfig.CMD_5D;
+import static com.juplus.app.bt.CMDConfig.CMD_60;
+import static com.juplus.app.bt.CMDConfig.CMD_61;
+import static com.juplus.app.bt.CMDConfig.CMD_62;
+import static com.juplus.app.bt.CMDConfig.CMD_63;
+import static com.juplus.app.bt.CMDConfig.CMD_64;
+import static com.juplus.app.bt.CMDConfig.CMD_65;
+import static com.juplus.app.bt.CMDConfig.CMD_66;
+import static com.juplus.app.bt.CMDConfig.CMD_67;
+import static com.juplus.app.bt.CMDConfig.CMD_68;
+import static com.juplus.app.bt.CMDConfig.CMD_69;
+import static com.juplus.app.bt.CMDConfig.CMD_6A;
+import static com.juplus.app.bt.CMDConfig.CMD_6B;
+import static com.juplus.app.bt.CMDConfig.CMD_6C;
+import static com.juplus.app.bt.CMDConfig.CMD_6D;
 import static com.juplus.app.utils.Encode.UTF_8;
 
 @SuppressLint("MissingPermission")
@@ -191,19 +222,19 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                     case R.id.rbLowNoise:
                         rbLowNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_low_noise_checked, 0, 0);
                         if (!hasDevice()) return;
-                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMD_02));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMD_01));
                         break;
 
                     case R.id.rbCloseNoise:
                         rbCloseNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_close_noise_checked, 0, 0);
                         if (!hasDevice()) return;
-                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMD_01));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMD_00));
                         break;
 
                     case R.id.rbVentilateNoise:
                         rbVentilateNoise.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.mipmap.icon_ventilate_checked, 0, 0);
                         if (!hasDevice()) return;
-                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMD_03));
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_WRITE_NOISE_CONTROL + CMD_02));
 
                         break;
                 }
@@ -653,7 +684,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
     private void updateUi(String s) {
         String code = s.substring(2, 4);
         switch (code) {
-            case "01":
+            case CMD_01:
                 //握手响应
                 String substring = s.substring(6, 10);
                 if (substring.equalsIgnoreCase("534C")) {
@@ -675,7 +706,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                     showToast("握手失败");
                 }
                 break;
-            case "02":
+            case CMD_02:
                 //校验响应
 
                 boolean b = Utils.verificationCmd(s, mKey2, mKeyData1, mKeyData2);
@@ -687,7 +718,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                     showToast("校验失败");
                 }
                 break;
-            case "03":
+            case CMD_03:
                 //芯片型号响应
                 LogUtils.logBlueTooth("芯片型号:" + s);
                 String substring1 = s.substring(6, s.length() - 2);
@@ -705,7 +736,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_MODEL_04));
 
                 break;
-            case "04":
+            case CMD_04:
                 //产品型号响应
                 LogUtils.logBlueTooth("产品型号:" + s);
                 String substring2 = s.substring(6, s.length() - 2);
@@ -716,7 +747,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 BluetoothModel.getInstance().setProductNumber(s2);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SOFTWARE_VERSION_05));
                 break;
-            case "05":
+            case CMD_05:
                 //软件版本响应
                 LogUtils.logBlueTooth("软件版本:" + s);
                 String substring3 = s.substring(6, s.length() - 2);
@@ -725,7 +756,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 BluetoothModel.getInstance().setSoftwareVersion(s3);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_ADDRESS_06));
                 break;
-            case "06":
+            case CMD_06:
                 //蓝牙地址响应
                 String substring4 = s.substring(6);
                 int len = substring4.length();
@@ -747,12 +778,12 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 LogUtils.logBlueTooth("蓝牙地址:" + s);
                 break;
 
-            case "07":
+            case CMD_07:
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_PRODUCT_TYPE_08));
                 LogUtils.logBlueTooth("设备唯一ID:" + s);
                 break;
 
-            case "08":
+            case CMD_08:
 
                 LogUtils.logBlueTooth("产品类型:" + s);
 
@@ -770,6 +801,9 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                         rightEarDialogSettingName = "右耳 轻按2次";
 
                         earSettingBeans = doubleSettingBeans;
+
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_LEFT_5C));
+
                         break;
 
                     case CMD_03:
@@ -780,6 +814,8 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                         earSettingBeans = longPressSettingBeans;
 
+
+                        mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_LONG_PRESS_LEFT_5A));
                         break;
 
                     case CMD_04:
@@ -793,10 +829,111 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                         break;
                 }
 
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_POWER_STATUS_09));
                 break;
 
-            case "09":
+            case CMD_5A://3代
+                LogUtils.logBlueTooth("按住左耳：" + s);
+
+                String press_left = s.substring(6, 8);
+
+                setSelected(press_left);
+
+                switch (press_left) {
+                    case CMD_01:
+                        tvLeftSetting.setText("语音唤醒");
+                        break;
+                    case CMD_02:
+                        tvLeftSetting.setText("噪声控制（降噪/通透）");
+                        break;
+                    case CMD_03:
+                        tvLeftSetting.setText("噪声控制（降噪/通透/关闭）");
+                        break;
+                }
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_LONG_PRESS_RIGHT_5B));
+                break;
+
+            case CMD_5B://3代
+                LogUtils.logBlueTooth("按住右耳：" + s);
+
+                String press_right = s.substring(6, 8);
+
+                setSelected(press_right);
+
+                switch (press_right) {
+                    case CMD_01:
+                        tvRightSetting.setText("语音唤醒");
+                        break;
+                    case CMD_02:
+                        tvRightSetting.setText("噪声控制（降噪/通透）");
+                        break;
+                    case CMD_03:
+                        tvRightSetting.setText("噪声控制（降噪/通透/关闭）");
+                        break;
+                }
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_POWER_STATUS_09));
+
+                break;
+
+            case CMD_5C://2代
+                LogUtils.logBlueTooth("双击左耳：" + s);
+
+
+                String double_left = s.substring(6, 8);
+
+                setSelected(double_left);
+
+                switch (double_left) {
+                    case CMD_01:
+                        tvLeftSetting.setText("关闭");
+                        break;
+                    case CMD_02:
+                        tvLeftSetting.setText("语音唤醒");
+                        break;
+                    case CMD_03:
+                        tvLeftSetting.setText("播放/暂停");
+                        break;
+                    case CMD_04:
+                        tvLeftSetting.setText("下一首");
+                        break;
+                    case CMD_05:
+                        tvLeftSetting.setText("上一首");
+                        break;
+                }
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_RIGHT_5D));
+                break;
+
+            case CMD_5D://2代
+                LogUtils.logBlueTooth("双击右耳：" + s);
+                String double_right = s.substring(6, 8);
+
+                setSelected(double_right);
+
+                switch (double_right) {
+                    case CMD_01:
+                        tvRightSetting.setText("关闭");
+                        break;
+                    case CMD_02:
+                        tvRightSetting.setText("语音唤醒");
+                        break;
+                    case CMD_03:
+                        tvRightSetting.setText("播放/暂停");
+                        break;
+                    case CMD_04:
+                        tvRightSetting.setText("下一首");
+                        break;
+                    case CMD_05:
+                        tvRightSetting.setText("上一首");
+                        break;
+                }
+
+                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_POWER_STATUS_09));
+
+                break;
+
+            case CMD_09:
 
                 LogUtils.logBlueTooth("电量:" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DIALOG_OP_50));
@@ -805,8 +942,8 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 if (powerInfo.length() == 6) {
 
-                    int left = Utils.hexToInt(powerInfo.substring(0, 2));
-                    int right = Utils.hexToInt(powerInfo.substring(2, 4));
+                    int right = Utils.hexToInt(powerInfo.substring(0, 2));
+                    int left = Utils.hexToInt(powerInfo.substring(2, 4));
                     int box = Utils.hexToInt(powerInfo.substring(4, 6));
 
                     if (left <= 25) {
@@ -845,25 +982,19 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 }
 
                 break;
-
-            case "50":
+            case CMD_50:
                 LogUtils.logBlueTooth("弹窗开关：" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_SN_CODE_51));
                 String content50 = s.substring(6, 8);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (content50.equals(CMD_01)) {
-                            checkEar.setChecked(true);
-                        } else if (content50.equals(CMD_00)) {
-                            checkEar.setChecked(false);
-                        }
-                    }
-                });
+                if (content50.equals(CMD_01)) {
+                    checkEar.setChecked(true);
+                } else if (content50.equals(CMD_00)) {
+                    checkEar.setChecked(false);
+                }
 
                 break;
-            case "51":
+            case CMD_51:
 
                 LogUtils.logBlueTooth("SN码：" + s);
 //                String SNText = s.substring(6, s.length());
@@ -898,23 +1029,16 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 break;
 
-            case "52":
+            case CMD_52:
                 LogUtils.logBlueTooth("语音唤醒：" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_BT_NAME_54));
 
                 // 00 - 关； 01 - 开；
                 String voice_up = s.substring(6, 8);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        checkSmart.setChecked(voice_up.equals("00") ? false : true);
-                    }
-                });
-
+                checkSmart.setChecked(voice_up.equals("00") ? false : true);
 
                 break;
-            case "54":
+            case CMD_54:
                 LogUtils.logBlueTooth("蓝牙名字：" + s);
 
                 try {
@@ -928,57 +1052,45 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_CHECK_IN_EAR_55));
                 break;
-            case "55":
+            case CMD_55:
                 LogUtils.logBlueTooth("自动入耳检测：" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_AUTO_TYPE_56));
 
                 // 00 - 关； 01 - 开；
                 String auto_check = s.substring(6, 8);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        checkEar.setChecked(auto_check.equals("00") ? false : true);
-                    }
-                });
+                checkEar.setChecked(auto_check.equals("00") ? false : true);
 
                 break;
-            case "56":
+            case CMD_56:
                 LogUtils.logBlueTooth("音效设置：" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_GAME_MODEL_57));
                 //01 – 近场环绕；02 – 清澈旋律；03 – 现场律动；04 – 宽广环绕；
 
                 String audio_setting = s.substring(6, 8);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                switch (audio_setting) {
+                    case CMD_01:
 
-                        switch (audio_setting) {
-                            case CMD_01:
+                        tvAudioType.setText("近场环绕");
+                        break;
 
-                                tvAudioType.setText("近场环绕");
-                                break;
+                    case CMD_02:
+                        tvAudioType.setText("清澈旋律");
+                        break;
 
-                            case CMD_02:
-                                tvAudioType.setText("清澈旋律");
-                                break;
+                    case CMD_03:
+                        tvAudioType.setText("现场律动");
+                        break;
 
-                            case CMD_03:
-                                tvAudioType.setText("现场律动");
-                                break;
+                    case CMD_04:
+                        tvAudioType.setText("宽广环绕");
+                        break;
 
-                            case CMD_04:
-                                tvAudioType.setText("宽广环绕");
-                                break;
-
-                        }
-                    }
-                });
+                }
 
                 break;
 
-            case "57":
+            case CMD_57:
                 LogUtils.logBlueTooth("游戏模式：" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_AUDIO_SPACE_58));
                 String game_model = s.substring(6, 8);
@@ -987,7 +1099,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 break;
 
-            case "58":
+            case CMD_58:
                 LogUtils.logBlueTooth("空间音频：" + s);
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_NOISE_CONTROL_59));
 
@@ -997,193 +1109,83 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
 
                 break;
 
-            case "59":
+            case CMD_59:
                 LogUtils.logBlueTooth("噪音控制：" + s);
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_LONG_PRESS_LEFT_5A));
 
                 String noise_control = s.substring(6, 8);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                switch (noise_control) {
+                    case CMD_00:
 
-                        switch (noise_control) {
-                            case CMD_00:
+                        rgNoiseManager.check(R.id.rbCloseNoise);
+                        break;
 
-                                rgNoiseManager.check(R.id.rbCloseNoise);
-                                break;
-
-                            case CMD_01:
-                                rgNoiseManager.check(R.id.rbLowNoise);
-                                break;
-
-                            case CMD_02:
-                                rgNoiseManager.check(R.id.rbVentilateNoise);
-                                break;
-
-                        }
-                    }
-                });
-
-                break;
-
-            case "5A":
-                LogUtils.logBlueTooth("按住左耳：" + s);
-
-                String press_left = s.substring(6, 8);
-
-                setSelected(press_left);
-
-                switch (press_left) {
                     case CMD_01:
-                        tvLeftSetting.setText("语音唤醒");
+                        rgNoiseManager.check(R.id.rbLowNoise);
                         break;
+
                     case CMD_02:
-                        tvLeftSetting.setText("噪声控制（降噪/通透）");
+                        rgNoiseManager.check(R.id.rbVentilateNoise);
                         break;
-                    case CMD_03:
-                        tvLeftSetting.setText("噪声控制（降噪/通透/关闭）");
-                        break;
-                }
 
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_LONG_PRESS_RIGHT_5B));
-                break;
-
-            case "5B":
-                LogUtils.logBlueTooth("按住右耳：" + s);
-
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String press_right = s.substring(6, 8);
-
-                        setSelected(press_right);
-
-                        switch (press_right) {
-                            case CMD_01:
-                                tvRightSetting.setText("语音唤醒");
-                                break;
-                            case CMD_02:
-                                tvRightSetting.setText("噪声控制（降噪/通透）");
-                                break;
-                            case CMD_03:
-                                tvRightSetting.setText("噪声控制（降噪/通透/关闭）");
-                                break;
-                        }
-                    }
-                });
-
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_LEFT_5C));
-                break;
-
-            case "5C":
-                LogUtils.logBlueTooth("双击左耳：" + s);
-
-
-                String double_left = s.substring(6, 8);
-
-                setSelected(double_left);
-
-                switch (double_left) {
-                    case CMD_01:
-                        tvLeftSetting.setText("关闭");
-                        break;
-                    case CMD_02:
-                        tvLeftSetting.setText("语音唤醒");
-                        break;
-                    case CMD_03:
-                        tvLeftSetting.setText("播放/暂停");
-                        break;
-                    case CMD_04:
-                        tvLeftSetting.setText("下一首");
-                        break;
-                    case CMD_05:
-                        tvLeftSetting.setText("上一首");
-                        break;
-                }
-
-                mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DOUBLE_CLICK_RIGHT_5D));
-                break;
-
-            case "5D":
-                LogUtils.logBlueTooth("双击右耳：" + s);
-                String double_right = s.substring(6, 8);
-
-                setSelected(double_right);
-
-                switch (double_right) {
-                    case CMD_01:
-                        tvRightSetting.setText("关闭");
-                        break;
-                    case CMD_02:
-                        tvRightSetting.setText("语音唤醒");
-                        break;
-                    case CMD_03:
-                        tvRightSetting.setText("播放/暂停");
-                        break;
-                    case CMD_04:
-                        tvRightSetting.setText("下一首");
-                        break;
-                    case CMD_05:
-                        tvRightSetting.setText("上一首");
-                        break;
                 }
 
                 break;
 
-            case "60":
+
+
+            case CMD_60:
                 LogUtils.logBlueTooth("弹窗开关：" + s);
                 break;
 
-            case "61":
+            case CMD_61:
                 LogUtils.logBlueTooth("SN码：" + s);
                 break;
 
-            case "62":
+            case CMD_62:
                 LogUtils.logBlueTooth("语音唤醒写入：" + s);
                 break;
 
-            case "63":
+            case CMD_63:
                 LogUtils.logBlueTooth("蓝牙地址写入：" + s);
                 break;
 
-            case "64":
+            case CMD_64:
                 LogUtils.logBlueTooth("蓝牙名字写入：" + s);
                 break;
 
-            case "65":
+            case CMD_65:
                 LogUtils.logBlueTooth("自动入耳检测写入：" + s);
                 break;
 
-            case "66":
+            case CMD_66:
                 LogUtils.logBlueTooth("音效设置：" + s);
                 break;
 
-            case "67":
+            case CMD_67:
                 LogUtils.logBlueTooth("游戏模式写入：" + s);
                 break;
 
-            case "68":
+            case CMD_68:
                 LogUtils.logBlueTooth("空间音频写入：" + s);
                 break;
 
-            case "69":
+            case CMD_69:
                 LogUtils.logBlueTooth("噪音控制写入：" + s);
                 break;
 
-            case "6A":
+            case CMD_6A:
                 LogUtils.logBlueTooth("按住左边耳机写入：" + s);
                 break;
 
-            case "6B":
+            case CMD_6B:
                 LogUtils.logBlueTooth("按住右边耳机写入：" + s);
                 break;
 
-            case "6C":
+            case CMD_6C:
                 LogUtils.logBlueTooth("轻点左边两下耳机写入：" + s);
                 break;
 
-            case "6D":
+            case CMD_6D:
                 LogUtils.logBlueTooth("轻点右边两下耳机写入：" + s);
                 break;
 

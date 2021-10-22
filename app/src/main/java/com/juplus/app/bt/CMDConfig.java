@@ -115,6 +115,35 @@ public class CMDConfig {
     public static final String CMD_07 = "07";
     public static final String CMD_08 = "08";
     public static final String CMD_09 = "09";
+    public static final String CMD_50 = "50";
+    public static final String CMD_51 = "51";
+    public static final String CMD_52 = "52";
+    public static final String CMD_53 = "53";
+    public static final String CMD_54 = "54";
+    public static final String CMD_55 = "55";
+    public static final String CMD_56 = "56";
+    public static final String CMD_57 = "57";
+    public static final String CMD_58 = "58";
+    public static final String CMD_59 = "59";
+    public static final String CMD_5A = "5A";
+    public static final String CMD_5B = "5B";
+    public static final String CMD_5C = "5C";
+    public static final String CMD_5D = "5D";
+    public static final String CMD_60 = "60";
+    public static final String CMD_61 = "61";
+    public static final String CMD_62 = "62";
+    public static final String CMD_63 = "63";
+    public static final String CMD_64 = "64";
+    public static final String CMD_65 = "65";
+    public static final String CMD_66 = "66";
+    public static final String CMD_67 = "67";
+    public static final String CMD_68 = "68";
+    public static final String CMD_69 = "69";
+    public static final String CMD_6A = "6A";
+    public static final String CMD_6B = "6B";
+    public static final String CMD_6C = "6C";
+    public static final String CMD_6D = "6D";
+
 
     public static final String PRODUCT_TYPE_TWS_2 = "tws公版二代";
     public static final String PRODUCT_TYPE_TWS_3 = "tws公版三代";
