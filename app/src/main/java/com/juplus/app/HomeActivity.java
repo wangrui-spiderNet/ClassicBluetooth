@@ -69,6 +69,7 @@ import static com.juplus.app.bt.CMDConfig.CMD_02;
 import static com.juplus.app.bt.CMDConfig.CMD_03;
 import static com.juplus.app.bt.CMDConfig.CMD_04;
 import static com.juplus.app.bt.CMDConfig.CMD_05;
+import static com.juplus.app.utils.Encode.UTF_8;
 
 @SuppressLint("MissingPermission")
 public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.OnBluetoothAction {
@@ -256,7 +257,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                         LogUtils.logBlueTooth("新名字:" + o);
 
                         try {
-                            String hexString = Encode.encode(o,"GBK");
+                            String hexString = Encode.encode(o,UTF_8);
 
                             String len = Utils.intToHex(hexString.length() / 2);
 
@@ -740,7 +741,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 }
                 BluetoothModel.getInstance().setBluetoothAddress(str.toString());
 
-                showToast("蓝牙地址：" + str.toString());
+//                showToast("蓝牙地址：" + str.toString());
 
                 mBluetoothSPPUtil.send(Utils.hexStringToByteArray(CMDConfig.CMD_READ_DEVICE_ID_07));
                 LogUtils.logBlueTooth("蓝牙地址:" + s);
@@ -917,7 +918,7 @@ public class HomeActivity extends AppCompatActivity implements BluetoothSPPUtil.
                 LogUtils.logBlueTooth("蓝牙名字：" + s);
 
                 try {
-                    String blueToothName = Encode.decode(s.substring(6),"GBK");
+                    String blueToothName = Encode.decode(s.substring(6),UTF_8);
                     LogUtils.logBlueTooth("蓝牙名字：" + blueToothName);
                     tvDeviceName.setText(blueToothName);
                     tvName.setText(blueToothName);

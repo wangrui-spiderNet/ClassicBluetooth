@@ -4,7 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
 public class Encode {
-    private static String hexString="0123456789ABCDEF";
+    private static final String hexString="0123456789ABCDEF";
+    public static final String  UTF_8="utf-8";
+    public static final String  GBK="GBK";
 
     public static void main(String[] args)throws UnsupportedEncodingException {
         String str = "维保日期123qwwe";
